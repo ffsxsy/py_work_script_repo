@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Excel 构建中间产物（最终 .xlsm 是否提交见各目录 README）
+fault_recording_parse_excel_template/can_fault_recording_template.xlsx
+
+# 本地输入（体积大或含内部数据时自备，不入库）
+McuCanMap_script/McuCanMap.xlsx
