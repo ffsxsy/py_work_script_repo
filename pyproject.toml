@@ -40,5 +40,15 @@ quote-style = "double"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["fault_recording_parse_excel_template", "McuCanMap_script"]
+pythonpath = ["."]
 addopts = "-q"
+
+[tool.pyright]
+pythonVersion = "3.13"
+include = ["fault_recording_parse_excel_template", "McuCanMap_script", "tests"]
+extraPaths = ["."]
+
+[tool.basedpyright]
+pythonVersion = "3.13"
+include = ["fault_recording_parse_excel_template", "McuCanMap_script", "tests"]
+extraPaths = ["."]

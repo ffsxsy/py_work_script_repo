@@ -7,13 +7,14 @@ Formulas avoid dynamic-array / LET / FILTER (365-only features).
 from __future__ import annotations
 
 import importlib.util
+import sys
 from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
 from typing import Protocol, cast
 
 from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.worksheet import Worksheet
@@ -30,11 +31,13 @@ def _load_sibling_module(module_name: str) -> ModuleType:
         msg = f"cannot load module from {path}"
         raise ImportError(msg)
     module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
     spec.loader.exec_module(module)
     return module
 
 
 _tv = _load_sibling_module("template_version")
+_ic = _load_sibling_module("instructions_content")
 META_RELEASE_DATE_CELL: str = _tv.META_RELEASE_DATE_CELL
 META_SUMMARY_CELL: str = _tv.META_SUMMARY_CELL
 META_VERSION_CELL: str = _tv.META_VERSION_CELL
@@ -42,6 +45,9 @@ TEMPLATE_RELEASE_DATE: str = _tv.TEMPLATE_RELEASE_DATE
 TEMPLATE_RELEASE_NOTES: tuple[str, ...] = _tv.TEMPLATE_RELEASE_NOTES
 TEMPLATE_RELEASE_SUMMARY: str = _tv.TEMPLATE_RELEASE_SUMMARY
 TEMPLATE_VERSION: str = _tv.TEMPLATE_VERSION
+INSTRUCTIONS_LAYOUT = _ic.INSTRUCTIONS_LAYOUT
+SECTION_TITLES: frozenset[str] = _ic.SECTION_TITLES
+_build_instructions_lines = _ic.build_instructions_lines
 
 CAN_IDS: tuple[str, ...] = (
     "0x1A960004",
@@ -55,19 +61,13 @@ MAX_ROWS = 3200
 SAMPLES = 500
 FONT = Font(name="Calibri", size=11, color="404040")
 HEADER_FONT = Font(name="Calibri", bold=True, size=10)
-UI_TITLE_FONT = Font(name="Calibri", bold=True, size=16, color="FFFFFF")
-UI_SUBTITLE_FONT = Font(name="Calibri", size=10, color="595959")
-UI_HEADER_FILL = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
-ACTION_PANEL_FILL = PatternFill(start_color="F6F8FA", end_color="F6F8FA", fill_type="solid")
-ACTION_LABEL_FONT = Font(name="Calibri", bold=True, size=11, color="24292F")
-ACTION_HINT_FONT = Font(name="Calibri", size=9, color="57606A")
-_THIN_BORDER_SIDE = Side(style="thin", color="D0D7DE")
-ACTION_PANEL_BORDER = Border(
-    left=_THIN_BORDER_SIDE,
-    right=_THIN_BORDER_SIDE,
-    top=_THIN_BORDER_SIDE,
-    bottom=_THIN_BORDER_SIDE,
-)
+UI_TITLE_FONT = Font(name="Calibri", bold=True, size=18, color="FFFFFF")
+UI_HEADER_FILL = PatternFill(start_color="203764", end_color="203764", fill_type="solid")
+UI_SECTION_FONT = Font(name="Calibri", bold=True, size=11, color="24292F")
+UI_META_FONT = Font(name="Calibri", size=10, color="595959")
+UI_SUMMARY_FONT = Font(name="Calibri", size=10, italic=True, color="595959")
+UI_BULLET_FONT = Font(name="Calibri", size=10, color="404040")
+UI_BODY_FILL = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
 
 
 def _style_header(ws: Worksheet, row: int, cols: int) -> None:
@@ -82,16 +82,6 @@ def _int16_formula(b0_col: str, b1_col: str, row: int) -> str:
     return f'=IF(Raw!A{row}="","",IF({raw}>=32768,{raw}-65536,{raw}))'
 
 
-def _apply_action_panel_style(
-    ws: Worksheet, min_row: int, max_row: int, min_col: int, max_col: int
-) -> None:
-    for row in range(min_row, max_row + 1):
-        for col in range(min_col, max_col + 1):
-            cell = ws.cell(row=row, column=col)
-            cell.fill = ACTION_PANEL_FILL
-            cell.border = ACTION_PANEL_BORDER
-
-
 def _write_template_meta(ws: Worksheet) -> None:
     """Hidden column G + named ranges for VBA (TemplateVersion, etc.)."""
     ws[META_VERSION_CELL] = TEMPLATE_VERSION
@@ -99,6 +89,29 @@ def _write_template_meta(ws: Worksheet) -> None:
     ws[META_SUMMARY_CELL] = TEMPLATE_RELEASE_SUMMARY
     ws.column_dimensions["G"].hidden = True
     ws.column_dimensions["G"].width = 2
+
+
+def _instruction_line_style(text: str) -> tuple[Font, int]:
+    """Map Instructions line text to font and row height."""
+    layout = INSTRUCTIONS_LAYOUT
+    if text in SECTION_TITLES:
+        return UI_SECTION_FONT, layout.section_row_height
+    if text.startswith("Version ") or text.startswith("Released "):
+        return UI_META_FONT, layout.meta_row_height
+    if text == TEMPLATE_RELEASE_SUMMARY:
+        return UI_SUMMARY_FONT, layout.meta_row_height
+    if text.startswith("· "):
+        return UI_BULLET_FONT, layout.bullet_row_height
+    if text == "":
+        return FONT, layout.section_gap_height
+    return FONT, layout.body_row_height
+
+
+def _apply_instructions_body_fill(ws: Worksheet, first_row: int, last_row: int) -> None:
+    col_count = INSTRUCTIONS_LAYOUT.content_col_count
+    for row in range(first_row, last_row + 1):
+        for col in range(1, col_count + 1):
+            ws.cell(row=row, column=col).fill = UI_BODY_FILL
 
 
 def _define_template_names(wb: Workbook) -> None:
@@ -119,82 +132,45 @@ def _define_template_names(wb: Workbook) -> None:
 
 
 def _write_instructions(ws: Worksheet) -> None:
+    layout = INSTRUCTIONS_LAYOUT
     _write_template_meta(ws)
 
-    ws.merge_cells("A1:F1")
+    last_col = get_column_letter(layout.content_col_count)
+    ws.merge_cells(f"A1:{last_col}1")
     title = ws["A1"]
-    title.value = "CAN Fault Recording"
+    title.value = layout.title
     title.font = UI_TITLE_FONT
     title.fill = UI_HEADER_FILL
-    title.alignment = Alignment(horizontal="left", vertical="center", indent=1)
-    ws.row_dimensions[1].height = 34
+    title.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = layout.title_row_height
+    ws.row_dimensions[layout.gap_row].height = layout.section_gap_height
 
-    ws["A2"] = (
-        f"v{TEMPLATE_VERSION} · released {TEMPLATE_RELEASE_DATE} · "
-        f"{SUPPORTED_EXCEL_NOTE} · macros required"
+    lines = _build_instructions_lines(
+        version=TEMPLATE_VERSION,
+        release_date=TEMPLATE_RELEASE_DATE,
+        summary=TEMPLATE_RELEASE_SUMMARY,
+        release_notes=TEMPLATE_RELEASE_NOTES,
     )
-    ws["A2"].font = UI_SUBTITLE_FONT
-
-    ws.merge_cells("D2:F2")
-    ws["D2"] = "Import recording"
-    ws["D2"].font = ACTION_LABEL_FONT
-    ws["D2"].alignment = Alignment(horizontal="left", vertical="center", indent=1)
-    ws.merge_cells("D5:F5")
-    ws["D5"] = "Select a CAN fault recording .csv file"
-    ws["D5"].font = ACTION_HINT_FONT
-    ws["D5"].alignment = Alignment(horizontal="left", vertical="top", indent=1)
-    _apply_action_panel_style(ws, 2, 5, 4, 6)
-
-    lines: list[str] = [
-        "",
-        "About this template",
-        f"Version {TEMPLATE_VERSION}",
-        f"Released {TEMPLATE_RELEASE_DATE}",
-        TEMPLATE_RELEASE_SUMMARY,
-        *(f"· {note}" for note in TEMPLATE_RELEASE_NOTES),
-        "",
-        "Quick start",
-        "1. Enable macros when opening this workbook.",
-        "2. Use Import CSV (panel top-right) and choose a recording file.",
-        "   Comment lines (#…) and the can_id header row are skipped automatically.",
-        "3. Re-import replaces all previous Raw data.",
-        "4. Watch the status bar at the bottom for import progress.",
-        "5. If import fails, open sheet ImportLog for details.",
-        "",
-        "Sheets",
-        "· Parsed — int16 channels filled by macro",
-        "· Plot_* — four charts per CAN ID (500 points each)",
-        "· Alt+F8 → RebuildAllPlotCharts if charts look wrong after import",
-        "",
-        "int16 = high byte × 256 + low byte (signed). Example: 0x01,0xF6 → 502.",
-        "Grouping is by can_id in file order (not fixed 6-row blocks).",
-    ]
-    section_titles = {"About this template", "Quick start", "Sheets"}
-    start_row = 3
+    start_row = layout.doc_start_row
     for offset, text in enumerate(lines):
         row = start_row + offset
         cell = ws.cell(row=row, column=1, value=text)
-        if text in section_titles:
-            cell.font = Font(name="Calibri", bold=True, size=11, color="24292F")
-        elif text.startswith("Version ") or text.startswith("Released "):
-            cell.font = Font(name="Calibri", size=10, color="595959")
-        elif text == TEMPLATE_RELEASE_SUMMARY:
-            cell.font = Font(name="Calibri", size=10, italic=True, color="595959")
-        elif text.startswith("· "):
-            cell.font = Font(name="Calibri", size=10, color="404040")
-        else:
-            cell.font = FONT
+        cell.alignment = Alignment(vertical="top", wrap_text=True)
+        line_font, line_height = _instruction_line_style(text)
+        cell.font = line_font
+        ws.row_dimensions[row].height = line_height
 
-    ws.column_dimensions["A"].width = 68
-    ws.column_dimensions["B"].width = 4
-    ws.column_dimensions["C"].width = 4
-    ws.column_dimensions["D"].width = 12
-    ws.column_dimensions["E"].width = 12
-    ws.column_dimensions["F"].width = 12
-    ws.row_dimensions[2].height = 20
-    ws.row_dimensions[3].height = 18
-    ws.row_dimensions[4].height = 28
-    ws.row_dimensions[5].height = 18
+    last_doc_row = start_row + len(lines) - 1
+    _apply_instructions_body_fill(ws, layout.gap_row, last_doc_row)
+
+    # Freeze title row only (A3 would draw a pane line between gap row 2 and body row 3).
+    ws.freeze_panes = layout.freeze_panes
+    ws.sheet_properties.tabColor = layout.tab_color
+    ws.column_dimensions["A"].width = layout.col_a_width
+    ws.column_dimensions["B"].width = layout.col_gap_width
+    ws.column_dimensions["C"].width = layout.col_gap_width
+    for col_idx in range(4, layout.content_col_count + 1):
+        ws.column_dimensions[get_column_letter(col_idx)].width = layout.col_action_width
 
 
 def _write_import_log(ws: Worksheet) -> None:
@@ -428,17 +404,23 @@ class _ExcelWorkbookCom(Protocol):
     def Worksheets(self, name: str) -> _ExcelWorksheetCom: ...
 
 
-def _add_import_csv_button(ws: _ExcelWorksheetCom) -> None:
-    """Primary action button in the Instructions action panel."""
+def _remove_shapes_named(ws: _ExcelWorksheetCom, names: tuple[str, ...]) -> None:
     for shape in list(ws.Shapes):
-        if shape.Name == "btnImportCsv":
+        if shape.Name in names:
             shape.Delete()
-    anchor = ws.Range("D3:F4")
+
+
+def _add_import_csv_float_ui(ws: _ExcelWorksheetCom) -> None:
+    """Single floating Import button (Office-style accent; right of first section)."""
+    _remove_shapes_named(ws, ("importActionCard", "btnImportCsv", "importCsvHint"))
+
+    layout = INSTRUCTIONS_LAYOUT
+    anchor = ws.Range(layout.float_btn_anchor)
     left = float(anchor.Left)
-    top = float(anchor.Top)
     width = float(anchor.Width)
-    height = float(anchor.Height)
-    # msoShapeRoundedRectangle = 5
+    top = float(anchor.Top)
+    height = layout.btn_height_pt
+
     btn = ws.Shapes.AddShape(5, left, top, width, height)
     btn.Name = "btnImportCsv"
     btn.OnAction = "ImportCanFaultCsv"
@@ -450,8 +432,8 @@ def _add_import_csv_button(ws: _ExcelWorksheetCom) -> None:
     tf.TextRange.Font.Bold = True
     tf.TextRange.Font.Size = 12
     tf.TextRange.Font.Fill.ForeColor.RGB = _excel_rgb(255, 255, 255)
-    tf.VerticalAnchor = 3  # msoAnchorMiddle
-    tf.HorizontalAnchor = 2  # msoAnchorCenter
+    tf.VerticalAnchor = 3
+    tf.HorizontalAnchor = 2
     tf.MarginLeft = 6
     tf.MarginRight = 6
     tf.MarginTop = 4
@@ -476,10 +458,13 @@ def _set_workbook_release_metadata(wb: _ExcelWorkbookCom) -> None:
 
 
 def _polish_instructions_sheet(ws: _ExcelWorksheetCom) -> None:
-    """Hide gridlines and leave focus on content, not cell grid."""
+    """Dashboard polish: no gridlines, 100% zoom, freeze title row only."""
     ws.Activate()
-    ws.Application.ActiveWindow.DisplayGridlines = False
-    ws.Range("A3").Select()
+    window = ws.Application.ActiveWindow
+    window.DisplayGridlines = False
+    window.Zoom = 100
+    ws.Range(INSTRUCTIONS_LAYOUT.freeze_panes).Select()
+    window.FreezePanes = True
 
 
 def _embed_vba_and_button(xlsx_path: Path, xlsm_path: Path) -> None:
@@ -514,7 +499,7 @@ def _embed_vba_and_button(xlsx_path: Path, xlsm_path: Path) -> None:
                 break
 
         instructions = cast(_ExcelWorksheetCom, wb.Worksheets("Instructions"))
-        _add_import_csv_button(instructions)
+        _add_import_csv_float_ui(instructions)
         _polish_instructions_sheet(instructions)
         _set_workbook_release_metadata(cast(_ExcelWorkbookCom, wb))
 

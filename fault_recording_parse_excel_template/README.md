@@ -10,7 +10,7 @@
 
 | 项 | 值 |
 | :--- | :--- |
-| 版本号 | **1.1.0** |
+| 版本号 | **1.0.1** |
 | 发布日期 | **2026-05-21** |
 | 说明 | CAN 故障录制 CSV 导入与分析；Instructions 仪表盘 UI；导入性能与 ImportLog 修复 |
 
@@ -19,6 +19,7 @@
 | 文件 | 作用 |
 | :--- | :--- |
 | `template_version.py` | **版本单一来源**：版本号、发布日期、发布说明（Instructions 与 xlsm 元数据） |
+| `instructions_content.py` | Instructions 正文文案与布局常量（`InstructionsLayout`） |
 | `build_can_fault_excel_template.py` | 生成工作表结构、表头、Dashboard 下拉、Plot 表布局 |
 | `can_fault_import.bas` | VBA 源码：导入 CSV、填 Parsed、填 Plot 数据、重建图表 |
 | `setup_and_build_excel_template.ps1` | 设置 Excel `AccessVBOM` 并调用 build |
@@ -49,7 +50,7 @@ flowchart LR
 1. 打开上述 `.xlsx`
 2. 删除旧模块 **CanFaultImport**（若存在），导入 `can_fault_import.bas` 并命名为 **CanFaultImport**
 3. 在 **ThisWorkbook** 写入 `Workbook_Open`（空表时提示导入）
-4. 在 **Instructions** 右上操作区（D2:F5）添加 **蓝色** 圆角按钮 **Import CSV…**（浅灰面板 + 标题/说明文字），`OnAction = ImportCanFaultCsv`；隐藏网格线
+4. 在 **Instructions** **右侧浮动**仅 **Import CSV…** 按钮；标题下第 2 行为窄间隔（8pt），说明自第 3 行起；浅灰底、**仅冻结标题行**（避免第 2–3 行间窗格实线）、隐藏网格线。UI 约定见 [docs/excel-tool-ui-guidelines.md](./docs/excel-tool-ui-guidelines.md)
 5. 另存为 **`can_fault_recording_template.xlsm`**（格式 52 = xlsm）
 
 修改 VBA 后：关闭 Excel，运行 `repair_vba_module.ps1` 或完整重跑 build。
