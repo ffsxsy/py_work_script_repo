@@ -19,14 +19,12 @@ htmlcov/
 # IDE / OS
 .idea/
 .vscode/
-.cursor/
+# Cursor：忽略本地会话/命令，但保留可共享的 rules
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 *.swp
 *~
 .DS_Store
 Thumbs.db
 
-# Excel 构建中间产物（最终 .xlsm 是否提交见各目录 README）
-fault_recording_parse_excel_template/can_fault_recording_template.xlsx
-
-# 本地输入（体积大或含内部数据时自备，不入库）
-McuCanMap_script/McuCanMap.xlsx

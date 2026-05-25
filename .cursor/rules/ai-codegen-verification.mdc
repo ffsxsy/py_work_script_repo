@@ -1,0 +1,22 @@
+---
+description: AI 生成代码完成前必须跑的校验命令
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# AI 生成 / 修改 Python 后的验收
+
+1. 阅读 `AGENTS.md`、`docs/cursor-3.5-ai-coding-rules.md` 与根目录 `pyproject.toml`。
+2. 在仓库根执行并通过（顺序不可省略）：
+
+```bash
+uv sync
+uv run ruff check .
+uv run ruff format --check .
+uv run ty check
+uv run pytest -q
+```
+
+3. 类型注解与库调用须符合 `codegen-python-standards.mdc`（**当前 3.13 推荐写法**，非旧 `typing` 惯用法）。
+4. 新功能须增加或更新 `tests/` 下 pytest；禁止只改实现不补测试（除非用户明确只要脚本、不要测试）。
+5. 遗留代码尚未全绿时：至少保证**本次改动文件**无新增 ruff/ty 问题；全仓清零可作为独立任务。

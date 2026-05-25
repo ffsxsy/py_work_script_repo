@@ -7,13 +7,14 @@
 | 目录 | 说明 | 文档 |
 | :--- | :--- | :--- |
 | [fault_recording_parse_excel_template](./fault_recording_parse_excel_template/) | 构建 CAN 故障录制分析用 Excel 模板（`.xlsm`，含 VBA 导入 CSV） | [README](./fault_recording_parse_excel_template/README.md) |
-| [McuCanMap_script](./McuCanMap_script/) | 从 `McuCanMap.xlsx` 生成 PCS 配置 CSV 与 C 结构体 | [docs/](./McuCanMap_script/docs/) |
+| [McuCanMap_script](./McuCanMap_script/) | 从 `McuCanMap.xlsx` 生成 PCS 配置 CSV 与 C 结构体 | [README](./McuCanMap_script/README.md)、[docs/](./McuCanMap_script/docs/) |
 
 进入对应目录查看运行环境与命令。
 
 ## 仓库约定
 
-- **依赖**：各目录自行 `pip install`（见各目录 `README`）；根目录不提供统一 `pyproject.toml`。
+- **环境与依赖**：仓库根用 **uv** + `.python-version`（当前 Python **3.13**）；`uv sync` 安装 `dev`、`fault-recording`、`mcu-can-map` 三组依赖。各工具目录另有 `requirements.txt`。
+- **AI 生成代码**：规范 [docs/cursor-3.5-ai-coding-rules.md](./docs/cursor-3.5-ai-coding-rules.md)；**当前做法** [docs/ai-coding-setup-practice.md](./docs/ai-coding-setup-practice.md)；验收 [AGENTS.md](./AGENTS.md)。修改 Python 后须通过 `ruff` + `ty` + `pytest`。
 - **提交物**：以各目录 `README` 为准（源脚本、文档；生成物是否入库由该工具说明）。
 - **新增工具**：在根目录新建**平级文件夹**，在本表增加一行链接，并在该文件夹内写完整 `README.md`。
 

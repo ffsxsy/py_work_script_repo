@@ -1,0 +1,27 @@
+---
+description: PowerShell 构建脚本规则（Excel 模板构建等）
+globs: "**/*.ps1"
+alwaysApply: false
+---
+
+# PowerShell 规则
+
+## 1) 范围（MUST）
+
+- 脚本须在**所在工具目录**内自包含；路径优先 `$PSScriptRoot`，避免写死本机绝对路径。
+- 调用 Python 时使用 `python` 或 `py`，并在 README 中说明前置条件。
+
+## 2) 质量（MUST）
+
+- 关键步骤检查退出码；失败时 `exit 1` 或非零退出。
+- 注册表 / Excel COM 等系统操作须在 README 说明风险（如 `AccessVBOM`）。
+- 示例调用：`powershell -ExecutionPolicy Bypass -File .\setup_and_build_excel_template.ps1`
+
+## 3) 与 Python 协作
+
+- 改 `fault_recording_parse_excel_template` 的 PS 构建链后，提示用户按该目录 README 重跑 build 或 `repair_vba_module.ps1`。
+
+## 4) DoD
+
+- [ ] 使用相对路径或 `$PSScriptRoot`
+- [ ] 失败路径有明确错误信息

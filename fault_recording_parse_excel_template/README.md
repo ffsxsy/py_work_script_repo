@@ -23,7 +23,7 @@
 | `can_fault_import.bas` | VBA 源码：导入 CSV、填 Parsed、填 Plot 数据、重建图表 |
 | `setup_and_build_excel_template.ps1` | 设置 Excel `AccessVBOM` 并调用 build |
 | `repair_vba_module.ps1` | Excel 关闭后 **重建 xlsx + 重嵌 VBA** 到 xlsm |
-| `can_fault_recording_template.xlsx` | 构建中间产物（无宏） |
+| `can_fault_recording_template.xlsx` | 构建中间产物（无宏，**已纳入 Git**；重跑 build 会覆盖） |
 | `can_fault_recording_template.xlsm` | **最终模板**（含宏与按钮） |
 
 ## 生成流程
@@ -64,15 +64,23 @@ flowchart LR
 
 | 项 | 要求 |
 | :--- | :--- |
-| Python | 3.x（仓库未锁版本；假定 3.11+） |
+| Python | **3.13**（仓库根 [`.python-version`](../.python-version)，由 uv 管理） |
 | 依赖 | `openpyxl`、`pywin32`（仅构建 xlsm 阶段） |
 | Excel | Windows 桌面版 2016 / 2019 / 2021 / Microsoft 365 |
 | 安全 | 构建前需 **AccessVBOM=1**（`setup_and_build_excel_template.ps1` 会写注册表） |
 
-安装依赖示例：
+### 依赖安装（推荐 uv，在仓库根）
 
 ```powershell
-pip install openpyxl pywin32
+cd <仓库根>
+uv sync
+# 或仅本工具：uv sync --group fault-recording
+```
+
+仅本目录、用 pip 时：
+
+```powershell
+pip install -r fault_recording_parse_excel_template/requirements.txt
 ```
 
 ## CSV 输入格式

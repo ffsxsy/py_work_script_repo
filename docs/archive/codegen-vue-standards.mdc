@@ -1,0 +1,56 @@
+---
+description: Vue 代码生成规则（本仓库暂无前端；恢复时移回 .cursor/rules/）
+globs: "**/*.{vue,ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# Vue 代码生成规则
+
+> [!NOTE]
+> 本文件自 `.cursor/rules/` 移出，因当前 monorepo 无 Vue 工程。新建 Web 子项目时可复制回 `.cursor/rules/codegen-vue-standards.mdc`。
+
+## 1) 版本锚点（MUST）
+
+- 生成代码前先读取（若存在）：`package.json`、`pnpm-lock.yaml`、`package-lock.json`、`yarn.lock`。
+- 版本优先级：锁文件与项目声明版本 > 明确假定版本；无法确认时必须写出“假定版本”。
+- 版本不明时，不使用实验特性或不稳定语法。
+
+## 2) Vue 与 TypeScript 规范（MUST）
+
+- 默认 Vue 3 + Composition API + `<script setup>`。
+- `props`、`emits`、状态与函数返回值必须显式类型化，避免隐式 `any`。
+- 组件命名使用 PascalCase。
+- API 调用统一封装在 `services` 层并做统一错误处理。
+- 复杂函数（组件方法、`composables`、服务层函数）必须提供注释或 JSDoc，至少包含：入参约束、出参/副作用、返回值语义、异常或失败条件。
+
+## 3) 安全与可维护性（MUST）
+
+- 优先当前版本推荐 API，禁止已废弃 API。
+- 示例代码必须完整可运行，包含必要异常处理与边界处理。
+- 禁止直接渲染不可信 `innerHTML`；所有输入必须校验与清洗。
+- 优先小组件、低耦合、可复用逻辑（`composables`）。
+- 优先稳定 API，避免已废弃或迁移中的接口。
+
+## 4) CI 与测试（MUST）
+
+- 推荐基线：`eslint` + `prettier` + `vitest`（单测）+ `playwright`（系统测试）。
+- CI 基线命令（新增/修改后应优先通过）：`eslint`、`prettier --check`、`vitest`。
+- 关键用户流程应提供系统测试或端到端测试用例。
+- 测试质量至少覆盖：边界值、异常路径、回归场景；关键交互需包含失败态断言。
+- 结果必须给出命令执行顺序，便于直接接入 CI。
+
+## 5) 固定输出模板（MUST）
+
+- 输出顺序：版本依据 -> 运行环境 -> 依赖安装 -> 完整代码 -> 运行命令 -> 校验命令 -> 风险与限制。
+- 运行环境必须写明：Node 版本、包管理器与关键依赖版本（来自锁文件或显式假定）。
+
+## 6) Definition of Done（DoD）
+
+- [ ] 已明确版本依据（锁文件/项目声明或显式假定）。
+- [ ] 已给出运行/校验命令与执行顺序（可直接接入 CI）。
+- [ ] 已说明测试覆盖边界值、异常路径、回归场景（关键交互含失败态断言）。
+
+## 7) 变更日志（Changelog）
+
+- 2026-05-25：移入 `docs/archive/`，本仓库默认不加载。
+- 2026-04-23：初版。

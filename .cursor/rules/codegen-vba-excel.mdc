@@ -1,0 +1,23 @@
+---
+description: Excel VBA 模块规则（CAN 故障录制模板等）
+globs: "**/*.{bas,vbs}"
+alwaysApply: false
+---
+
+# VBA / Excel 规则
+
+## 1) 环境（MUST）
+
+- 目标：**Windows 桌面 Excel**（2016 / 2019 / 2021 / Microsoft 365）。
+- `.bas` 源码由 Python + win32com 嵌入 `.xlsm`；改 VBA 后须关闭 Excel 再跑 `repair_vba_module.ps1` 或完整 build（见 `fault_recording_parse_excel_template/README.md`）。
+
+## 2) 修改原则（MUST）
+
+- 与 `build_can_fault_excel_template.py` 工作表名、列布局保持一致。
+- 版本展示与 `template_version.py` 单一来源对齐。
+- 性能敏感路径保持批量写入，避免逐单元格循环。
+
+## 3) DoD
+
+- [ ] 已说明需重跑 build / repair 脚本
+- [ ] 未破坏 Import CSV 与 ImportLog 流程

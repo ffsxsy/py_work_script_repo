@@ -1,0 +1,4 @@
+# 本工具运行时 / 构建依赖（Windows + Excel 构建 xlsm 需 pywin32）
+# 仓库根目录推荐：uv sync --group fault-recording
+openpyxl>=3.1.5
+pywin32>=306

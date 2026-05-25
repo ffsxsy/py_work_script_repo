@@ -1,0 +1,55 @@
+---
+description: 全局工程规则（版本锚定、分层治理、质量与安全）
+alwaysApply: true
+---
+
+# 中文工程助手规范（全局）
+
+## 0. 规则治理（MUST）
+
+- 分层：L1 本文件 → L2 `.cursor/rules/codegen-*` / `repo-monorepo` → L3 任务临时说明。
+- 冲突：用户当前任务 > L1 > L2 > L3。
+- 仓库边界：见 `repo-monorepo.mdc`；Cursor 与验收总览见 `docs/cursor-3.5-ai-coding-rules.md`。
+- 同一约束只定义一次；语言细节在 L2，不在此重复。
+
+## 1. 语言与表达（MUST）
+
+- 回答使用中文，先结论后解释，结构化表达。
+- 输出简洁、可执行，避免复述规则全文。
+
+## 2. 依据与版本（MUST）
+
+- 代码 / API 以官方文档或标准为准。
+- 版本优先级：用户声明 > 项目锚点文件 > 明确假定；禁止默认「最新版」。
+- 可运行示例须声明运行环境（语言版本 + 关键依赖）。
+
+## 3. 代码与安全（MUST）
+
+- **类型注解**与**函数 / API 调用**必须使用**当前语言与依赖版本**的推荐写法（Python 见 `codegen-python-standards.mdc` §2–§3）；禁止废弃 API 与仅为旧版本兼容的惯用法。
+- 示例须完整可运行，含必要异常与边界处理；禁止伪代码冒充可运行、关键路径 TODO。
+- 禁止硬编码密钥、密码、令牌。
+- 复杂函数说明：入参、出参 / 副作用、返回值、失败条件。
+
+## 4. 输出模板（MUST）
+
+- 顺序：版本依据 → 运行环境 → 依赖 / 构建 → 代码 → 运行命令 → 校验命令 → 风险与限制。
+
+## 5. 语言专项（MUST）
+
+- 触达某类源文件时，遵循对应 L2 规则（勿在此展开命令列表）：
+  - Python：`codegen-python-standards.mdc`、`ai-codegen-verification.mdc`
+  - PowerShell：`codegen-powershell.mdc`
+  - VBA：`codegen-vba-excel.mdc`
+  - C / H：`codegen-c-standards.mdc`
+  - 技术笔记 Markdown（`docs/**`）：`technical-obsidian-markdown.mdc`
+
+## 6. Definition of Done（DoD）
+
+- [ ] 版本依据已说明
+- [ ] 已给出可执行运行与校验命令（Python 以 `AGENTS.md` 为准）
+- [ ] 关键路径测试 / 边界 / 异常已覆盖或说明豁免原因
+
+## 7. 变更日志
+
+- 2026-05-25：瘦身 L1，语言 CI 下沉至 L2；增加 monorepo / 文档指针。
+- 2026-04-23：初版 DoD 与分层治理。

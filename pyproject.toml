@@ -1,0 +1,44 @@
+# 开发工具元配置：uv 虚拟环境与各子项目依赖组。
+# 各顶层工具目录仍为独立项目，将来可整目录拆仓。
+
+[project]
+name = "py-work-script-repo-dev"
+version = "0.0.0"
+description = "Dev tooling and shared uv groups for py_work_script_repo monorepo"
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+    "ty>=0.0.1a",
+    "pytest>=8",
+]
+# fault_recording_parse_excel_template：构建 xlsx/xlsm
+fault-recording = [
+    "openpyxl>=3.1.5",
+    "pywin32>=306",
+]
+# McuCanMap_script：从 xlsx 生成 CSV / C
+mcu-can-map = [
+    "openpyxl>=3.1.5",
+]
+
+[tool.uv]
+default-groups = ["dev", "fault-recording", "mcu-can-map"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["fault_recording_parse_excel_template", "McuCanMap_script", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["fault_recording_parse_excel_template", "McuCanMap_script"]
+addopts = "-q"

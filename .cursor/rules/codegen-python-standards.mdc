@@ -1,0 +1,69 @@
+---
+description: Python 代码生成规则（版本锚点与类型质量）
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python 代码生成规则
+
+## 1) 版本锚点（MUST）
+
+- 生成前读取：根目录 `pyproject.toml`、`uv.lock`、`.python-version`；子项目 `requirements.txt`。
+- 环境：`uv sync`（含 `dev` + `fault-recording` + `mcu-can-map` 组）；Python 以 `.python-version` 为准。
+- 不得默认「最新版」库 API。`pywin32` 在 `fault-recording` 组，仅构建 xlsm 需要。
+
+## 2) 类型注解（MUST — 当前 Python 推荐写法）
+
+- **必须**为参数、返回值、模块变量、类属性注解；依据 `.python-version` / `requires-python`（本仓库 **3.13**）选用**该版本推荐**语法，禁止沿用旧版惯用法。
+- **推荐**（3.10+ / 3.13）：
+  - 联合：`str | None`，不用 `Optional[str]`、`Union[str, None]`
+  - 泛型：`list[str]`、`dict[str, int]`，不用 `typing.List`、`typing.Dict`
+  - 只读 / 可变：`typing.ReadOnly`、`TypeAlias`（按需）；复杂协议用 `Protocol`
+  - 数据：`@dataclass`、`TypedDict`、`Enum`、`Final`
+- **禁止**（无充分理由）：`Any`、`# type: ignore`、`# pyright: ignore`；仅为「少写注解」而省略。
+- 第三方库类型：优先使用库自带或官方 stubs；调用签名须与**当前锁定版本**（`uv.lock`）一致。
+
+## 3) 函数与 API 调用（MUST — 当前版本推荐用法）
+
+- **标准库与依赖**：只使用**当前 Python / 当前包版本**文档中的推荐 API；**禁止**已废弃（deprecated）或文档标明将移除的接口。
+- 新增代码不得引入仅为兼容更老 Python 的写法（本仓库 `requires-python >=3.13,<3.14`）。
+- 示例（原则，非穷举）：
+
+```python
+# ✅ 3.13 推荐
+def load_ids(path: Path) -> list[int]: ...
+value: str | None = row.get("id")
+items = dict.fromkeys(keys, 0)
+
+# ❌ 避免（旧惯用法 / 已弃用路径）
+from typing import Optional, List
+def load_ids(path) -> List[int]: ...
+value: Optional[str] = row.get("id")
+```
+
+- 复杂函数须有 docstring 或说明：入参、出参 / 副作用、返回值、异常。
+
+## 4) 代码质量（MUST）
+
+- 完整可运行；复杂逻辑拆分函数；与 §2、§3 一致。
+
+## 5) 校验与测试（MUST）
+
+- 验收命令与顺序见 **`ai-codegen-verification.mdc`** 与 [AGENTS.md](../../AGENTS.md)；不得未跑通即声称完成。
+- 新增 / 变更功能须在 `tests/` 或工具目录下补 pytest（用户明确不要测试时除外）。
+
+## 6) 输出模板（MUST）
+
+- 版本依据 → 运行环境 → 依赖安装 → 代码 → 运行 → 校验 → 风险。
+
+## 7) DoD
+
+- [ ] Python 版本依据已说明
+- [ ] 类型注解与 API 调用符合**当前 3.13 推荐写法**（非旧版 `typing` 堆叠）
+- [ ] 已通过 `ai-codegen-verification` 所列命令或说明遗留豁免范围
+
+## 8) 变更日志
+
+- 2026-05-25：强调类型注解与函数调用须用当前版本推荐 API / 语法。
+- 2026-05-25：验收命令合并至 `ai-codegen-verification.mdc`；锚定 `uv.lock`。
+- 2026-04-23：初版。
