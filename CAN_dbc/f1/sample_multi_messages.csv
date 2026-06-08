@@ -1,0 +1,4 @@
+message_name,frame_id,length,sender,is_extended_frame,is_fd,cycle_time,bus_name,protocol,strict,unused_bit_pattern,send_type,comment,header_id,header_byte_order
+A1_EnvData,0x101,8,A1,,,100,CAN1,,true,0,,A类设备实例A1,
+A2_EnvData,0x102,8,A2,,,100,CAN1,,true,0,,A类设备实例A2,
+B1_EnvData,0x201,8,B1,,,100,CAN1,,true,0,,B类设备实例B1,

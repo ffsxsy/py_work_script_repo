@@ -1,0 +1,3 @@
+设备类型,报文名称,帧ID,ID步进,DLC字节,周期ms,信号名称,起始位,位长度,字节序,有符号,单位,比例,偏移,浮点解码,型号备注
+A类温湿度,EnvData,0x101,1,8,100,温度,0,16,little_endian,false,degC,0.1,-40,false,厂商A型温湿度模块
+A类温湿度,EnvData,0x101,1,8,100,湿度,16,16,little_endian,false,%RH,0.1,0,false,厂商A型温湿度模块

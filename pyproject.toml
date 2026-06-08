@@ -9,6 +9,9 @@ requires-python = ">=3.13,<3.14"
 dependencies = []
 
 [dependency-groups]
+can-dbc = [
+    "cantools>=41.4.0",
+]
 dev = [
     "ruff>=0.9",
     "ty>=0.0.1a",
@@ -25,7 +28,7 @@ mcu-can-map = [
 ]
 
 [tool.uv]
-default-groups = ["dev", "fault-recording", "mcu-can-map"]
+default-groups = ["dev", "fault-recording", "mcu-can-map", "can-dbc"]
 
 [tool.ruff]
 target-version = "py313"

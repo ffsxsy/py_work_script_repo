@@ -1,0 +1,7 @@
+message_name,name,start,length,byte_order,is_signed,unit,raw_initial,scale,offset,is_float
+A1_EnvData,Temperature,0,16,little_endian,false,degC,0,0.1,-40,false
+A1_EnvData,Humidity,16,16,little_endian,false,%RH,0,0.1,0,false
+A2_EnvData,Temperature,0,16,little_endian,false,degC,0,0.1,-40,false
+A2_EnvData,Humidity,16,16,little_endian,false,%RH,0,0.1,0,false
+B1_EnvData,Temperature,0,16,little_endian,false,degC,0,0.1,-40,false
+B1_EnvData,Pressure,16,16,little_endian,false,kPa,0,0.01,0,false

@@ -17,8 +17,9 @@ uv run python --version   # 应显示 3.13.x
 | `dev` | 全仓 | `ruff`、`ty`、`pytest` |
 | `fault-recording` | `fault_recording_parse_excel_template/` | `openpyxl`、`pywin32` |
 | `mcu-can-map` | `McuCanMap_script/` | `openpyxl` |
+| `can-dbc` | `CAN_dbc/` | `cantools` |
 
-各子目录另有 [requirements.txt](./fault_recording_parse_excel_template/requirements.txt) 便于 pip 或拆仓后单独安装。
+各子目录另有 `requirements.txt`（如 [fault_recording_parse_excel_template/requirements.txt](./fault_recording_parse_excel_template/requirements.txt)、[CAN_dbc/requirements.txt](./CAN_dbc/requirements.txt)）便于 pip 或拆仓后单独安装。
 
 ## Python 代码要求（MUST）
 
