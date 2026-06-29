@@ -6,21 +6,37 @@ BMS2.0 Wireshark 插件 — Windows 快速安装
   帮助 → 关于 → 文件夹 → Personal Lua Plugins
   常见：%APPDATA%\Wireshark\plugins
 
-【2】复制 8 个 lua 文件
-  bms20_msg_map.lua
-  bms20_payload_enabled.lua
-  bms20_payload.lua
-  bms20_payload_BBMS_SumInfo.lua
-  bms20_payload_BBMS_Fault.lua
-  bms20_payload_BBMS_CtlWord.lua
-  bms20_payload_TMS_SumInfo.lua
-  bms20_v2.lua
+【2】复制全部 bms20_*.lua（缺一不可，推荐直接复制整个目录下所有匹配文件）
+  核心：bms20_v2.lua、bms20_msg_map.lua、bms20_payload.lua、bms20_payload_enabled.lua
+  故障：bms20_fault.lua、bms20_fault_defs.lua、bms20_fault_enabled.lua
+  Payload 字段表（须全部复制）：
+    bms20_payload_BBMS_SumInfo.lua
+    bms20_payload_RBMS_SumInfo.lua
+    bms20_payload_RBMS_Volt.lua
+    bms20_payload_RBMS_Temp.lua
+    bms20_payload_RBMS_CellBalSt.lua
+    bms20_payload_RBMS_CellSdr.lua
+    bms20_payload_RBMS_Debug.lua
+    bms20_payload_RBMS_SOXdebugData1.lua
+    bms20_payload_RBMS_SOXdebugData2.lua
+    bms20_payload_BBMS_A_Selfdr.lua
+    bms20_payload_BBMS_CtlWord.lua
+    bms20_payload_TMS_SumInfo.lua
+    bms20_payload_ParaThr_CellV.lua
+    bms20_payload_BBMS_Fault.lua
+    bms20_payload_manifest.lua   ← 字段表加载清单（必装）
 
-【3】分析 → 重新加载 Lua Plugins
+【3】分析 → 重新加载 Lua Plugins（更新文件后必须 Reload）
 
 【4】验证
-  过滤器：bms20 或 tcp.port == 5002
-  BBMS_SumInfo / BBMS_Fault / BBMS_CtlWord / TMS_SumInfo 应展开信号子树
+  过滤器：bms20 或 tcp.port >= 5001 && tcp.port <= 5014
+  （5001=HMI，5002=BBMS，5003 起=RBMS 第 1 簇 TCP Server，后续每簇 +1）
+  RBMS_SumInfo / RBMS_Volt / RBMS_Temp / RBMS_CellBalSt / RBMS_CellSdr /
+  RBMS_Debug / RBMS_SOXdebugData1 / RBMS_SOXdebugData2 应展开信号子树
+  ParaThr_CellV（0x03:0x0A 读 / 0x0B 写，36B）应展开 18 个电压阈值字段
+  写入应答（0x03:0x0B + 1B）应显示 Write State（0=成功，1=失败）
+  （Debug=30B / SOXdebug1=60B / SOXdebug2=63B，字段表来自 LAN Matrix V1.0.50）
+  故障包（RBMS_Fault / BBMS_Fault (M核) / BBMS_A_Fault (A核)）应展开 Active Faults
 
 性能：大抓包可在 编辑→首选项→Protocols→BMS2.0 关闭 Parse Payload；
 或编辑 bms20_payload_enabled.lua 减少白名单消息。

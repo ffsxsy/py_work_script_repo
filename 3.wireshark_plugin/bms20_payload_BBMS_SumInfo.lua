@@ -4,7 +4,7 @@
 bms20_payload_defs = bms20_payload_defs or {}
 
 bms20_payload_defs["BBMS_SumInfo"] = {
-    total_bytes = 127,
+    total_bytes = 130,
     signals = {
         {
             name = "BBMS_BatSt",
@@ -32,6 +32,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "3-4",
+            array_count = 1,
         },
         {
             name = "BBMS_PmtRkFltNum",
@@ -41,6 +42,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "5-6",
+            array_count = 1,
         },
         {
             name = "BBMS_SetInverterSt",
@@ -59,6 +61,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "8-9",
+            array_count = 1,
         },
         {
             name = "BBMS_CntrSt",
@@ -68,6 +71,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "10-11",
+            array_count = 1,
         },
         {
             name = "BBMS_SOC",
@@ -95,6 +99,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "14-15",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxDisChrgE",
@@ -104,6 +109,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "16-17",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxContChrgPower",
@@ -113,6 +119,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "18-19",
+            array_count = 1,
         },
         {
             name = "BBMS_Max60sChrgPower",
@@ -122,6 +129,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "20-21",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxContDisChrgPower",
@@ -131,6 +139,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "22-23",
+            array_count = 1,
         },
         {
             name = "BBMS_Max60sDisChrgPower",
@@ -140,6 +149,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "24-25",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxContChrgCur",
@@ -149,6 +159,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "26-27",
+            array_count = 1,
         },
         {
             name = "BBMS_Max60sChrgCur",
@@ -158,6 +169,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "28-29",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxContDisChrgCur",
@@ -167,6 +179,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "30-31",
+            array_count = 1,
         },
         {
             name = "BBMS_Max60sDisChrgCur",
@@ -176,6 +189,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = 0,
             byte_hint = "32-33",
+            array_count = 1,
         },
         {
             name = "BBMS_HumSensorRH",
@@ -185,6 +199,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = 0,
             byte_hint = "34-35",
+            array_count = 1,
         },
         {
             name = "BBMS_TmpSensorRH",
@@ -194,6 +209,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "36-37",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_WtrSt",
@@ -212,6 +229,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "39-40",
+            array_count = 1,
         },
         {
             name = "BBMS_DCBusV",
@@ -221,6 +239,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.5,
             off = 0,
             byte_hint = "41-42",
+            array_count = 1,
         },
         {
             name = "BBMS_TotalDCCur",
@@ -230,6 +249,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = -4000,
             byte_hint = "43-44",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_TotalPower",
@@ -239,6 +260,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "45-46",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxRackCur",
@@ -248,6 +270,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = -2000,
             byte_hint = "47-48",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MaxCurRackNr",
@@ -266,6 +290,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.125,
             off = -2000,
             byte_hint = "50-51",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MinCurRackNr",
@@ -284,6 +310,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "53-54",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxVCellRackNr",
@@ -320,6 +347,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "58-59",
+            array_count = 1,
         },
         {
             name = "BBMS_MinVCellRackNr",
@@ -356,6 +384,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "63-64",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxHvBoxTRackNr",
@@ -473,6 +502,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "77-78",
+            array_count = 1,
         },
         {
             name = "BBMS_IsoRNeg",
@@ -482,6 +512,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "79-80",
+            array_count = 1,
         },
         {
             name = "BBMS_AccuChrgC",
@@ -491,6 +522,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "81-84",
+            array_count = 1,
         },
         {
             name = "BBMS_AccuChrgE",
@@ -500,6 +532,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "85-88",
+            array_count = 1,
         },
         {
             name = "BBMS_AccuDisChrgC",
@@ -509,6 +542,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "89-92",
+            array_count = 1,
         },
         {
             name = "BBMS_AccuDisChrgE",
@@ -518,6 +552,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "93-96",
+            array_count = 1,
         },
         {
             name = "BBMS_LstChEkWh",
@@ -527,6 +562,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "97-98",
+            array_count = 1,
         },
         {
             name = "BBMS_LstDchEkWh",
@@ -536,6 +572,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "99-100",
+            array_count = 1,
         },
         {
             name = "BBMS_RackEnaNbr",
@@ -572,6 +609,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "104-105",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxDisChrgCap",
@@ -581,6 +619,7 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "106-107",
+            array_count = 1,
         },
         {
             name = "BBMS_MaxHvBoxTDegC",
@@ -590,6 +629,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "108-109",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MinHvBoxTDegC",
@@ -599,6 +640,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "110-111",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MaxCellT",
@@ -608,6 +651,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "112-113",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MinCellT",
@@ -617,6 +662,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "114-115",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_AvgCellT",
@@ -626,6 +673,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "116-117",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MaxPoleT",
@@ -635,6 +684,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "118-119",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MinPoleT",
@@ -644,6 +695,8 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 0.1,
             off = -40,
             byte_hint = "120-121",
+            array_count = 1,
+            signed = true,
         },
         {
             name = "BBMS_MaxPoleTRackNr",
@@ -698,6 +751,43 @@ bms20_payload_defs["BBMS_SumInfo"] = {
             res = 1,
             off = 0,
             byte_hint = "127",
+        },
+        {
+            name = "BBMSNo",
+            desc = "Bank Number 堆编号",
+            start_bit = 1016,
+            bit_len = 4,
+            res = 1,
+            off = 0,
+            byte_hint = "128",
+        },
+        {
+            name = "BBMS_StartReConDectFlg",
+            desc = "Rack Anti-Reverse Connection Detection Start Flag 簇防反接检测开始标志位",
+            start_bit = 1020,
+            bit_len = 1,
+            res = 1,
+            off = 0,
+            byte_hint = "128",
+        },
+        {
+            name = "Reserved",
+            desc = "Reserved 预留占位",
+            start_bit = 1021,
+            bit_len = 3,
+            res = 1,
+            off = 0,
+            byte_hint = "128",
+        },
+        {
+            name = "BBMS_ReverConRackFailNbr",
+            desc = "HV Box And Busbar Cabinet reverse connection cluster 高压盒与汇流柜反接簇编号",
+            start_bit = 1024,
+            bit_len = 16,
+            res = 1,
+            off = 0,
+            byte_hint = "129-130",
+            array_count = 1,
         },
     },
 }

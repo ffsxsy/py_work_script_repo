@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Generate Lua payload definition files from BMS2.0 LAN Matrix Comm Matrix sheet."""
+
 from __future__ import annotations
 
 import argparse
@@ -10,15 +11,33 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-XLSX = ROOT / "BMS2.0 LAN Matrix V1.0.44.xlsx"
+MATRIX_VERSION = "V1.0.50"
+MATRIX_XLSX_NAME = f"BMS2.0 LAN Matrix {MATRIX_VERSION}.xlsx"
+MATRIX_CANDIDATES = (
+    ROOT / MATRIX_XLSX_NAME,
+    ROOT.parent / "4.rbms_tcp_sim" / "docs" / MATRIX_XLSX_NAME,
+)
+XLSX = next((path for path in MATRIX_CANDIDATES if path.is_file()), None)
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 ARRAY_NAME_RE = re.compile(r"^(.+)\[(\d+)\]$")
+BRACKET_SUFFIX_RE = re.compile(r"^(.+)\[[^\]]+\]$")
+BYTE_HINT_RANGE_RE = re.compile(r"^(\d+)-(\d+)$")
 DEFAULT_PAYLOAD_MESSAGES = [
     "BBMS_SumInfo",
-    "BBMS_Fault",
+    "RBMS_SumInfo",
+    "RBMS_Volt",
+    "RBMS_Temp",
+    "RBMS_CellBalSt",
+    "RBMS_CellSdr",
+    "RBMS_Debug",
+    "RBMS_SOXdebugData1",
+    "RBMS_SOXdebugData2",
+    "BBMS_A_Selfdr",
     "BBMS_CtlWord",
     "TMS_SumInfo",
+    "ParaThr_CellV",
 ]
+PAYLOAD_MANIFEST_EXTRAS: tuple[str, ...] = ("BBMS_Fault",)
 
 
 @dataclass(frozen=True)
@@ -31,6 +50,7 @@ class SignalDef:
     offset: float
     byte_hint: str
     array_count: int = 0
+    signed: bool = False
 
 
 @dataclass(frozen=True)
@@ -69,6 +89,49 @@ def parse_int(value: object, default: int = 0) -> int:
     return int(parse_number(value, float(default)))
 
 
+def array_count_from_byte_hint(byte_hint: str, bit_length: int) -> int:
+    match = BYTE_HINT_RANGE_RE.match(byte_hint.strip())
+    if match is None or bit_length <= 0:
+        return 0
+    start_byte = int(match.group(1))
+    end_byte = int(match.group(2))
+    byte_span = end_byte - start_byte + 1
+    if byte_span <= 0:
+        return 0
+    if bit_length == 1:
+        return byte_span * 8
+    if bit_length % 8 != 0:
+        return 0
+    element_bytes = bit_length // 8
+    if byte_span % element_bytes != 0:
+        return 0
+    return byte_span // element_bytes
+
+
+def strip_bracket_suffix(signal_name: str) -> str:
+    bracket_match = BRACKET_SUFFIX_RE.match(signal_name)
+    if bracket_match is not None:
+        return bracket_match.group(1)
+    return signal_name
+
+
+def is_signed_signal(
+    bit_length: int,
+    signal_min: float,
+    description: str,
+) -> bool:
+    """16-bit 有符号判定：Matrix「Signal Min. Value (Valid)」< 0 时为 Int16。
+
+    负 offset 不等于有符号：例如 ScSOCA_AccuCapAh（offset -3000, min 0）为 Uint16，
+    raw 可超过 32767，须按无符号解析。
+    """
+    if bit_length != 16:
+        return False
+    if signal_min < 0:
+        return True
+    return "int16" in description.lower()
+
+
 def load_comm_matrix_rows(xlsx_path: Path) -> dict[int, dict[int, object]]:
     with zipfile.ZipFile(xlsx_path) as archive:
         shared_strings: list[str] = []
@@ -76,19 +139,28 @@ def load_comm_matrix_rows(xlsx_path: Path) -> dict[int, dict[int, object]]:
             shared_strings.append("".join((node.text or "") for node in item.findall(".//m:t", NS)))
 
         rel_ns = {"r": "http://schemas.openxmlformats.org/package/2006/relationships"}
-        rel_map = {
-            rel.get("Id"): rel.get("Target")
-            for rel in ET.fromstring(archive.read("xl/_rels/workbook.xml.rels")).findall(
-                "r:Relationship", rel_ns
-            )
-        }
+        rel_map: dict[str, str] = {}
+        for rel in ET.fromstring(archive.read("xl/_rels/workbook.xml.rels")).findall(
+            "r:Relationship", rel_ns
+        ):
+            rel_id = rel.get("Id")
+            target = rel.get("Target")
+            if rel_id is not None and target is not None:
+                rel_map[rel_id] = target
 
         workbook = ET.fromstring(archive.read("xl/workbook.xml"))
         for sheet in workbook.findall(".//m:sheets/m:sheet", NS):
             if sheet.get("name") != "Comm Matrix":
                 continue
-            rel_id = sheet.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
-            sheet_xml = ET.fromstring(archive.read("xl/" + rel_map[rel_id]))
+            rel_id = sheet.get(
+                "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+            )
+            if rel_id is None:
+                continue
+            sheet_target = rel_map.get(rel_id)
+            if sheet_target is None:
+                continue
+            sheet_xml = ET.fromstring(archive.read("xl/" + sheet_target))
             rows: dict[int, dict[int, object]] = {}
             for cell in sheet_xml.findall(".//m:sheetData/m:row/m:c", NS):
                 cell_ref = cell.get("r", "")
@@ -96,7 +168,11 @@ def load_comm_matrix_rows(xlsx_path: Path) -> dict[int, dict[int, object]]:
                 value_node = cell.find("m:v", NS)
                 if value_node is None or value_node.text is None:
                     continue
-                raw = shared_strings[int(value_node.text)] if cell.get("t") == "s" else value_node.text
+                raw = (
+                    shared_strings[int(value_node.text)]
+                    if cell.get("t") == "s"
+                    else value_node.text
+                )
                 rows.setdefault(row, {})[col_to_idx(col_row(cell_ref)[0])] = raw
             return rows
     raise FileNotFoundError("Comm Matrix sheet not found")
@@ -136,13 +212,18 @@ def extract_message_defs(rows: dict[int, dict[int, object]]) -> dict[str, Messag
             continue
         description = str(cols.get(3, "")).strip().replace("\n", " ")
         bit_length = parse_int(cols.get(6, ""), 0)
+        byte_hint = str(cols.get(4, "")).strip()
+        offset = parse_number(cols.get(8, ""), 0.0)
+        signal_min = parse_number(cols.get(9, ""), 0.0)
         array_match = ARRAY_NAME_RE.match(signal_name)
         array_count = 0
         field_name = signal_name
         if array_match is not None and bit_length == 1:
             field_name = array_match.group(1)
             array_count = int(array_match.group(2))
-            bit_length = array_count
+        else:
+            field_name = strip_bracket_suffix(signal_name)
+            array_count = array_count_from_byte_hint(byte_hint, bit_length)
         current_signals.append(
             SignalDef(
                 name=field_name,
@@ -150,9 +231,10 @@ def extract_message_defs(rows: dict[int, dict[int, object]]) -> dict[str, Messag
                 start_bit=parse_int(cols.get(5, ""), 0),
                 bit_length=bit_length,
                 resolution=parse_number(cols.get(7, ""), 1.0),
-                offset=parse_number(cols.get(8, ""), 0.0),
-                byte_hint=str(cols.get(4, "")).strip(),
+                offset=offset,
+                byte_hint=byte_hint,
                 array_count=array_count,
+                signed=is_signed_signal(bit_length, signal_min, description),
             )
         )
     flush()
@@ -170,7 +252,6 @@ def format_float(value: float) -> str:
 
 
 def render_message_lua(message: MessagePayloadDef) -> str:
-    safe_name = re.sub(r"[^A-Za-z0-9_]", "_", message.message_name)
     lines = [
         f"-- Auto-generated payload defs for {message.message_name}",
         f"-- Regenerate: python3 gen_payload_defs.py --message {message.message_name}",
@@ -192,18 +273,63 @@ def render_message_lua(message: MessagePayloadDef) -> str:
         lines.append(f'            byte_hint = "{lua_escape(signal.byte_hint)}",')
         if signal.array_count > 0:
             lines.append(f"            array_count = {signal.array_count},")
+        if signal.signed:
+            lines.append("            signed = true,")
         lines.append("        },")
-    lines.extend([
-        "    },",
-        "}",
-        "",
-    ])
+    lines.extend(
+        [
+            "    },",
+            "}",
+            "",
+        ]
+    )
     return "\n".join(lines)
+
+
+def resolve_matrix_xlsx(explicit: Path | None = None) -> Path:
+    if explicit is not None:
+        if not explicit.is_file():
+            raise FileNotFoundError(f"LAN Matrix not found: {explicit}")
+        return explicit
+    if XLSX is None or not XLSX.is_file():
+        raise FileNotFoundError(
+            f"LAN Matrix {MATRIX_XLSX_NAME} not found; expected one of: "
+            + ", ".join(str(path) for path in MATRIX_CANDIDATES)
+        )
+    return XLSX
 
 
 def output_path_for_message(message_name: str) -> Path:
     safe = message_name.replace(" ", "_")
     return ROOT / f"bms20_payload_{safe}.lua"
+
+
+def manifest_message_names() -> list[str]:
+    names = list(DEFAULT_PAYLOAD_MESSAGES)
+    for extra in PAYLOAD_MANIFEST_EXTRAS:
+        if extra not in names:
+            names.append(extra)
+    return names
+
+
+def render_payload_manifest_lua() -> str:
+    lines = [
+        "-- Auto-generated payload def loader manifest",
+        "-- Regenerate: python3 gen_payload_defs.py --default-set",
+        "",
+        "return {",
+    ]
+    for message_name in manifest_message_names():
+        safe = message_name.replace(" ", "_")
+        lines.append(f'    "bms20_payload_{safe}.lua",')
+    lines.extend(["}", ""])
+    return "\n".join(lines)
+
+
+def write_payload_manifest() -> Path:
+    manifest_path = ROOT / "bms20_payload_manifest.lua"
+    manifest_path.write_text(render_payload_manifest_lua(), encoding="utf-8")
+    return manifest_path
 
 
 def main() -> None:
@@ -220,15 +346,25 @@ def main() -> None:
         action="store_true",
         help="Generate default enabled payload messages",
     )
+    parser.add_argument(
+        "--xlsx",
+        type=Path,
+        default=None,
+        help=f"LAN Matrix xlsx path (default: {MATRIX_XLSX_NAME} only)",
+    )
     args = parser.parse_args()
 
-    rows = load_comm_matrix_rows(XLSX)
+    matrix_xlsx = resolve_matrix_xlsx(args.xlsx)
+    rows = load_comm_matrix_rows(matrix_xlsx)
     all_defs = extract_message_defs(rows)
 
     if args.all:
         selected = sorted(all_defs.keys())
     elif args.default_set:
         selected = list(DEFAULT_PAYLOAD_MESSAGES)
+        for extra in PAYLOAD_MANIFEST_EXTRAS:
+            if extra not in selected:
+                selected.append(extra)
     elif args.messages:
         selected = args.messages
     else:
@@ -241,7 +377,10 @@ def main() -> None:
         payload = all_defs[message_name]
         out_path = output_path_for_message(message_name)
         out_path.write_text(render_message_lua(payload), encoding="utf-8")
-        print(f"Generated {len(payload.signals)} signals -> {out_path}")
+        print(f"Generated {len(payload.signals)} signals -> {out_path} (from {matrix_xlsx.name})")
+
+    manifest_path = write_payload_manifest()
+    print(f"Updated payload manifest -> {manifest_path}")
 
 
 if __name__ == "__main__":

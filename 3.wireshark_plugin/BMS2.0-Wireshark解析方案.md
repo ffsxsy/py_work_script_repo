@@ -11,10 +11,16 @@ status: implemented
 
 ## 0. 结论
 
-**Lua dissector**（`bms20_v2.lua`），无需编译，Reload Lua Plugins 即生效。**仅固定注册 TCP 端口 5002**（对端端口不固定），将 Data 前 13 字节按 V2 帧头展开，并据 `len` 解析 `data[]`、校验 CRC16-Modbus。
+**Lua dissector**（`bms20_v2.lua`），无需编译，Reload Lua Plugins 即生效。**固定注册 TCP 端口 5001（HMI）、5002（BBMS）、5003..5014（RBMS 各簇 TCP Server）**（对端端口不固定），**同一抓包可同时解析 HMI / BBMS / 多簇 RBMS 流量**；按 TCP 端口标注 `bms20.service_port`、`bms20.rack_id` 与 Info 前缀 `[HMI:5001]` / `[BBMS:5002]` / `[R1:5003]` 等。将 Data 前 13 字节按 V2 帧头展开，并据 `len` 解析 `data[]`、校验 CRC16-Modbus。
 
-> [!note] 端口说明
-> 抓包中 `5002 → 5990` 表示本端固定 **5002**；反向为 `对端端口 → 5002`。Wireshark 的 `tcp.port == 5002` 会匹配**源或目的**为 5002 的流量。
+> [!note] BMS2.0 服务端口
+> | 场景 | 角色 | 服务端口 |
+> | :--- | :--- | :--- |
+> | 上位机 | HMI | **5001** |
+> | BBMS 三级板 | BBMS TCP Server | **5002** |
+> | RBMS 第 N 簇 | RBMS TCP Server | **5002 + N**（第 1 簇 **5003**，后续每簇 +1） |
+>
+> 抓包中 `5003 → 对端` 表示本端固定 **5003**（RBMS 第 1 簇）；`5002 → 对端` 为 BBMS。Wireshark 的 `tcp.port >= 5001 && tcp.port <= 5014` 会匹配**源或目的**为对应端口的流量。
 
 ## 1. 交付物
 
@@ -72,7 +78,7 @@ Transmission Control Protocol
 
 ```mermaid
 flowchart TD
-    tcp[TCP payload] --> portCheck{端口含 5002?}
+    tcp[TCP payload] --> portCheck{端口在 5001..5014?}
     portCheck -->|是| reasm[TCP 流重组]
     portCheck -->|否| heuristic{0xA5 且 version=2?}
     heuristic -->|是| reasm

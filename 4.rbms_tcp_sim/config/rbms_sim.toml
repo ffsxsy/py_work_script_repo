@@ -1,0 +1,62 @@
+# RBMS TCP 模拟器配置
+#
+# 路径说明：相对路径均相对项目根目录解析。
+#
+# 角色说明（启动后 HMI Client + BBMS Server 双通道同时就绪，固定模拟第一簇）：
+# - [hmi]  RBMS 作为 TCP Client 连接上位机
+# - [bbms] RBMS 作为 TCP Server 供 BBMS 连接
+
+[hmi]
+host = "127.0.0.1"
+port = 5001
+connect_retry_interval_s = 1.0
+reconnect_interval_s = 5.0
+
+[bbms]
+listen_host = "192.168.1.137"
+listen_port = 5001
+
+[periodic]
+messages = "suminfo,fault,volt,temp,cellbalst,cellsdr,debug,soxdebug1,soxdebug2"
+interval_s = 1.0
+
+[protocol]
+auto_reply_ctl_word = true
+# 断线重连后 StrCtrlHb / frameId：false=新 Session 从 0 计（推荐联调）；true=跨连接连续
+persist_session_counters = false
+
+[suminfo]
+config_path = "config/rbms_suminfo.csv"
+use_external_config = true
+
+[fault]
+config_path = "config/rbms_fault.csv"
+use_external_config = true
+
+[volt]
+config_path = "config/rbms_volt.csv"
+use_external_config = true
+
+[temp]
+config_path = "config/rbms_temp.csv"
+use_external_config = true
+
+[cellbalst]
+config_path = "config/rbms_cellbalst.csv"
+use_external_config = true
+
+[cellsdr]
+config_path = "config/rbms_cellsdr.csv"
+use_external_config = true
+
+[debug]
+config_path = "config/rbms_debug.csv"
+use_external_config = true
+
+[soxdebug1]
+config_path = "config/rbms_soxdebug1.csv"
+use_external_config = true
+
+[soxdebug2]
+config_path = "config/rbms_soxdebug2.csv"
+use_external_config = true

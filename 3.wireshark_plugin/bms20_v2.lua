@@ -1,5 +1,5 @@
 -- BMS2.0 Bottom Software Protocol V2 Dissector
--- Fixed TCP port: 5002
+-- Service ports: HMI 5001, BBMS 5002, RBMS TCP Server 5003..5014 (rack 1..12)
 
 local bms20_proto = Proto("bms20", "BMS2.0 V2 Protocol")
 
@@ -8,6 +8,11 @@ local VERSION_V2 = 2
 local LINK_HEADER_LEN = 5
 local V2_BODY_HEADER_LEN = 8
 local MAX_DATA_LEN = 1500
+
+local HMI_PORT = 5001
+local BBMS_PORT = 5002
+local RBMS_PORT_BASE = 5003
+local RBMS_PORT_COUNT = 12
 
 local f_head = ProtoField.uint8("bms20.head", "Head", base.HEX)
 local f_ver_len = ProtoField.uint16("bms20.ver_len", "Version and Length (raw)", base.HEX)
@@ -29,18 +34,66 @@ local f_cmd_group = ProtoField.uint8("bms20.cmd_group", "Command Group", base.HE
 local f_cmd_id = ProtoField.uint8("bms20.cmd_id", "Command ID", base.HEX)
 local f_msg_name = ProtoField.string("bms20.msg_name", "Message Name")
 local f_payload = ProtoField.bytes("bms20.payload", "Payload")
+local f_service_port = ProtoField.uint16("bms20.service_port", "Service Port", base.DEC)
+local f_rack_id = ProtoField.uint8("bms20.rack_id", "Rack ID", base.DEC)
 
 bms20_proto.fields = {
     f_head, f_ver_len, f_version, f_len, f_crc, f_crc_valid,
     f_src, f_src_sub, f_dest, f_dest_sub,
     f_transport_type, f_frame_id, f_cmd_group, f_cmd_id, f_msg_name, f_payload,
+    f_service_port, f_rack_id,
 }
 
-bms20_proto.prefs.port = Pref.uint("TCP Port", 5002, "Fixed BMS2.0 TCP port")
+bms20_proto.prefs.port = Pref.uint("TCP Port (BBMS)", BBMS_PORT, "Reference BBMS service port")
 bms20_proto.prefs.parse_payload = Pref.bool(
     "Parse Payload", true, "Expand Comm Matrix payload for enabled messages")
 bms20_proto.prefs.heuristic = Pref.bool(
-    "Enable Heuristic", false, "Parse 0xA5 V2 frames on non-5002 ports")
+    "Enable Heuristic", false, "Parse 0xA5 V2 frames on non-registered ports")
+
+local function is_registered_port(port)
+    if port == HMI_PORT or port == BBMS_PORT then
+        return true
+    end
+    return port >= RBMS_PORT_BASE and port < RBMS_PORT_BASE + RBMS_PORT_COUNT
+end
+
+local function resolve_service_port(pinfo)
+    if is_registered_port(pinfo.src_port) then
+        return pinfo.src_port
+    end
+    if is_registered_port(pinfo.dst_port) then
+        return pinfo.dst_port
+    end
+    return nil
+end
+
+local function rack_id_from_service_port(service_port)
+    if service_port == nil or service_port < RBMS_PORT_BASE then
+        return nil
+    end
+    local rack_id = service_port - BBMS_PORT
+    if rack_id < 1 or rack_id > RBMS_PORT_COUNT then
+        return nil
+    end
+    return rack_id
+end
+
+local function service_port_prefix(service_port)
+    if service_port == nil then
+        return ""
+    end
+    if service_port == HMI_PORT then
+        return string.format("[HMI:%d] ", service_port)
+    end
+    if service_port == BBMS_PORT then
+        return string.format("[BBMS:%d] ", service_port)
+    end
+    local rack_id = rack_id_from_service_port(service_port)
+    if rack_id ~= nil then
+        return string.format("[R%d:%d] ", rack_id, service_port)
+    end
+    return string.format("[:%d] ", service_port)
+end
 
 local function crc16_modbus(tvb, offset, length)
     local crc = 0xFFFF
@@ -68,7 +121,14 @@ local function lookup_msg_name(cmd_group, cmd_id)
     return nil
 end
 
-local function dissect_one_frame(tvb, pinfo, tree, frame_index)
+local function resolve_display_msg_name(service_port, cmd_group, cmd_id, msg_name)
+    if type(bms20_fault_display_name) == "function" then
+        return bms20_fault_display_name(service_port, cmd_group, cmd_id, msg_name)
+    end
+    return msg_name
+end
+
+local function dissect_one_frame(tvb, pinfo, tree, frame_index, service_port)
     if tvb:len() < LINK_HEADER_LEN then
         return false, "Need more data for link header", LINK_HEADER_LEN - tvb:len()
     end
@@ -98,12 +158,21 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index)
     local cmd_id = tvb(12, 1):uint()
     local frame_id = tvb(10, 1):uint()
     local msg_name = lookup_msg_name(cmd_group, cmd_id)
+    local display_name = resolve_display_msg_name(service_port, cmd_group, cmd_id, msg_name)
 
-    local frame_title = msg_name and string.format(
-        "BMS2.0 V2 Protocol (frame %d, %s)", frame_index, msg_name)
+    local frame_title = display_name and string.format(
+        "BMS2.0 V2 Protocol (frame %d, %s)", frame_index, display_name)
         or string.format("BMS2.0 V2 Protocol (frame %d, cmd 0x%02X/0x%02X)",
             frame_index, cmd_group, cmd_id)
     local frame_tree = tree:add(bms20_proto, tvb(0, total_frame_len), frame_title)
+
+    if service_port ~= nil then
+        frame_tree:add(f_service_port, service_port)
+        local rack_id = rack_id_from_service_port(service_port)
+        if rack_id ~= nil then
+            frame_tree:add(f_rack_id, rack_id)
+        end
+    end
 
     local link_tree = frame_tree:add(bms20_proto, tvb(0, LINK_HEADER_LEN), "Link Layer")
     link_tree:add(f_head, tvb(0, 1))
@@ -135,22 +204,32 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index)
     local app_tree = frame_tree:add(bms20_proto, tvb(11, 2), "Application Layer")
     local cmd_group_item = app_tree:add(f_cmd_group, tvb(11, 1))
     local cmd_id_item = app_tree:add(f_cmd_id, tvb(12, 1))
-    if msg_name then
-        app_tree:add(f_msg_name, msg_name)
-        cmd_group_item:append_text(string.format(" (%s)", msg_name))
-        cmd_id_item:append_text(string.format(" (%s)", msg_name))
+    if display_name then
+        app_tree:add(f_msg_name, display_name)
+        cmd_group_item:append_text(string.format(" (%s)", display_name))
+        cmd_id_item:append_text(string.format(" (%s)", display_name))
     end
 
     if payload_len > 0 then
         local payload_tvb = tvb(13, payload_len)
         local parsed = false
         local payload_msg = nil
+        local wire_id = bit.bor(bit.lshift(cmd_group, 8), cmd_id)
         if type(bms20_resolve_payload_msg_name) == "function" then
-            payload_msg = bms20_resolve_payload_msg_name(msg_name)
+            payload_msg = bms20_resolve_payload_msg_name(display_name or msg_name)
         end
-        if bms20_proto.prefs.parse_payload and payload_msg
+        if bms20_proto.prefs.parse_payload and payload_len == 1
+                and type(bms20_dissect_write_ack) == "function" then
+            parsed = bms20_dissect_write_ack(
+                wire_id, payload_tvb, app_tree, frame_tree, pinfo)
+        end
+        if not parsed and bms20_proto.prefs.parse_payload and payload_msg
                 and type(bms20_dissect_payload) == "function" then
             parsed = bms20_dissect_payload(payload_msg, payload_tvb, app_tree, frame_tree, pinfo)
+        end
+        if not parsed and type(bms20_dissect_fault_payload) == "function" then
+            parsed = bms20_dissect_fault_payload(
+                service_port, cmd_group, cmd_id, payload_tvb, app_tree, frame_tree, pinfo)
         end
         if not parsed then
             app_tree:add(f_payload, payload_tvb)
@@ -159,14 +238,15 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index)
 
     if frame_index == 1 then
         pinfo.cols.protocol = "BMS2.0"
-        if msg_name then
+        local prefix = service_port_prefix(service_port)
+        if display_name then
             pinfo.cols.info:set(string.format(
-                "V2 %s frameId=%u len=%u%s",
-                msg_name, frame_id, datalen, crc_ok and "" or " [CRC BAD]"))
+                "V2 %s%s frameId=%u len=%u%s",
+                prefix, display_name, frame_id, datalen, crc_ok and "" or " [CRC BAD]"))
         else
             pinfo.cols.info:set(string.format(
-                "V2 cmd=0x%02X/0x%02X frameId=%u len=%u%s",
-                cmd_group, cmd_id, frame_id, datalen, crc_ok and "" or " [CRC BAD]"))
+                "V2 %scmd=0x%02X/0x%02X frameId=%u len=%u%s",
+                prefix, cmd_group, cmd_id, frame_id, datalen, crc_ok and "" or " [CRC BAD]"))
         end
     end
 
@@ -174,6 +254,7 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index)
 end
 
 local function dissect_buffer(tvb, pinfo, tree)
+    local service_port = resolve_service_port(pinfo)
     local offset = 0
     local frame_index = 0
 
@@ -213,7 +294,8 @@ local function dissect_buffer(tvb, pinfo, tree)
         end
 
         frame_index = frame_index + 1
-        local ok, err, need = dissect_one_frame(tvb(offset, frame_len), pinfo, tree, frame_index)
+        local ok, err, need = dissect_one_frame(
+            tvb(offset, frame_len), pinfo, tree, frame_index, service_port)
         if not ok then
             if need then
                 pinfo.desegment_len = need
@@ -247,7 +329,12 @@ local function heuristic_checker(tvb, pinfo, tree)
     return true
 end
 
-DissectorTable.get("tcp.port"):add(5002, bms20_proto)
+local tcp_port_table = DissectorTable.get("tcp.port")
+tcp_port_table:add(HMI_PORT, bms20_proto)
+tcp_port_table:add(BBMS_PORT, bms20_proto)
+for rack_id = 1, RBMS_PORT_COUNT do
+    tcp_port_table:add(RBMS_PORT_BASE + rack_id - 1, bms20_proto)
+end
 bms20_proto:register_heuristic("tcp", heuristic_checker)
 
 if type(bms20_payload_init) == "function" then

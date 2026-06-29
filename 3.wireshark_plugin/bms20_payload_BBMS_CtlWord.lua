@@ -4,7 +4,7 @@
 bms20_payload_defs = bms20_payload_defs or {}
 
 bms20_payload_defs["BBMS_CtlWord"] = {
-    total_bytes = 7,
+    total_bytes = 8,
     signals = {
         {
             name = "BBMS_SetCon",
@@ -25,10 +25,19 @@ bms20_payload_defs["BBMS_CtlWord"] = {
             byte_hint = "1",
         },
         {
-            name = "Reserved",
-            desc = "Reserved 预留占位",
+            name = "BBMS_FirstEnableRackFlg",
+            desc = "The Array Of The First Enable Rack Flag 是否为使能第一簇标志位数组",
             start_bit = 4,
-            bit_len = 2,
+            bit_len = 1,
+            res = 1,
+            off = 0,
+            byte_hint = "1",
+        },
+        {
+            name = "BBMS_ReverConDetecCmpFlg",
+            desc = "Reverse Connect Detect Complete Flag 防反接检测完成信号",
+            start_bit = 5,
+            bit_len = 1,
             res = 1,
             off = 0,
             byte_hint = "1",
@@ -113,6 +122,15 @@ bms20_payload_defs["BBMS_CtlWord"] = {
             res = 1,
             off = 0,
             byte_hint = "7",
+        },
+        {
+            name = "BBMSNo",
+            desc = "Bank Number 堆编号",
+            start_bit = 56,
+            bit_len = 4,
+            res = 1,
+            off = 0,
+            byte_hint = "8",
         },
     },
 }

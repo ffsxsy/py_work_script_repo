@@ -1,0 +1,39 @@
+[project]
+name = "rbms-tcp-sim"
+version = "0.1.0"
+description = "RBMS TCP 协议模拟器（BMS 2.0 LAN Matrix）"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[project.scripts]
+rbms-sim = "rbms_tcp_sim.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rbms_tcp_sim"]
+
+[tool.ruff]
+src = ["src", "tests"]
+target-version = "py313"
+line-length = 100
+exclude = [".venv", "generated", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "TCH"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rbms_tcp_sim"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -4,7 +4,7 @@
 bms20_payload_defs = bms20_payload_defs or {}
 
 bms20_payload_defs["BBMS_Fault"] = {
-    total_bytes = 25,
+    total_bytes = 26,
     signals = {
         {
             name = "BBMS_Fault",
@@ -15,6 +15,15 @@ bms20_payload_defs["BBMS_Fault"] = {
             off = 0,
             byte_hint = "1-25",
             array_count = 200,
+        },
+        {
+            name = "BBMSNo",
+            desc = "Bank Number 堆编号",
+            start_bit = 200,
+            bit_len = 4,
+            res = 1,
+            off = 0,
+            byte_hint = "26",
         },
     },
 }
