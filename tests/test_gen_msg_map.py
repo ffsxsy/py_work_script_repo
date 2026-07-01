@@ -6,11 +6,12 @@ import importlib.util
 import sys
 from pathlib import Path
 
-PLUGIN_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
+WIRESHARK_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
+TOOLS_DIR = WIRESHARK_DIR / "tools"
 
 
 def _load_gen_msg_map():
-    module_path = PLUGIN_DIR / "gen_msg_map.py"
+    module_path = TOOLS_DIR / "gen_msg_map.py"
     module_name = "wireshark_gen_msg_map_test"
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     if spec is None or spec.loader is None:

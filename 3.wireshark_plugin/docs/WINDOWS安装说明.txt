@@ -1,0 +1,37 @@
+BMS2.0 Wireshark 插件 — Windows 快速安装
+======================================
+完整说明：docs/BMS2.0-Wireshark插件使用说明.md
+
+【1】插件目录（默认不存在，需自建）
+  帮助 → 关于 → 文件夹 → Personal Lua Plugins
+  常见：%APPDATA%\Wireshark\plugins
+
+【2】复制 plugin 文件夹内全部 .lua 文件
+  源路径（本仓库）：
+    3.wireshark_plugin\plugin\
+
+  方式 A（推荐）：选中 plugin 内所有 .lua → 复制到 Personal Lua Plugins
+  方式 B：将整个 plugin 文件夹复制为 plugins\bms20\
+
+  核心文件（缺一不可）：
+    bms20_v2.lua
+    bms20_msg_map.lua
+    bms20_payload.lua
+    bms20_parse_config.lua
+    bms20_fault.lua
+    bms20_fault_defs.lua
+    bms20_payload_manifest.lua
+    bms20_payload_*.lua（全部字段表，约 34 个）
+
+  勿复制 docs\reference\ 下的 ref_payload_*.lua（仅开发参考）。
+
+【3】重载
+  Analyze → Reload Lua Plugins
+
+【4】验证
+  显示过滤器：tcp.port >= 5001 && tcp.port <= 5014
+  或：bms20
+  展开一帧应见 Message Name、Payload 信号树（若已在 bms20_parse_config.lua 启用）
+
+【5】更新插件
+  从仓库拉取后，用新 plugin\ 内文件覆盖 Wireshark 插件目录，再 Reload。
