@@ -585,7 +585,7 @@ Body = 8 字节头 + payload：
 | 配置名 | Matrix 名 | cmd | payload | 默认周期 | 默认 CSV |
 | :--- | :--- | :--- | ---: | ---: | :--- |
 | suminfo | RBMS_SumInfo | 0x03:0x01 | 310B | 1s | rbms_suminfo.csv |
-| fault | RBMS_Fault | 0x04:0x01 | 25B | 1s | rbms_fault.csv |
+| fault | RBMS_Fault | 0x03:0x29 | 25B | 1s | rbms_fault.csv |
 | volt | RBMS_Volt | 0x03:0x02 | 1012B | 1s | rbms_volt.csv |
 | temp | RBMS_Temp | 0x03:0x03 | 1188B | 1s | rbms_temp.csv |
 | cellbalst | RBMS_CellBalSt | 0x03:0x04 | 52B | 10s | rbms_cellbalst.csv |

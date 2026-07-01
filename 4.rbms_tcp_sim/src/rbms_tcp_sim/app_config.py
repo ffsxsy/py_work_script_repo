@@ -26,9 +26,9 @@ DEFAULT_SIM_CONFIG_TEMPLATE: Final[str] = f"""\
 #
 # 路径说明：相对路径均相对项目根目录解析。
 #
-# 角色说明（启动后 HMI Client + BBMS Server 双通道同时就绪，固定模拟第一簇）：
-# - [hmi]  RBMS 作为 TCP Client 连接上位机
-# - [bbms] RBMS 作为 TCP Server 供 BBMS 连接
+# 角色说明（--mode hmi / --mode bbms 二选一，固定模拟第一簇）：
+# - [hmi]  mode=hmi 时作为 TCP Client 连接上位机
+# - [bbms] mode=bbms 时作为 TCP Server 供 BBMS 连接
 
 [hmi]
 host = "127.0.0.1"

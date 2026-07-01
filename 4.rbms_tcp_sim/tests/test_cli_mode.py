@@ -88,8 +88,7 @@ def test_run_simulator_bbms_mode_entrypoint() -> None:
         run_simulator(
             config,
             mode="bbms",
-            matrix_messages_hmi=matrix_messages,
-            matrix_messages_bbms=matrix_messages,
+            matrix_messages=matrix_messages,
         )
 
     sim_thread = threading.Thread(target=run_bbms_mode, daemon=True)

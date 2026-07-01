@@ -31,6 +31,9 @@ known-first-party = ["rbms_tcp_sim"]
 [tool.ruff.format]
 quote-style = "double"
 
+[tool.ty.environment]
+extra-paths = ["src"]
+
 [tool.ty.src]
 include = ["src", "tests"]
 

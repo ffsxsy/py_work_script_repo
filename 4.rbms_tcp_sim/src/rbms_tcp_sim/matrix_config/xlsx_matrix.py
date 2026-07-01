@@ -34,7 +34,7 @@ SIM_MESSAGE_MAP: dict[str, str] = {
 # wire cmdId（不含 cmdGroup）
 SIM_CMD_WIRE: dict[str, str] = {
     "suminfo": "0x01",
-    "fault": "0x01",
+    "fault": "0x29",
     "volt": "0x02",
     "temp": "0x03",
     "cellbalst": "0x04",
@@ -46,7 +46,7 @@ SIM_CMD_WIRE: dict[str, str] = {
 
 SIM_CMD_GROUP: dict[str, str] = {
     "suminfo": "0x03",
-    "fault": "0x04",
+    "fault": "0x03",
     "volt": "0x03",
     "temp": "0x03",
     "cellbalst": "0x03",

@@ -1,4 +1,6 @@
 # 开发工具元配置：uv 虚拟环境与各子项目依赖组。
+# ruff / ty / pytest：全局 uv tool（见 AGENTS.md）。
+# openpyxl：无 CLI，用 uv pip install 装入 .venv（见 AGENTS.md）。
 # 各顶层工具目录仍为独立项目，将来可整目录拆仓。
 
 [project]
@@ -12,28 +14,25 @@ dependencies = []
 can-dbc = [
     "cantools>=41.4.0",
 ]
-dev = [
-    "ruff>=0.9",
-    "ty>=0.0.1a",
-    "pytest>=8",
-]
-# fault_recording_parse_excel_template：构建 xlsx/xlsm
+# fault_recording_parse_excel_template：构建 xlsm 需 win32com
 fault-recording = [
-    "openpyxl>=3.1.5",
     "pywin32>=306",
-]
-# McuCanMap_script：从 xlsx 生成 CSV / C
-mcu-can-map = [
-    "openpyxl>=3.1.5",
 ]
 
 [tool.uv]
-default-groups = ["dev", "fault-recording", "mcu-can-map", "can-dbc"]
+default-groups = ["fault-recording", "can-dbc"]
 
 [tool.ruff]
 target-version = "py313"
 line-length = 100
-src = ["fault_recording_parse_excel_template", "McuCanMap_script", "tests"]
+src = [
+    "1.fault_recording_parse_excel_template",
+    "2.McuCanMap_script",
+    "3.wireshark_plugin",
+    "CAN_dbc",
+    "4.rbms_tcp_sim",
+    "tests",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -42,16 +41,23 @@ select = ["E", "F", "I", "UP", "B"]
 quote-style = "double"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
+testpaths = ["tests", "4.rbms_tcp_sim/tests"]
+pythonpath = [".", "4.rbms_tcp_sim/src"]
 addopts = "-q"
 
-[tool.pyright]
-pythonVersion = "3.13"
-include = ["fault_recording_parse_excel_template", "McuCanMap_script", "tests"]
-extraPaths = ["."]
+# ty：IDE 扩展（astral-sh.ty）+ CLI（ty check）+ CI 共用
+[tool.ty.environment]
+python-version = "3.13"
+python = ".venv"
+root = ["."]
+extra-paths = ["4.rbms_tcp_sim/src"]
 
-[tool.basedpyright]
-pythonVersion = "3.13"
-include = ["fault_recording_parse_excel_template", "McuCanMap_script", "tests"]
-extraPaths = ["."]
+[tool.ty.src]
+include = [
+    "1.fault_recording_parse_excel_template",
+    "2.McuCanMap_script",
+    "3.wireshark_plugin",
+    "CAN_dbc",
+    "4.rbms_tcp_sim",
+    "tests",
+]

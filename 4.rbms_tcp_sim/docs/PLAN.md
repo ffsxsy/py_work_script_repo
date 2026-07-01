@@ -88,7 +88,7 @@ sequenceDiagram
 
     Sim->>HMI: connect(host, 5001)
     Sim->>HMI: RBMS_SumInfo 0x03:0x01 @1s
-    Sim->>HMI: RBMS_Fault 0x04:0x01 @1s
+    Sim->>HMI: RBMS_Fault 0x03:0x29 @1s
     HMI->>Sim: BBMS_CtlWord 0x03:0x07（经 HMI 转发）
     Sim->>HMI: CtlWord 应答 1B state=0
 ```
@@ -160,7 +160,7 @@ BBMS 作为 TCP Client 连接本机 RBMS Server；监听地址见 `rbms_sim.toml
 | `0x03:0x03` | RBMS_Temp | 1000 | 1188 | |
 | `0x03:0x04` | RBMS_CellBalSt | 10000 | 52 | |
 | `0x03:0x05` | RBMS_CellSdr | 30000 | 416 | |
-| `0x04:0x01` | RBMS_Fault | 1000 | 25 | ✓ |
+| `0x03:0x29` | RBMS_Fault | 1000 | 25 | ✓ |
 | `0x03:0x26` | TMS_SumInfo | 1000 | 12 | |
 | `0x03:0x19` | RBMS_SOXdebugData1 | 1000 | 60 | |
 | `0x03:0x1A` | RBMS_SOXdebugData2 | 1000 | 61 | |
@@ -195,7 +195,7 @@ BBMS 作为 TCP Client 连接本机 RBMS Server；监听地址见 `rbms_sim.toml
 - MVP：`payload[0] = 0x01`（RBMS_St 在线），其余可先填 0
 - 完整字段见 Comm Matrix（RBMS_St、RBMS_ChaSt、RBMS_V、SOC 等）
 
-#### RBMS_Fault（Tx，`0x04:0x01`，25B）
+#### RBMS_Fault（Tx，`0x03:0x29`，25B）
 
 - 200 bit 故障位图；MVP 全 0
 - FaultID 与 [`SystemConfiguration_BMS20_RBMS-FaultList.md`](../../docs/海辰提供的文件/开发需求/SystemConfiguration_BMS20_RBMS-FaultList.md) 对应

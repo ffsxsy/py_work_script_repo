@@ -1,6 +1,6 @@
 # RBMS TCP Sim
 
-模拟 **第一簇** Rack BMS（RBMS）的 TCP 协议行为。默认 `--mode both` 时 **HMI Client** 与 **BBMS Server** 双通道同时就绪；可用 `--mode bbms` / `--mode hmi` 单通道运行。
+模拟 **第一簇** Rack BMS（RBMS）的 TCP 协议行为。通过 `--mode hmi` 或 `--mode bbms` **二选一**运行单通道（默认 `hmi` 连上位机）。
 
 ## 架构
 
@@ -21,7 +21,7 @@ flowchart LR
 | 通道 | 角色 | 配置段 | 状态 |
 | :--- | :--- | :--- | :--- |
 | RBMS → HMI | TCP **Client** | `[hmi]` | **已实现、已联调** |
-| BBMS → RBMS | TCP **Server** | `[bbms]` | **已实现**（与 HMI 并行） |
+| BBMS → RBMS | TCP **Server** | `[bbms]` | **已实现**（`--mode bbms` 单进程） |
 
 ## 环境
 
@@ -97,9 +97,8 @@ use_external_config = true
 
 | 模式 | 说明 |
 | :--- | :--- |
-| `both`（默认） | HMI Client + BBMS Server 同时启动 |
-| `bbms` | 仅 BBMS TCP Server（本地联调 / 抓包） |
-| `hmi` | 仅连接上位机 HMI Client |
+| `hmi`（默认） | 作为 TCP Client 连接上位机 |
+| `bbms` | 作为 TCP Server 供 BBMS 连接 |
 
 ### 常用命令
 
@@ -108,14 +107,13 @@ use_external_config = true
 ```powershell
 cd 4.rbms_tcp_sim
 
-# 双通道（默认）
+# 连接上位机（默认）
 uv run rbms-sim
-
-# 仅 BBMS Server（默认监听 config 中 [bbms] 端口，如 5002）
-uv run rbms-sim --mode bbms
-
-# 仅 HMI Client
+# 或显式
 uv run rbms-sim --mode hmi
+
+# BBMS Server（监听 config 中 [bbms] 端口）
+uv run rbms-sim --mode bbms
 
 # 覆盖 BBMS 监听地址
 uv run rbms-sim --bbms-host 0.0.0.0 --bbms-port 5002
@@ -178,11 +176,18 @@ uv run rbms-sim --mode bbms
 
 ### 成功建连日志示例
 
+`--mode hmi`：
+
 ```text
-SumInfo 配置: .../config/rbms_suminfo.csv 信号数=128 animate=False
+SumInfo 配置: .../config/rbms_suminfo.csv 信号数=193 animate=True
+RBMS 模拟器启动: rack_id=1 → HMI 127.0.0.1:5001 periodic=...
+HMI 已连接: 127.0.0.1:5001 rack_id=1
+```
+
+`--mode bbms`：
+
+```text
 BBMS Server 监听 0.0.0.0:5002 rack_id=1 periodic=...
-RBMS 模拟器启动: rack_id=1 → HMI x.x.x.x:5001 periodic=fault,suminfo ...
-HMI 已连接: x.x.x.x:5001 rack_id=1
 ```
 
 按 `Ctrl+C` 退出；退出后再启动可避免 Windows 下 exe 占用问题。
@@ -195,7 +200,7 @@ HMI 已连接: x.x.x.x:5001 rack_id=1
 | 报文 | cmdId | payload | 默认周期 |
 | :--- | :--- | ---: | ---: |
 | RBMS_SumInfo | 0x03:0x01 | 310B | 1s |
-| RBMS_Fault | 0x04:0x01 | 25B | 1s |
+| RBMS_Fault | 0x03:0x29 | 25B | 1s |
 | RBMS_Volt | 0x03:0x02 | 1012B | 1s |
 | RBMS_Temp | 0x03:0x03 | 1188B | 1s |
 | RBMS_CellBalSt | 0x03:0x04 | 52B | 10s |
@@ -213,7 +218,7 @@ HMI 已连接: x.x.x.x:5001 rack_id=1
 | 报文 | cmdId | payload | 默认周期 |
 | :--- | :--- | ---: | ---: |
 | RBMS_SumInfo | 0x03:0x01 | 310B | 1s |
-| RBMS_Fault | 0x04:0x01 | 25B | 1s |
+| RBMS_Fault | 0x03:0x29 | 25B | 1s |
 | RBMS_Volt | 0x03:0x02 | 1012B | 1s |
 | RBMS_Temp | 0x03:0x03 | 1188B | 1s |
 | RBMS_CellBalSt | 0x03:0x04 | 52B | 10s |

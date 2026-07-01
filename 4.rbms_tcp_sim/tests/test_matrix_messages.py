@@ -42,8 +42,8 @@ def test_periodic_fault_cmd_id() -> None:
     assert len(frames) == 1
     parsed, _ = try_parse_frames(bytearray(frames[0]))
     pkt = parsed[0]
-    assert pkt.cmd_group == 0x04
-    assert pkt.cmd_id == 0x01
+    assert pkt.cmd_group == 0x03
+    assert pkt.cmd_id == 0x29
     assert len(pkt.payload) == 25
 
 

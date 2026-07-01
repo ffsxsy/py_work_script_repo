@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import threading
 from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -84,61 +83,44 @@ def build_matrix_messages(config: SimConfig) -> dict[str, MatrixMessageRuntime]:
     return runtimes
 
 
-_RUN_MODES = ("both", "bbms", "hmi")
+_RUN_MODES = ("bbms", "hmi")
 
 
 def run_simulator(
     config: SimConfig,
     *,
     mode: str,
-    matrix_messages_hmi: dict[str, MatrixMessageRuntime],
-    matrix_messages_bbms: dict[str, MatrixMessageRuntime],
+    matrix_messages: dict[str, MatrixMessageRuntime],
 ) -> None:
-    """按 mode 启动通道：both=双通道，bbms=仅 TCP Server，hmi=仅连上位机。"""
+    """按 mode 启动：bbms=TCP Server；hmi=连接上位机 Client。"""
     if mode not in _RUN_MODES:
         msg = f"未知运行模式: {mode!r}，可选 {', '.join(_RUN_MODES)}"
         raise ValueError(msg)
 
     log = logging.getLogger(__name__)
-    enable_hmi = mode in ("both", "hmi")
-    enable_bbms = mode in ("both", "bbms")
 
-    bbms_server: BbmsTcpServer | None = None
-    bbms_thread: threading.Thread | None = None
-
-    if enable_bbms:
-        bbms_server = BbmsTcpServer(config, matrix_messages=matrix_messages_bbms)
-        if enable_hmi:
-            bbms_thread = threading.Thread(target=bbms_server.serve_forever, daemon=True)
-            bbms_thread.start()
-        else:
-            try:
-                bbms_server.serve_forever()
-            except KeyboardInterrupt:
-                log.info("收到中断，退出")
-            finally:
-                bbms_server.stop()
-            return
-
-    if not enable_hmi:
+    if mode == "bbms":
+        server = BbmsTcpServer(config, matrix_messages=matrix_messages)
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            log.info("收到中断，退出")
+        finally:
+            server.stop()
         return
 
-    client = TcpHmiClient(config, matrix_messages=matrix_messages_hmi)
+    client = TcpHmiClient(config, matrix_messages=matrix_messages)
     try:
         client.run_forever()
     except KeyboardInterrupt:
         log.info("收到中断，退出")
     finally:
         client.stop()
-        if bbms_server is not None:
-            bbms_server.stop()
-        if bbms_thread is not None:
-            bbms_thread.join(timeout=3.0)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="RBMS TCP 模拟器：HMI Client + BBMS Server 双通道",
+        description="RBMS TCP 模拟器（HMI Client 或 BBMS Server，二选一）",
     )
     parser.add_argument(
         "--config",
@@ -168,8 +150,8 @@ def main() -> None:
     parser.add_argument(
         "--mode",
         choices=_RUN_MODES,
-        default="both",
-        help="运行模式：both=HMI Client + BBMS Server（默认）；bbms=仅 TCP Server；hmi=仅连上位机",
+        default="hmi",
+        help="运行模式：hmi=连上位机（默认）；bbms=TCP Server 供 BBMS 连接",
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="DEBUG 日志")
     args = parser.parse_args()
@@ -210,10 +192,9 @@ def main() -> None:
                 init_fn=lambda p, n=name: _init_message_csv(n, p),
             )
 
-    matrix_messages_hmi = build_matrix_messages(config)
-    matrix_messages_bbms = build_matrix_messages(config)
+    matrix_messages = build_matrix_messages(config)
 
-    for name, runtime in sorted(matrix_messages_hmi.items()):
+    for name, runtime in sorted(matrix_messages.items()):
         profile = MESSAGE_PROFILES[name]
         log.info(
             "%s 配置: %s 信号数=%d animate=%s 周期=%.0fs payload=%dB",
@@ -228,8 +209,7 @@ def main() -> None:
     run_simulator(
         config,
         mode=args.mode,
-        matrix_messages_hmi=matrix_messages_hmi,
-        matrix_messages_bbms=matrix_messages_bbms,
+        matrix_messages=matrix_messages,
     )
 
 

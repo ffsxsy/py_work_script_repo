@@ -1,4 +1,4 @@
-# RBMS_Fault 0x04:0x01，25B
+# RBMS_Fault 0x03:0x29，25B
 # 点表来源：BMS2.0 LAN Matrix V1.0.50（docs/BMS2.0 LAN Matrix V1.0.50.xlsx）
 # - value(物理值)：工程单位；编码 raw = round((value - offset) / Resolution)
 # - 模拟默认值（尽量非零、便于联调）

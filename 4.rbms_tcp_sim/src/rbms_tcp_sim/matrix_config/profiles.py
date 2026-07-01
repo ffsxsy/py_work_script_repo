@@ -32,8 +32,8 @@ MESSAGE_PROFILES: Final[dict[str, MessageProfile]] = {
     ),
     "fault": MessageProfile(
         name="fault",
-        cmd_group=0x04,
-        cmd_id=0x01,
+        cmd_group=0x03,
+        cmd_id=0x29,
         payload_len=25,
         interval_s=1.0,
         default_csv=CONFIG_DIR / "rbms_fault.csv",
