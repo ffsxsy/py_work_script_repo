@@ -6,7 +6,7 @@
 
 | 目录 | 说明 | 文档 |
 | :--- | :--- | :--- |
-| [fault_recording_parse_excel_template](./fault_recording_parse_excel_template/) | 构建 CAN 故障录制分析用 Excel 模板（`.xlsm`，含 VBA 导入 CSV） | [README](./fault_recording_parse_excel_template/README.md) |
+| [1.fault_recording_parse_excel_template](./1.fault_recording_parse_excel_template/) | 构建 CAN 故障录制分析用 Excel 模板（`.xlsm`，含 VBA 导入 CSV） | [README](./1.fault_recording_parse_excel_template/README.md) |
 | [McuCanMap_script](./McuCanMap_script/) | 从 `McuCanMap.xlsx` 生成 PCS 配置 CSV 与 C 结构体 | [README](./McuCanMap_script/README.md)、[docs/](./McuCanMap_script/docs/) |
 | [CAN_dbc](./CAN_dbc/) | 用 cantools 从脚本或双 CSV 生成 CAN DBC | [README](./CAN_dbc/README.md)、[CSV 说明](./CAN_dbc/CSV_使用说明.md) |
 | [wireshark_plugin](./3.wireshark_plugin/) | BMS2.0 底软 TCP 的 Wireshark Lua 解析插件（V2 帧 + Payload 展开） | [README](./3.wireshark_plugin/README.md)、[使用说明](./3.wireshark_plugin/docs/BMS2.0-Wireshark插件使用说明.md) |

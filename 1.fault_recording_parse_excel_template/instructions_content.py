@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-SECTION_TITLES: frozenset[str] = frozenset(
-    {"About this template", "Quick start", "Sheets"}
-)
+SECTION_TITLES: frozenset[str] = frozenset({"About this template", "Quick start", "Sheets"})
 
 
 @dataclass(frozen=True, slots=True)

@@ -2,13 +2,33 @@
 
 from __future__ import annotations
 
+import importlib.util
+import sys
 from pathlib import Path
+from types import ModuleType
 
-from fault_recording_parse_excel_template.build_can_fault_excel_template import (
-    build_template,
-)
-from fault_recording_parse_excel_template.instructions_content import INSTRUCTIONS_LAYOUT
 from openpyxl import load_workbook
+
+_FAULT_DIR = Path(__file__).resolve().parents[1] / "1.fault_recording_parse_excel_template"
+
+
+def _load_fault_module(stem: str) -> ModuleType:
+    path = _FAULT_DIR / f"{stem}.py"
+    module_name = f"_fault_test_{stem}"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        msg = f"cannot load module from {path}"
+        raise ImportError(msg)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_build = _load_fault_module("build_can_fault_excel_template")
+_instructions = _load_fault_module("instructions_content")
+build_template = _build.build_template
+INSTRUCTIONS_LAYOUT = _instructions.INSTRUCTIONS_LAYOUT
 
 
 def test_build_template_instructions_layout(tmp_path: Path) -> None:

@@ -75,7 +75,8 @@ flowchart LR
 ```powershell
 cd <仓库根>
 uv sync
-# 或仅本工具：uv sync --group fault-recording
+uv pip install openpyxl
+# Windows 构建 xlsm 还需 fault-recording 组（uv sync 默认已含 pywin32）
 ```
 
 仅本目录、用 pip 时：

@@ -123,12 +123,8 @@ def _define_template_names(wb: Workbook) -> None:
         return f"Instructions!${letters}${digits}"
 
     wb.defined_names.add(DefinedName("TemplateVersion", attr_text=ref(META_VERSION_CELL)))
-    wb.defined_names.add(
-        DefinedName("TemplateReleaseDate", attr_text=ref(META_RELEASE_DATE_CELL))
-    )
-    wb.defined_names.add(
-        DefinedName("TemplateReleaseSummary", attr_text=ref(META_SUMMARY_CELL))
-    )
+    wb.defined_names.add(DefinedName("TemplateReleaseDate", attr_text=ref(META_RELEASE_DATE_CELL)))
+    wb.defined_names.add(DefinedName("TemplateReleaseSummary", attr_text=ref(META_SUMMARY_CELL)))
 
 
 def _write_instructions(ws: Worksheet) -> None:
@@ -371,6 +367,8 @@ class _ExcelButtonShape(Protocol):
 
 class _ExcelWindow(Protocol):
     DisplayGridlines: bool
+    Zoom: int
+    FreezePanes: bool
 
 
 class _ExcelApplication(Protocol):
