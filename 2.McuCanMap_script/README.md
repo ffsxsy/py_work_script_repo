@@ -29,8 +29,8 @@
 
 ```powershell
 cd <仓库根>
-uv sync --group mcu-can-map
-# 或一次性安装全部组：uv sync
+uv pip install openpyxl
+# 或 pip install -r 2.McuCanMap_script/requirements.txt
 ```
 
 仅本工具、用 pip 时：

@@ -106,21 +106,28 @@ def is_debug_trace_marker_row(row: list[object]) -> bool:
     return isinstance(row[0], str) and "Debug trace variable default, factor and range" in row[0]
 
 
+def _object_to_float(value: object) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        try:
+            return float(text)
+        except ValueError:
+            return None
+    return None
+
+
 def parse_scale(detail: list[object]) -> float | None:
-    v = detail[4]
-    if v is None or v == "":
-        return None
-    try:
-        return float(v)
-    except (TypeError, ValueError):
-        return None
+    return _object_to_float(detail[4])
 
 
 def infer_c_type_from_min(detail: list[object], fallback: str) -> str:
     """最小值为负 -> int16_t；最小值非负 -> uint16_t。"""
-    try:
-        min_v = float(detail[5])
-    except (TypeError, ValueError):
+    min_v = _object_to_float(detail[5])
+    if min_v is None:
         return fallback
     return "int16_t" if min_v < 0 else "uint16_t"
 
@@ -295,8 +302,8 @@ def emit_message(packet: FramePacket) -> list[str]:
 
     bodies = [
         f"{f.enum.ljust(enum_w)}, "
-        f"{f'\"{f.label}\"'.ljust(name_w)}, "
-        f"{f'\"{f.ctype}\"'.ljust(type_w)}, "
+        f"{f'"{f.label}"'.ljust(name_w)}, "
+        f"{f'"{f.ctype}"'.ljust(type_w)}, "
         f"{str(f.offset).rjust(off_w)}, "
         f"{str(f.length).rjust(len_w)}, "
         f"{format_scale(f.scale).rjust(scale_w)}"

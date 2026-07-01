@@ -1,3 +1,3 @@
 # 本工具运行时依赖（读取 McuCanMap.xlsx）
-# 仓库根目录推荐：uv sync --group mcu-can-map
+# 仓库根：uv pip install openpyxl
 openpyxl>=3.1.5

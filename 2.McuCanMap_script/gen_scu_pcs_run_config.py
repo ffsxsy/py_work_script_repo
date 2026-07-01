@@ -9,9 +9,11 @@
 
 同时生成:
 - ``c_struct_param.c``：配置写点（point_value_t，来自 CSV）
-- ``c_struct_meas.c``：测量响应（meas_resp_value_t，来自 TX CAN-A，见 gen_dsp_meas_resp_from_xlsx.py）
+- ``c_struct_meas.c``：测量响应（meas_resp_value_t，来自 TX CAN-A，
+  见 gen_dsp_meas_resp_from_xlsx.py）
 
-点位表 ``py_gen_pcs_id_point_name_ename_map.csv`` 由 ``gen_scu_pcs_point_id_map.py`` 生成，本脚本只读。
+点位表 ``py_gen_pcs_id_point_name_ename_map.csv`` 由 ``gen_scu_pcs_point_id_map.py``
+生成，本脚本只读。
 
 用法:
     python gen_scu_pcs_run_config.py
@@ -340,8 +342,10 @@ def _value_config_range_typed(
     step_v: object,
     unit: str,
 ) -> str:
-    if isinstance(min_v, (int, float)) and isinstance(max_v, (int, float)) and isinstance(
-        step_v, (int, float)
+    if (
+        isinstance(min_v, (int, float))
+        and isinstance(max_v, (int, float))
+        and isinstance(step_v, (int, float))
     ):
         if unit == "Sec":
             min_j: object = _range_json_sec_bound(float(min_v))
@@ -408,14 +412,18 @@ def _protection_time_resolve(lu: dict[str, CfgRow], base: str) -> CfgRow | None:
     default = ((ms_row.default if ms_row else "") or (sec_row.default if sec_row else "")).strip()
     if src is None or not default:
         return None
-    return CfgRow(default=default, factor=src.factor, min_v=src.min_v, max_v=src.max_v, unit=src.unit)
+    return CfgRow(
+        default=default, factor=src.factor, min_v=src.min_v, max_v=src.max_v, unit=src.unit
+    )
 
 
 def _protection_total_ms_value(default_str: str) -> float:
     return float(default_str)
 
 
-def _split_protection_time_bounds_ms(min_ms: float, max_ms: float) -> tuple[float, float, float, float]:
+def _split_protection_time_bounds_ms(
+    min_ms: float, max_ms: float
+) -> tuple[float, float, float, float]:
     """总毫秒 → (秒 min_s, 秒 max_s, 毫秒 min, 毫秒 max)。
 
     例：180000/1000000→180,1000,0,999；160/1000000→0,1000,0,999；160/160→0,0,160,160。
@@ -457,7 +465,12 @@ def _build_protection_time(
         return (d, d, _value_config_range_typed(ms_lo, ms_hi, 1, "mSec"), "input-number")
 
     ds = _fmt_csv_scalar(str(sec_def))
-    return (ds, ds, _value_config_range_typed(float(sec_lo), float(sec_hi), 1, "Sec"), "input-number")
+    return (
+        ds,
+        ds,
+        _value_config_range_typed(float(sec_lo), float(sec_hi), 1, "Sec"),
+        "input-number",
+    )
 
 
 def _range_unit_override(ename: str, table_unit: str) -> str:
@@ -669,7 +682,8 @@ def _write_point_content_array(paths: list[str]) -> None:
                 prefix = "     {{" if slot_idx == 0 else "      {"
                 suffix = "}}}," if slot_idx == 3 else "},"
                 lines.append(
-                    f'{prefix}{point_id}, "CAN", "{data_type}", {slot_idx * 2}, 2, {coefficient}{suffix}'
+                    f'{prefix}{point_id}, "CAN", "{data_type}", '
+                    f"{slot_idx * 2}, 2, {coefficient}{suffix}"
                 )
     lines.extend(["};", ""])
     with open(OUTPUT_C_STRUCT_PARAM, "w", newline="\n", encoding="utf-8") as f:
@@ -695,8 +709,7 @@ def main() -> None:
         map_label = os.path.basename(OUTPUT_POINT_MAP)
         print(
             f"警告: {map_label} 缺少以下 param_ename 或 param_name 为空，"
-            "对应 param_name 将留空:\n  "
-            + "\n  ".join(missing)
+            "对应 param_name 将留空:\n  " + "\n  ".join(missing)
         )
 
     ts = _format_run_timestamp(datetime.now())
