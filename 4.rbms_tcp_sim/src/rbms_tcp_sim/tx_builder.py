@@ -48,9 +48,10 @@ def build_periodic_tx_frames(
             str_ctrl_hb = state.next_str_ctrl_hb()
             payload = build_suminfo_payload(runtime, str_ctrl_hb=str_ctrl_hb)
             LOGGER.info(
-                "TX SUMINFO cmd=0x%02X:0x%02X payload=%dB StrCtrlHb=%d",
+                "TX SUMINFO cmd=0x%02X:0x%02X srcSub=%d payload=%dB StrCtrlHb=%d",
                 profile.cmd_group,
                 profile.cmd_id,
+                state.rack_id,
                 len(payload),
                 str_ctrl_hb,
             )
@@ -58,10 +59,11 @@ def build_periodic_tx_frames(
             payload = build_message_payload(runtime)
             log = LOGGER.info if name in ("cellbalst", "cellsdr") else LOGGER.debug
             log(
-                "TX %s cmd=0x%02X:0x%02X payload=%dB",
+                "TX %s cmd=0x%02X:0x%02X srcSub=%d payload=%dB",
                 name.upper(),
                 profile.cmd_group,
                 profile.cmd_id,
+                state.rack_id,
                 len(payload),
             )
 

@@ -13,8 +13,10 @@ if TYPE_CHECKING:
 
 from rbms_tcp_sim.app_config import (
     DEFAULT_SIM_CONFIG,
+    MAX_RACK_ID,
     SimConfig,
     load_sim_config,
+    parse_rack_id,
     write_default_sim_config,
 )
 from rbms_tcp_sim.matrix_config.generators import (
@@ -47,25 +49,33 @@ def _init_message_csv(name: str, path: Path) -> None:
 
 def _apply_cli_overrides(config: SimConfig, args: argparse.Namespace) -> SimConfig:
     hmi = config.hmi
-    if args.hmi_host is not None:
-        hmi = replace(hmi, host=args.hmi_host)
-    if args.hmi_port is not None:
-        hmi = replace(hmi, port=args.hmi_port)
-
     bbms = config.bbms
-    if args.bbms_host is not None:
-        bbms = replace(bbms, listen_host=args.bbms_host)
-    if args.bbms_port is not None:
-        bbms = replace(bbms, listen_port=args.bbms_port)
+    mode = getattr(args, "mode", DEFAULT_RUN_MODE)
+
+    if mode == "server":
+        if args.host is not None:
+            bbms = replace(bbms, listen_host=args.host)
+        if args.port is not None:
+            bbms = replace(bbms, listen_port=args.port)
+    else:
+        if args.host is not None:
+            hmi = replace(hmi, host=args.host)
+        if args.port is not None:
+            hmi = replace(hmi, port=args.port)
+        if args.bind_host is not None:
+            bind_host = args.bind_host.strip() or None
+            hmi = replace(hmi, bind_host=bind_host)
 
     interval_s = args.interval if args.interval is not None else config.interval_s
     auto_reply = config.auto_reply if not args.no_reply else False
+    rack_id = config.rack_id if args.rack_id is None else parse_rack_id(args.rack_id)
     return replace(
         config,
         hmi=hmi,
         bbms=bbms,
         interval_s=interval_s,
         auto_reply=auto_reply,
+        rack_id=rack_id,
     )
 
 
@@ -75,15 +85,18 @@ def build_matrix_messages(config: SimConfig) -> dict[str, MatrixMessageRuntime]:
         if name not in matrix_message_names_with_csv():
             continue
         csv_cfg = config.matrix_csv[name]
-        runtimes[name] = load_message_runtime(
+        runtime = load_message_runtime(
             name,
             config_path=csv_cfg.config_path,
             use_external=csv_cfg.use_external,
+            allow_csv_animate=config.animate_payload,
         )
+        runtimes[name] = runtime
     return runtimes
 
 
-_RUN_MODES = ("bbms", "hmi")
+_RUN_MODES = ("client", "server")
+DEFAULT_RUN_MODE = "client"
 
 
 def run_simulator(
@@ -92,14 +105,14 @@ def run_simulator(
     mode: str,
     matrix_messages: dict[str, MatrixMessageRuntime],
 ) -> None:
-    """按 mode 启动：bbms=TCP Server；hmi=连接上位机 Client。"""
+    """按 mode 启动：client=连上位机；server=监听 BBMS。"""
     if mode not in _RUN_MODES:
         msg = f"未知运行模式: {mode!r}，可选 {', '.join(_RUN_MODES)}"
         raise ValueError(msg)
 
     log = logging.getLogger(__name__)
 
-    if mode == "bbms":
+    if mode == "server":
         server = BbmsTcpServer(config, matrix_messages=matrix_messages)
         try:
             server.serve_forever()
@@ -120,7 +133,7 @@ def run_simulator(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="RBMS TCP 模拟器（HMI Client 或 BBMS Server，二选一）",
+        description="RBMS TCP 模拟器（client / server 二选一）",
     )
     parser.add_argument(
         "--config",
@@ -130,10 +143,32 @@ def main() -> None:
     )
     parser.add_argument("--init-config", action="store_true", help="生成默认 rbms_sim.toml 后退出")
 
-    parser.add_argument("--hmi-host", type=str, default=None, help="覆盖 [hmi] host")
-    parser.add_argument("--hmi-port", type=int, default=None, help="覆盖 [hmi] port")
-    parser.add_argument("--bbms-host", type=str, default=None, help="覆盖 [bbms] listen_host")
-    parser.add_argument("--bbms-port", type=int, default=None, help="覆盖 [bbms] listen_port")
+    parser.add_argument(
+        "--host",
+        type=str,
+        default=None,
+        help="host：client=对端地址，server=监听地址（覆盖 TOML）",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="port：client=对端端口，server=监听端口（覆盖 TOML）",
+    )
+    parser.add_argument(
+        "--bind-host",
+        type=str,
+        default=None,
+        metavar="IP",
+        help="client 模式：显式源 IP（覆盖 auto_bind_host 按 rack_id 推导）",
+    )
+    parser.add_argument(
+        "--rack-id",
+        type=int,
+        default=None,
+        metavar="N",
+        help=f"覆盖 [rbms] rack_id（协议 srcSub，1~{MAX_RACK_ID}）",
+    )
 
     parser.add_argument(
         "--interval",
@@ -141,7 +176,11 @@ def main() -> None:
         default=None,
         help="基准周期上送间隔（秒，默认 1.0）",
     )
-    parser.add_argument("--no-reply", action="store_true", help="不自动应答 BBMS_CtlWord")
+    parser.add_argument(
+        "--no-reply",
+        action="store_true",
+        help="不自动应答 BBMS_CtlWord",
+    )
     parser.add_argument(
         "--init-matrix-config",
         action="store_true",
@@ -150,8 +189,8 @@ def main() -> None:
     parser.add_argument(
         "--mode",
         choices=_RUN_MODES,
-        default="hmi",
-        help="运行模式：hmi=连上位机（默认）；bbms=TCP Server 供 BBMS 连接",
+        default=DEFAULT_RUN_MODE,
+        help="运行模式：client=连上位机（默认）；server=监听 BBMS",
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="DEBUG 日志")
     args = parser.parse_args()
@@ -172,8 +211,7 @@ def main() -> None:
         paths = write_all_default_csvs()
         for p in paths:
             log.info("已生成 Matrix CSV: %s", p.resolve())
-        if not args.config.is_file():
-            return
+        return
 
     if not args.config.is_file():
         msg = f"配置文件不存在: {args.config}（可用 --init-config 生成）"

@@ -26,18 +26,19 @@ from rbms_tcp_sim.messages import (
     RBMS_SUMINFO_PAYLOAD_LEN,
 )
 
-_BUILTIN_ANIMATE: dict[str, bool] = {
-    "fault": False,
-    "volt": True,
-    "temp": True,
-    "cellbalst": True,
-    "cellsdr": True,
-    "debug": False,
-    "soxdebug1": False,
-    "soxdebug2": False,
-}
-
 _cached_default_suminfo_settings: MatrixCsvSettings | None = None
+
+
+def _effective_animate(
+    csv_animate: bool,
+    *,
+    allow_csv_animate: bool,
+    force_animate: bool = False,
+) -> bool:
+    """联调默认固定 value；animate_payload=true 时才读 CSV animate 行。"""
+    if force_animate:
+        return True
+    return allow_csv_animate and csv_animate
 
 
 @dataclass
@@ -48,6 +49,7 @@ class MatrixMessageRuntime:
     signals: tuple[MatrixSignalValue, ...] = field(default_factory=tuple)
     config_path: str | None = None
     animate: bool = False
+    allow_csv_animate: bool = False
     mtime_ns: int | None = None
     tick: int = 0
 
@@ -106,32 +108,34 @@ def load_message_runtime(
     *,
     config_path: Path | None,
     use_external: bool,
+    allow_csv_animate: bool = False,
     force_animate: bool = False,
 ) -> MatrixMessageRuntime:
     profile = get_profile(name)
-    animate = force_animate
+    csv_animate = False
     signals: tuple[MatrixSignalValue, ...]
 
     if use_external and config_path is not None:
         settings = load_matrix_csv(config_path, skip_signals=profile.skip_signals)
         signals = settings.signals
-        if not force_animate:
-            animate = settings.animate
+        csv_animate = settings.animate
     elif name == "suminfo":
         settings = default_suminfo_settings()
         signals = settings.signals
-        animate = True if force_animate else settings.animate
+        csv_animate = settings.animate
     else:
         signals = default_signals_for(name)
-        animate = _BUILTIN_ANIMATE.get(name, False)
-        if force_animate:
-            animate = True
 
     return MatrixMessageRuntime(
         profile=profile,
         signals=signals,
         config_path=str(config_path) if config_path is not None else None,
-        animate=animate,
+        animate=_effective_animate(
+            csv_animate,
+            allow_csv_animate=allow_csv_animate,
+            force_animate=force_animate,
+        ),
+        allow_csv_animate=allow_csv_animate,
     )
 
 
@@ -146,7 +150,10 @@ def resolve_message_signals(runtime: MatrixMessageRuntime) -> tuple[MatrixSignal
         )
         signals = reload_csv_if_changed(cache)
         runtime.signals = cache.signals
-        runtime.animate = cache.animate
+        runtime.animate = _effective_animate(
+            cache.animate,
+            allow_csv_animate=runtime.allow_csv_animate,
+        )
         runtime.mtime_ns = cache.mtime_ns
     else:
         signals = runtime.signals

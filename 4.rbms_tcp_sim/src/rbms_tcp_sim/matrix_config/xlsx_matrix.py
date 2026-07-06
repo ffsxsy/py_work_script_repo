@@ -56,10 +56,8 @@ SIM_CMD_GROUP: dict[str, str] = {
     "soxdebug2": "0x03",
 }
 
-# 默认 CSV animate 行
-SIM_ANIMATE_DEFAULT: dict[str, bool] = {
-    "suminfo": True,
-}
+# 默认 CSV animate 行（联调：固定 value，仅 StrCtrlHb 心跳递增）
+SIM_ANIMATE_DEFAULT: dict[str, bool] = {}
 
 MATRIX_SOURCE_LABEL = "BMS2.0 LAN Matrix V1.0.50"
 
@@ -297,17 +295,147 @@ def _infer_data_type(signal: SignalDef) -> str:
     return "Uint16"
 
 
+def _is_reserved_name(name: str) -> bool:
+    return "reserved" in name
+
+
+def _nonzero_fallback(signal: SignalDef) -> float:
+    """未知信号兜底：尽量非零且可编码。"""
+    if signal.resolution > 0 and signal.resolution < 1:
+        return signal.resolution
+    return max(1.0, signal.resolution)
+
+
+def _temperature_physical_default(name: str) -> float:
+    """温度类信号（°C 工程值，已含 Matrix offset 语义）。"""
+    if "max" in name:
+        return 35.0
+    if "min" in name:
+        return 22.0
+    if "avg" in name:
+        return 28.0
+    box_match = re.search(r"t(\d+)degc", name)
+    if box_match is not None:
+        return 26.0 + float(box_match.group(1)) * 2.0
+    return 28.0
+
+
+def _cell_position_default(name: str, *, array_index: int = 0) -> float:
+    if "max" in name:
+        return 125.0 + float(array_index)
+    if "min" in name:
+        return 288.0 + float(array_index)
+    return float((array_index * 17 + 1) % 416 + 1)
+
+
 def default_physical_value(signal: SignalDef, *, array_index: int = 0) -> float:
-    """为模拟器生成非零、物理合理的默认值。"""
+    """为模拟器生成物理合理的默认值（reserved 除外尽量非零）。"""
     name = signal.name.lower()
 
-    if "reserved" in name:
+    if _is_reserved_name(name):
         if signal.bit_length <= 4:
             return float((1 << signal.bit_length) - 1)
         return 0.0
 
     if signal.bit_length == 1:
         return 1.0
+
+    if name in ("rbms_v", "rbms_dcbusv") or ("islnfinal" in name and "v" in name):
+        return 400.0
+
+    if name in ("rbms_a", "rbms_a1", "rbms_a2", "rbms_a_highaccu"):
+        return 1.0
+
+    if name == "rbms_isolr" or name.startswith("rbms_isor"):
+        return 500.0
+
+    if name in (
+        "rbms_chast",
+        "rbms_sysoperst",
+        "rbms_const",
+        "rbms_confail",
+        "rbms_idlearncodest",
+        "rbms_commtype",
+        "rbms_attachstate",
+        "rbms_rlyctrlcmd",
+        "rbms_islnmeastststate",
+        "rbms_pcsbmsst",
+        "rbms_bmsmaxfltlevel",
+        "rbms_lowpowsply",
+        "rbms_rlyctrlseqststate",
+        "rbms_cmdinhibitflg",
+        "rbms_daisychain1lastnode",
+        "rbms_daisychain2lastnode",
+    ):
+        return 1.0
+
+    if name == "rbms_soh":
+        return 95.0
+    if name in ("rbms_soec", "rbms_soed"):
+        return 180.0
+
+    if "sofpulse" in name:
+        if "curr" in name:
+            return 150.0
+        if "pwr" in name:
+            return 75.0
+    if "sofcont" in name:
+        if "curr" in name:
+            return 100.0
+        if "pwr" in name:
+            return 50.0
+
+    if name == "rbms_cellvmax":
+        return 3350.0
+    if name == "rbms_cellvmin":
+        return 3200.0
+    if name == "rbms_cellvavg":
+        return 3280.0
+    if "cellv" in name and "pstn" in name:
+        return _cell_position_default(name, array_index=array_index)
+
+    if "hvbox" in name and "temp" in name:
+        return _temperature_physical_default(name)
+    if "modtmp" in name:
+        return _temperature_physical_default(name)
+    if "balbdtmp" in name or "afechiptmp" in name:
+        return _temperature_physical_default(name)
+    if "prechrgrt" in name:
+        return 25.0
+    if "degc" in name or "tdegc" in name:
+        return _temperature_physical_default(name)
+
+    if "sysmaxsoc" in name:
+        return 88.0
+    if "sysminsoc" in name:
+        return 72.0
+    if "realsyssohc" in name:
+        return 92.0
+
+    if "accudischrgah" in name or "accuchrgah" in name:
+        return 800.0 if name.endswith("2") else 1500.0
+    if "accudischrgkwh" in name or "accuchrgkwh" in name:
+        return 400.0 if name.endswith("2") else 600.0
+    if "lstchekwh" in name or "lstdchekwh" in name:
+        return 48.0
+
+    if "pcschvoltlim" in name:
+        return 850.0
+    if "pcsdchvoltlim" in name:
+        return 650.0
+    if "pcssop" in name:
+        return 120.0
+
+    if "currsnsrpowsplyvoltmv" in name:
+        return 12000.0
+    if "fltsop" in name and "coeffpct" in name:
+        return 100.0
+    if "rmngcellbalti" in name:
+        return 1.0
+    if "faultevt" in name:
+        return 1.0
+    if "modtmpmaxpstn" in name or "modtmpminpstn" in name:
+        return _cell_position_default(name, array_index=array_index)
 
     if "batia" in name or "rlyloadbreakcurrent" in name:
         return 2.5
@@ -318,17 +446,12 @@ def default_physical_value(signal: SignalDef, *, array_index: int = 0) -> float:
         return 3200.0
     if "cellvmvx" in name or "simcellvmv" in name:
         return float(3250 + array_index * 8)
+    if name == "rbms_cellv" or name.startswith("rbms_cellv_"):
+        return float(3300 + array_index)
     if "mfcltargtvaluevmax" in name:
         return 3400.0
     if "mfcltargtvaluevmin" in name:
         return 3100.0
-
-    if "tdegc" in name:
-        if "max" in name:
-            return 35.0
-        if "min" in name:
-            return 22.0
-        return 28.0
 
     if "sohcpct" in name or "socpct" in name:
         if "maxmin" in name:
@@ -395,7 +518,10 @@ def default_physical_value(signal: SignalDef, *, array_index: int = 0) -> float:
     if "socstate" in name or "dfclpointstats" in name:
         return 2.0
 
-    return 1.0
+    if "vldflg" in name or "valid" in name:
+        return 1.0
+
+    return _nonzero_fallback(signal)
 
 
 def sim_default_physical_value(
@@ -409,23 +535,34 @@ def sim_default_physical_value(
     key = sim_name.lower()
 
     if name == "RBMS_StrCtrlHb":
-        return 0.0
+        return 1.0
     if name == "RBMS_St":
         return 3.0
     if name == "RBMS_SoC":
         return 55.0
+    if name == "RBMS_SoH":
+        return 95.0
+    if name in ("RBMS_V", "RBMS_DCBusV"):
+        return 400.0
+    if name in ("RBMS_A", "RBMS_A1", "RBMS_A2", "RBMS_A_HighAccu"):
+        return 1.0
+    if name == "RBMS_IsoR" or name.startswith("RBMS_IsoR"):
+        return 500.0
 
-    if name.startswith("RBMS_CellVVldFlg") or name.startswith("RBMS_PCBBdTVldFlg"):
+    if name.startswith("RBMS_CellVVldFlg"):
+        # 每 8 个电芯一组：8×1、8×0 交替（array_index 从 0 起）
         return 1.0 if (array_index // 8) % 2 == 0 else 0.0
+    if name.startswith("RBMS_PCBBdTVldFlg"):
+        return 1.0
     if name.startswith("RBMS_CellBalStatus"):
         return 1.0 if (array_index // 8) % 2 == 0 else 0.0
     if name.startswith("RBMS_CellSdrate"):
-        return (array_index // 8) * 0.5
+        return (array_index // 8 + 1) * 0.5
     if name.startswith("RBMS_Fault"):
         return 1.0 if (array_index // 8) % 2 == 0 else 0.0
     if name.startswith("RBMS_CellTMUXFaiIDNbr"):
-        return 255.0 if array_index % 2 == 0 else 0.0
-    if name.startswith("RBMS_CellV_"):
+        return 255.0 if array_index % 2 == 0 else 1.0
+    if name == "RBMS_CellV" or name.startswith("RBMS_CellV_"):
         return float(3300 + array_index)
 
     if key == "temp" and (
@@ -519,7 +656,7 @@ def _csv_header_lines(sim_name: str, *, matrix_name: str, total_bytes: int) -> l
             [
                 "# - 修改 value 后保存；模拟器每帧 SumInfo 前重新读取",
                 "# - RBMS_StrCtrlHb 心跳由模拟器自动递增，value 列可忽略",
-                "# - animate 行：true=在物理值基础上叠加正弦缓变",
+                "# - animate 行：仅当 rbms_sim.toml [protocol] animate_payload=true 时生效",
             ]
         )
     else:

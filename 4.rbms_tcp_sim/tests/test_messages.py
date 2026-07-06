@@ -51,7 +51,7 @@ def test_suminfo_status_and_voltage() -> None:
     assert v_raw == physical_to_raw(800.0, 0.5, 0.0)
 
     assert payload[110] == physical_to_raw(50.0, 0.5, 0.0)
-    assert payload[111] == physical_to_raw(1.0, 1.0, 0.0)  # RBMS_SoH 默认
+    assert payload[111] == physical_to_raw(95.0, 1.0, 0.0)  # RBMS_SoH 默认
 
 
 def test_suminfo_not_all_zero() -> None:

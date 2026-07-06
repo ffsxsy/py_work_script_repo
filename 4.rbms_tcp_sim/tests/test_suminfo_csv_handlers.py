@@ -15,9 +15,9 @@ def _suminfo_state(csv_path: Path, *, animate: bool = False) -> RbmsState:
         "suminfo",
         config_path=csv_path,
         use_external=True,
+        allow_csv_animate=animate,
         force_animate=animate,
     )
-    runtime.animate = animate
     return RbmsState(rack_id=1, matrix_messages={"suminfo": runtime})
 
 

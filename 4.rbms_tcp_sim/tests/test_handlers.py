@@ -9,6 +9,7 @@ from rbms_tcp_sim.protocol import (
     DEV_BBMS_A,
     DEV_BBMS_M,
     DEV_HMI_BBMS_A,
+    DEV_RBMS,
     TRANSPORT_NEED_REPLY,
     TRANSPORT_NO_REPLY,
     BmsFrame,
@@ -54,24 +55,35 @@ def test_bbms_ctl_word_no_reply_when_disabled() -> None:
     assert replies == []
 
 
-def test_bbms_safety_signal_updates_state() -> None:
-    state = RbmsState(rack_id=1)
-    frame = BmsFrame(
+def _safety_signal_frame(*, transport: int = TRANSPORT_NO_REPLY) -> BmsFrame:
+    return BmsFrame(
         src=DEV_BBMS_M[0],
         src_sub=DEV_BBMS_M[1],
         dest=0x04,
         dest_sub=1,
-        transport_type=TRANSPORT_NO_REPLY,
+        transport_type=transport,
         frame_id=1,
         cmd_group=0x02,
         cmd_id=0x0E,
         payload=bytes([0x01, 0x02, 0xAB]),
     )
-    replies = dispatch(frame, state, auto_reply=True)
+
+
+def test_bbms_safety_signal_updates_state() -> None:
+    state = RbmsState(rack_id=1)
+    replies = dispatch(_safety_signal_frame(), state, auto_reply=True)
     assert replies == []
     assert state.bbms_safety.container_epo_flg == 0x01
     assert state.bbms_safety.rolling_counter == 0x02
     assert state.bbms_safety.checksum == 0xAB
+
+
+def test_bbms_safety_signal_never_replies_even_if_transport_need_reply() -> None:
+    """Matrix 约定 SafetySignal 为 transport=0x01 周期上送；模拟器始终不应答。"""
+    state = RbmsState(rack_id=1)
+    replies = dispatch(_safety_signal_frame(transport=TRANSPORT_NEED_REPLY), state, auto_reply=True)
+    assert replies == []
+    assert state.bbms_safety.container_epo_flg == 0x01
 
 
 def test_periodic_tx_dest_is_hmi_bbms_a() -> None:
@@ -101,6 +113,24 @@ def test_periodic_tx_dest_bbms_channel() -> None:
     assert pkt.dest_sub == DEV_BBMS_A[1]
     assert pkt.src == 0x04
     assert pkt.src_sub == 1
+
+
+def test_periodic_tx_src_sub_equals_rack_id() -> None:
+    """Network Layer srcSub 须与 rack_id 一致（SumInfo / Temp 等所有周期 Tx）。"""
+    cases: tuple[tuple[int, str], ...] = (
+        (1, "suminfo"),
+        (2, "temp"),
+        (12, "fault"),
+    )
+    for rack_id, message in cases:
+        runtime = load_message_runtime(message, config_path=None, use_external=False)
+        state = RbmsState(rack_id=rack_id, matrix_messages={message: runtime})
+        frames = build_periodic_tx_frames(state, {message}, base_interval_s=1.0)
+        assert frames, f"rack_id={rack_id} {message} 应产生帧"
+        parsed, _ = try_parse_frames(bytearray(frames[0]))
+        pkt = parsed[0]
+        assert pkt.src == DEV_RBMS[0]
+        assert pkt.src_sub == rack_id
 
 
 def test_str_ctrl_hb_increments_each_suminfo() -> None:

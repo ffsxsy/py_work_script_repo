@@ -40,11 +40,36 @@ def dispatch(frame: BmsFrame, state: RbmsState, *, auto_reply: bool) -> list[byt
     if cmd == CMD_BBMS_CTL_WORD:
         return _handle_bbms_ctl_word(frame, state, auto_reply=auto_reply)
     if cmd == CMD_BBMS_SAFETY_SIGNAL:
-        _handle_bbms_safety_signal(frame, state)
-        return []
+        return _handle_bbms_safety_signal(frame, state)
 
     LOGGER.debug("未专门处理的命令 payload=%s", format_hex(frame.payload))
     return []
+
+
+def _build_state_reply(frame: BmsFrame, state: RbmsState, *, log_label: str) -> bytes:
+    reply = build_frame(
+        src=(DEV_RBMS[0], state.rack_id),
+        dest=(frame.src, frame.src_sub),
+        transport_type=TRANSPORT_REPLY,
+        frame_id=frame.frame_id,
+        cmd_group=frame.cmd_group,
+        cmd_id=frame.cmd_id,
+        payload=bytes([REPLY_STATE_OK]),
+    )
+    LOGGER.debug("TX %s ACK state=%d", log_label, REPLY_STATE_OK)
+    return reply
+
+
+def _maybe_state_reply(
+    frame: BmsFrame,
+    state: RbmsState,
+    *,
+    auto_reply: bool,
+    log_label: str,
+) -> list[bytes]:
+    if not auto_reply or frame.transport_type != TRANSPORT_NEED_REPLY:
+        return []
+    return [_build_state_reply(frame, state, log_label=log_label)]
 
 
 def _handle_bbms_ctl_word(
@@ -67,26 +92,14 @@ def _handle_bbms_ctl_word(
         ctrl.ctrl_mode,
     )
 
-    if not auto_reply or frame.transport_type != TRANSPORT_NEED_REPLY:
-        return []
-
-    reply = build_frame(
-        src=(DEV_RBMS[0], state.rack_id),
-        dest=(frame.src, frame.src_sub),
-        transport_type=TRANSPORT_REPLY,
-        frame_id=frame.frame_id,
-        cmd_group=frame.cmd_group,
-        cmd_id=frame.cmd_id,
-        payload=bytes([REPLY_STATE_OK]),
-    )
-    LOGGER.debug("TX BBMS_CtlWord ACK state=%d", REPLY_STATE_OK)
-    return [reply]
+    return _maybe_state_reply(frame, state, auto_reply=auto_reply, log_label="BBMS_CtlWord")
 
 
-def _handle_bbms_safety_signal(frame: BmsFrame, state: RbmsState) -> None:
+def _handle_bbms_safety_signal(frame: BmsFrame, state: RbmsState) -> list[bytes]:
+    """BBMS_SafetySignal 为周期上送（transport=0x01），解析落 state，不应答。"""
     if len(frame.payload) < 3:
         LOGGER.warning("BBMS_SafetySignal payload 过短: %d bytes", len(frame.payload))
-        return
+        return []
 
     state.bbms_safety = BbmsSafetySignal(
         container_epo_flg=frame.payload[0],
@@ -99,3 +112,5 @@ def _handle_bbms_safety_signal(frame: BmsFrame, state: RbmsState) -> None:
         state.bbms_safety.rolling_counter,
         state.bbms_safety.checksum,
     )
+
+    return []

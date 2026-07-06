@@ -192,3 +192,47 @@ def test_hmi_client_reconnects_after_disconnect() -> None:
         mock_hmi.close()
         server_thread.join(timeout=3.0)
         client_thread.join(timeout=3.0)
+
+
+def test_hmi_client_uses_bind_host_for_source_address() -> None:
+    mock_hmi = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    mock_hmi.bind(("127.0.0.1", 0))
+    mock_hmi.listen(1)
+    mock_hmi.settimeout(5.0)
+    port = mock_hmi.getsockname()[1]
+
+    matrix_csv = {
+        name: MatrixCsvConfig(config_path=None, use_external=False) for name in ("suminfo",)
+    }
+    config = SimConfig(
+        config_path=Path("."),
+        rack_id=1,
+        hmi=HmiClientConfig(
+            host="127.0.0.1",
+            port=port,
+            connect_retry_interval_s=0.3,
+            reconnect_interval_s=0.3,
+            bind_host="127.0.0.1",
+        ),
+        bbms=BbmsServerConfig(listen_host="127.0.0.1", listen_port=0),
+        periodic=frozenset({"suminfo"}),
+        interval_s=0.2,
+        auto_reply=True,
+        matrix_csv=matrix_csv,
+    )
+    matrix_messages = {
+        "suminfo": load_message_runtime("suminfo", config_path=None, use_external=False),
+    }
+    client = TcpHmiClient(config, matrix_messages=matrix_messages)
+
+    thread = threading.Thread(target=client._connect_once, daemon=True)
+    thread.start()
+
+    try:
+        conn, addr = mock_hmi.accept()
+        assert addr[0] == "127.0.0.1"
+        conn.close()
+    finally:
+        client.stop()
+        mock_hmi.close()
+        thread.join(timeout=5.0)

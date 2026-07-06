@@ -36,13 +36,19 @@ def _no_session_warmup(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_tx_scheduler_sends_periodic_frames() -> None:
     """TxScheduler 按 interval 周期调用 send_fn。"""
     sent: list[bytes] = []
+    sent_at: list[float] = []
     stop = threading.Event()
     state = RbmsState(rack_id=1, matrix_messages={"suminfo": _suminfo_runtime()})
+
+    def record_send(frame: bytes) -> None:
+        sent.append(frame)
+        sent_at.append(time.monotonic())
+
     scheduler = TxScheduler(
         state=state,
         periodic={"suminfo"},
         interval_s=1.0,
-        send_fn=sent.append,
+        send_fn=record_send,
         stop_event=stop,
         inter_frame_delay_s=0.0,
     )
@@ -50,9 +56,11 @@ def test_tx_scheduler_sends_periodic_frames() -> None:
     thread.start()
     try:
         deadline = time.monotonic() + 2.5
-        while time.monotonic() < deadline and len(sent) < 2:
+        while time.monotonic() < deadline and len(sent_at) < 2:
             time.sleep(0.05)
-        assert len(sent) >= 2
+        assert len(sent_at) >= 2
+        delta = sent_at[1] - sent_at[0]
+        assert 0.9 <= delta <= 1.15, f"周期间隔异常: {delta:.3f}s"
         parsed, _ = try_parse_frames(bytearray(sent[0]))
         assert parsed[0].cmd_group == 0x03
         assert parsed[0].cmd_id == 0x01

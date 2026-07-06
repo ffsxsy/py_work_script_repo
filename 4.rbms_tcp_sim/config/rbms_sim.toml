@@ -2,19 +2,26 @@
 #
 # 路径说明：相对路径均相对项目根目录解析。
 #
-# 角色说明（--mode hmi / --mode bbms 二选一，固定模拟第一簇）：
-# - [hmi]  mode=hmi 时作为 TCP Client 连接上位机
-# - [bbms] mode=bbms 时作为 TCP Server 供 BBMS 连接
+# 角色说明（--mode client / server 二选一）：
+# - [client] mode=client 时作为 TCP Client 连接上位机
+# - [server] mode=server 时作为 TCP Server 供 BBMS 连接
 
-[hmi]
-host = "127.0.0.1"
+[rbms]
+# 协议 srcSub（簇号 1~12）；也可用 CLI --rack-id 覆盖
+rack_id = 1
+
+[client]
+host = "192.168.1.136"
 port = 5001
+auto_bind_host = true
+bind_host_base = "192.168.1.137"   # rack 1→.137，rack 2→.138，…
+# bind_host = "192.168.1.137"      # 显式指定时覆盖 auto
 connect_retry_interval_s = 1.0
 reconnect_interval_s = 5.0
 
-[bbms]
-listen_host = "192.168.1.137"
-listen_port = 5001
+[server]
+host = "192.168.1.137"
+port = 5001
 
 [periodic]
 messages = "suminfo,fault,volt,temp,cellbalst,cellsdr,debug,soxdebug1,soxdebug2"
@@ -22,6 +29,8 @@ interval_s = 1.0
 
 [protocol]
 auto_reply_ctl_word = true
+# false=各 CSV value 固定（仅 StrCtrlHb 心跳递增）；true=按 CSV animate 行缓变
+animate_payload = false
 # 断线重连后 StrCtrlHb / frameId：false=新 Session 从 0 计（推荐联调）；true=跨连接连续
 persist_session_counters = false
 

@@ -337,10 +337,12 @@ flowchart LR
 ### 8.1 基准节拍
 
 - 配置项：`[periodic].interval_s`（默认 **1.0 秒**）
-- Tx 线程每轮：
-  1. 构建 **一轮** 待发帧列表
-  2. **按报文名字母序** 依次 send
-  3. `wait(interval_s)` 或直到 stop
+- Tx 线程按 **固定间隔网格** 调度（`next_tick += interval_s`，不因 send 耗时漂移；不对齐系统整秒）
+- 每轮：
+  1. 等到下一节拍 `next_tick`
+  2. 构建 **一轮** 待发帧列表
+  3. **按报文名字母序** 依次 send（同轮帧间默认 **2ms**）
+  4. `next_tick += interval_s`（若 send 超时则跳至后续节拍并 WARNING）
 
 ### 8.2 单轮内「是否发送某报文」判定
 

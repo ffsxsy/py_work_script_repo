@@ -12,8 +12,10 @@ from rbms_tcp_sim.matrix_config.profiles import MESSAGE_PROFILES, PERIODIC_MESSA
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SIM_CONFIG = _PROJECT_ROOT / "config" / "rbms_sim.toml"
 
-# 暂时仅模拟第一簇；协议 src_sub 固定为 1。
-SIMULATED_RACK_ID: Final[int] = 1
+# 协议 srcSub（簇号）默认值；可在 rbms_sim.toml [rbms] rack_id 或 CLI --rack-id 覆盖。
+DEFAULT_RACK_ID: Final[int] = 1
+MAX_RACK_ID: Final[int] = 12
+SIMULATED_RACK_ID: Final[int] = DEFAULT_RACK_ID
 
 DEFAULT_PERIODIC_MESSAGES: Final[str] = (
     "suminfo,fault,volt,temp,cellbalst,cellsdr,debug,soxdebug1,soxdebug2"
@@ -26,21 +28,30 @@ DEFAULT_SIM_CONFIG_TEMPLATE: Final[str] = f"""\
 #
 # 路径说明：相对路径均相对项目根目录解析。
 #
-# 角色说明（--mode hmi / --mode bbms 二选一，固定模拟第一簇）：
-# - [hmi]  mode=hmi 时作为 TCP Client 连接上位机
-# - [bbms] mode=bbms 时作为 TCP Server 供 BBMS 连接
+# 角色说明（--mode client / server 二选一）：
+# - [client] mode=client 时作为 TCP Client 连接上位机
+# - [server] mode=server 时作为 TCP Server 供 BBMS 连接
+# - [rbms]   rack_id 为协议 srcSub（簇号 1~12）
 
-[hmi]
+[rbms]
+rack_id = 1
+
+[client]
 host = "127.0.0.1"
 port = 5001
+# 可选：显式指定出站源 IP（设置后不再按 rack_id 自动推导）
+# bind_host = "192.168.1.137"
+# rack_id=1 绑定 bind_host_base，rack N 末 octet + (N-1)；例：1→.137，2→.138
+auto_bind_host = false
+bind_host_base = "192.168.1.137"
 # 建连失败（对端未监听）时的快速重试间隔
 connect_retry_interval_s = 1.0
 # 会话正常结束（对端断开）后的重连间隔
 reconnect_interval_s = 5.0
 
-[bbms]
-listen_host = "0.0.0.0"
-listen_port = 5002
+[server]
+host = "0.0.0.0"
+port = 5002
 
 [periodic]
 messages = "{DEFAULT_PERIODIC_MESSAGES}"
@@ -48,6 +59,8 @@ interval_s = 1.0
 
 [protocol]
 auto_reply_ctl_word = true
+# false=各 CSV value 固定（仅 StrCtrlHb 心跳递增）；true=按 CSV animate 行缓变
+animate_payload = false
 # 断线重连后是否沿用上一 Session 的 StrCtrlHb / frameId（false=新连接从 0 计）
 persist_session_counters = false
 
@@ -95,6 +108,9 @@ class HmiClientConfig:
     port: int
     connect_retry_interval_s: float
     reconnect_interval_s: float
+    bind_host: str | None = None
+    auto_bind_host: bool = False
+    bind_host_base: str | None = None
 
 
 @dataclass(frozen=True)
@@ -120,6 +136,7 @@ class SimConfig:
     auto_reply: bool
     matrix_csv: dict[str, MatrixCsvConfig]
     persist_session_counters: bool = False
+    animate_payload: bool = False
 
 
 def _resolve_path(raw: str) -> Path:
@@ -138,6 +155,56 @@ def parse_periodic(raw: str) -> frozenset[str]:
     if "none" in items:
         return frozenset()
     return frozenset(items)
+
+
+def parse_rack_id(raw: int | str | None, *, default: int = DEFAULT_RACK_ID) -> int:
+    """解析并校验 RBMS 簇号（协议 srcSub）。"""
+    if raw is None:
+        return default
+    rack_id = int(raw)
+    if rack_id < 1 or rack_id > MAX_RACK_ID:
+        msg = f"rack_id 须在 1~{MAX_RACK_ID} 之间，收到: {rack_id}"
+        raise ValueError(msg)
+    return rack_id
+
+
+def _optional_non_empty_str(raw: object) -> str | None:
+    if raw is None:
+        return None
+    text = str(raw).strip()
+    return text if text else None
+
+
+def bind_host_for_rack(rack_id: int, base: str) -> str:
+    """rack_id=1 使用 base；rack N 将 base 末 octet 加 (N-1)。"""
+    parse_rack_id(rack_id)
+    octets = base.split(".")
+    if len(octets) != 4 or not all(part.isdigit() and 0 <= int(part) <= 255 for part in octets):
+        msg = f"bind_host_base 须为 IPv4 地址: {base!r}"
+        raise ValueError(msg)
+    last = int(octets[3]) + (rack_id - 1)
+    if last > 255:
+        msg = f"rack_id={rack_id} 对应源 IP 末 octet 超出 255（base={base}）"
+        raise ValueError(msg)
+    return f"{octets[0]}.{octets[1]}.{octets[2]}.{last}"
+
+
+def resolve_client_bind_host(
+    rack_id: int,
+    *,
+    bind_host: str | None,
+    bind_host_base: str | None,
+    auto_bind_host: bool,
+) -> str | None:
+    """解析 client 模式实际绑定的本机源 IP。"""
+    if bind_host is not None:
+        return bind_host
+    if not auto_bind_host:
+        return None
+    base = _optional_non_empty_str(bind_host_base)
+    if base is None:
+        return None
+    return bind_host_for_rack(rack_id, base)
 
 
 def _load_matrix_csv_section(data: dict, name: str) -> MatrixCsvConfig:
@@ -161,8 +228,9 @@ def load_sim_config(path: Path) -> SimConfig:
         raise FileNotFoundError(msg)
 
     data = tomllib.loads(path.read_text(encoding="utf-8"))
-    hmi = data.get("hmi", {})
-    bbms = data.get("bbms", {})
+    rbms = data.get("rbms", {})
+    client = data.get("client", data.get("hmi", {}))
+    server = data.get("server", data.get("bbms", {}))
     periodic = data.get("periodic", {})
     protocol = data.get("protocol", {})
 
@@ -170,20 +238,24 @@ def load_sim_config(path: Path) -> SimConfig:
 
     return SimConfig(
         config_path=path.resolve(),
-        rack_id=SIMULATED_RACK_ID,
+        rack_id=parse_rack_id(rbms.get("rack_id", DEFAULT_RACK_ID)),
         hmi=HmiClientConfig(
-            host=str(hmi.get("host", "127.0.0.1")),
-            port=int(hmi.get("port", 5001)),
-            connect_retry_interval_s=float(hmi.get("connect_retry_interval_s", 1.0)),
-            reconnect_interval_s=float(hmi.get("reconnect_interval_s", 5.0)),
+            host=str(client.get("host", "127.0.0.1")),
+            port=int(client.get("port", 5001)),
+            connect_retry_interval_s=float(client.get("connect_retry_interval_s", 1.0)),
+            reconnect_interval_s=float(client.get("reconnect_interval_s", 5.0)),
+            bind_host=_optional_non_empty_str(client.get("bind_host")),
+            auto_bind_host=bool(client.get("auto_bind_host", False)),
+            bind_host_base=_optional_non_empty_str(client.get("bind_host_base")),
         ),
         bbms=BbmsServerConfig(
-            listen_host=str(bbms.get("listen_host", "0.0.0.0")),
-            listen_port=int(bbms.get("listen_port", 5002)),
+            listen_host=str(server.get("host", server.get("listen_host", "0.0.0.0"))),
+            listen_port=int(server.get("port", server.get("listen_port", 5002))),
         ),
         periodic=parse_periodic(str(periodic.get("messages", DEFAULT_PERIODIC_MESSAGES))),
         interval_s=float(periodic.get("interval_s", 1.0)),
         auto_reply=bool(protocol.get("auto_reply_ctl_word", True)),
         matrix_csv=matrix_csv,
         persist_session_counters=bool(protocol.get("persist_session_counters", False)),
+        animate_payload=bool(protocol.get("animate_payload", False)),
     )

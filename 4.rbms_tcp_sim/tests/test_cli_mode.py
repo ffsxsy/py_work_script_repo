@@ -75,8 +75,8 @@ def test_run_simulator_bbms_only_accepts_client() -> None:
         server_thread.join(timeout=3.0)
 
 
-def test_run_simulator_bbms_mode_entrypoint() -> None:
-    """run_simulator(mode=bbms) 仅监听 BBMS 端口，不连 HMI。"""
+def test_run_simulator_tcp_server_mode_entrypoint() -> None:
+    """run_simulator(mode=server) 仅监听 BBMS 端口，不连上位机。"""
     listen_port = 55002
     config = _sim_config(listen_port=listen_port)
     matrix_messages = {
@@ -87,7 +87,7 @@ def test_run_simulator_bbms_mode_entrypoint() -> None:
     def run_bbms_mode() -> None:
         run_simulator(
             config,
-            mode="bbms",
+            mode="server",
             matrix_messages=matrix_messages,
         )
 

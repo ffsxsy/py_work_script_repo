@@ -8,6 +8,7 @@ import socket
 import time
 from typing import TYPE_CHECKING
 
+from rbms_tcp_sim.app_config import resolve_client_bind_host
 from rbms_tcp_sim.session import create_session
 
 if TYPE_CHECKING:
@@ -29,6 +30,21 @@ def _format_connect_error(exc: OSError, peer: tuple[str, int]) -> str:
     return f"连接 HMI 失败: {exc}"
 
 
+def _create_outbound_connection(
+    peer: tuple[str, int],
+    *,
+    bind_host: str | None,
+    timeout: float,
+) -> socket.socket:
+    """建立出站 TCP 连接；bind_host 指定本机源 IP（端口由 OS 分配）。"""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(timeout)
+    if bind_host:
+        sock.bind((bind_host, 0))
+    sock.connect(peer)
+    return sock
+
+
 class TcpHmiClient:
     """主动连接 HMI Server，断线后按配置间隔重连。"""
 
@@ -47,13 +63,20 @@ class TcpHmiClient:
     def run_forever(self) -> None:
         cfg = self._config
         peer = (cfg.hmi.host, cfg.hmi.port)
+        bind_host = resolve_client_bind_host(
+            cfg.rack_id,
+            bind_host=cfg.hmi.bind_host,
+            bind_host_base=cfg.hmi.bind_host_base,
+            auto_bind_host=cfg.hmi.auto_bind_host,
+        )
 
         LOGGER.info(
-            "RBMS 模拟器启动: rack_id=%d → HMI %s:%d periodic=%s",
+            "RBMS 模拟器启动: rack_id=%d → HMI %s:%d periodic=%s%s",
             cfg.rack_id,
             cfg.hmi.host,
             cfg.hmi.port,
             ",".join(sorted(cfg.periodic)) or "none",
+            f" bind={bind_host}" if bind_host else "",
         )
 
         while not self._stop:
@@ -85,9 +108,27 @@ class TcpHmiClient:
     def _connect_once(self) -> None:
         cfg = self._config
         peer = (cfg.hmi.host, cfg.hmi.port)
-        LOGGER.info("正在连接 HMI %s:%d ...", *peer)
+        bind_host = resolve_client_bind_host(
+            cfg.rack_id,
+            bind_host=cfg.hmi.bind_host,
+            bind_host_base=cfg.hmi.bind_host_base,
+            auto_bind_host=cfg.hmi.auto_bind_host,
+        )
+        if bind_host:
+            LOGGER.info(
+                "正在连接 HMI %s:%d（源 IP %s）...",
+                peer[0],
+                peer[1],
+                bind_host,
+            )
+        else:
+            LOGGER.info("正在连接 HMI %s:%d ...", *peer)
 
-        conn = socket.create_connection(peer, timeout=_CONNECT_TIMEOUT_S)
+        conn = _create_outbound_connection(
+            peer,
+            bind_host=bind_host,
+            timeout=_CONNECT_TIMEOUT_S,
+        )
         conn.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
 
         if cfg.persist_session_counters:
