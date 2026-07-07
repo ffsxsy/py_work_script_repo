@@ -14,7 +14,11 @@ from rbms_tcp_sim.messages import (
     RBMS_ST_ONLINE,
     RBMS_STR_CTRL_HB_OFFSET,
     RBMS_SUMINFO_PAYLOAD_LEN,
+    next_str_ctrl_hb_value,
+    str_ctrl_hb_base,
+    str_ctrl_hb_max,
 )
+from rbms_tcp_sim.state import RbmsState
 
 
 def _signals_with_overrides(
@@ -83,6 +87,26 @@ def test_str_ctrl_hb_increments_by_one_not_256() -> None:
     p2 = _build_default_suminfo_payload(str_ctrl_hb=16)
     assert struct.unpack("<H", p1[159:161])[0] == 15
     assert struct.unpack("<H", p2[159:161])[0] == 16
+
+
+def test_str_ctrl_hb_rack_id_range_and_wrap() -> None:
+    assert str_ctrl_hb_base(1) == 1000
+    assert str_ctrl_hb_max(1) == 1999
+    assert str_ctrl_hb_base(4) == 4000
+    assert str_ctrl_hb_max(12) == 12999
+
+    state = RbmsState(rack_id=4, str_ctrl_hb=0)
+    assert state.next_str_ctrl_hb() == 4000
+    assert state.next_str_ctrl_hb() == 4001
+
+    state_r12 = RbmsState(rack_id=12, str_ctrl_hb=12999)
+    assert state_r12.next_str_ctrl_hb() == 12000
+
+    state_r1 = RbmsState(rack_id=1, str_ctrl_hb=1999)
+    assert state_r1.next_str_ctrl_hb() == 1000
+
+    assert next_str_ctrl_hb_value(2, 0) == 2000
+    assert next_str_ctrl_hb_value(2, 2999) == 2000
 
 
 def test_suminfo_initial_status_bits() -> None:

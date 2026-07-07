@@ -17,6 +17,7 @@ from rbms_tcp_sim.protocol import (
     DEV_RBMS,
     TRANSPORT_NEED_REPLY,
     build_frame,
+    parse_check_frame,
     try_parse_frames,
 )
 from rbms_tcp_sim.scheduler import TxScheduler
@@ -250,6 +251,33 @@ def test_session_str_ctrl_hb_increments_across_ticks() -> None:
 
         assert len(heartbeats) >= 2
         assert heartbeats[1] == heartbeats[0] + 1
+    finally:
+        session.stop()
+        thread.join(timeout=3.0)
+        peer_sock.close()
+
+
+def test_session_corrupt_tx_crc_sends_invalid_frames() -> None:
+    """corrupt_tx_crc 时出站帧 Link CRC 无效。"""
+    peer_sock, session_sock = socket.socketpair()
+    session = Session(
+        session_sock,
+        ("127.0.0.1", 50005),
+        rack_id=1,
+        periodic={"suminfo"},
+        interval_s=1.0,
+        auto_reply=True,
+        matrix_messages={"suminfo": _suminfo_runtime()},
+        corrupt_tx_crc=True,
+    )
+    thread = threading.Thread(target=session.start, daemon=True)
+    thread.start()
+
+    try:
+        peer_sock.settimeout(2.0)
+        raw = peer_sock.recv(4096)
+        assert raw
+        assert not parse_check_frame(raw)
     finally:
         session.stop()
         thread.join(timeout=3.0)

@@ -33,6 +33,8 @@ auto_reply_ctl_word = true
 animate_payload = false
 # 断线重连后 StrCtrlHb / frameId：false=新 Session 从 0 计（推荐联调）；true=跨连接连续
 persist_session_counters = false
+# 测试：出站帧 Link CRC 故意错误（对端应拒收）；也可用 CLI --corrupt-tx-crc
+corrupt_tx_crc = false
 
 [suminfo]
 config_path = "config/rbms_suminfo.csv"

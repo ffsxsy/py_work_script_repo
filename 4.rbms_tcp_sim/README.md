@@ -1,27 +1,22 @@
 # RBMS TCP Sim
 
-模拟 Rack BMS（RBMS）的 TCP 协议行为。**一个进程模拟一个簇**（`rack_id` 1~12）。通过 `--mode client` 或 `--mode server` **二选一**运行（默认 `client` 连上位机）。
+模拟 Rack BMS（RBMS）的 TCP 协议行为。**一个进程模拟一个簇**（`rack_id` 1~12）。通过 TCP 与 **HMI** 或 **BBMS** 联调时，以 `--mode client` / `--mode server` **二选一**运行（模拟器可作 TCP **客户端**或**服务端**）。
 
 ## 架构
 
+模拟器与对端均为 TCP 连接；**对端类型由 `--mode` 决定**，同一进程只连一侧。
+
 ```mermaid
 flowchart LR
-    subgraph hmi [HMI 通道]
-        SimC[rbms_tcp_sim<br/>TCP Client]
-        HMI[HMI 上位机<br/>:5001]
-        SimC -->|connect| HMI
+    subgraph peers [对端]
+        HMI[HMI 上位机]
+        BBMS[BBMS]
     end
-    subgraph bbms [BBMS 通道]
-        BBMS[BBMS TCP Client]
-        Srv[RBMS TCP Server<br/>server.port]
-        BBMS -->|connect| Srv
-    end
-```
+    Sim[rbms_tcp_sim<br/>单进程 / 单簇]
 
-| 通道 | 角色 | 配置段 | 状态 |
-| :--- | :--- | :--- | :--- |
-| RBMS → HMI | TCP **Client** | `[client]` | **`--mode client`** |
-| BBMS → RBMS | TCP **Server** | `[server]` | **`--mode server`** |
+    Sim -->|"--mode client<br/>模拟器 = TCP Client"| HMI
+    BBMS -->|"--mode server<br/>模拟器 = TCP Server"| Sim
+```
 
 ## 环境
 
@@ -88,6 +83,10 @@ port = 5002
 messages = "suminfo,fault"
 interval_s = 1.0
 
+[protocol]
+# 测试：出站帧 Link CRC 故意错误（对端应拒收）；也可用 CLI --corrupt-tx-crc
+corrupt_tx_crc = false
+
 [suminfo]
 config_path = "config/rbms_suminfo.csv"   # 相对 4.rbms_tcp_sim/ 目录
 use_external_config = true
@@ -117,6 +116,10 @@ uv run rbms-sim --host 192.168.1.136 --port 5001
 
 # 监听 BBMS（读 [server]）
 uv run rbms-sim --mode server
+
+# 测试：出站 Link CRC 故意填错（对端应拒收）
+uv run rbms-sim --mode client --rack-id 4 --corrupt-tx-crc
+uv run rbms-sim --mode server --corrupt-tx-crc
 ```
 
 ### CLI 参数
@@ -131,6 +134,7 @@ uv run rbms-sim --mode server
 | `--rack-id` | `[rbms] rack_id` | 协议 `srcSub`，簇号 **1~12** |
 | `--interval` | `[periodic] interval_s` | 基准周期上送间隔（秒） |
 | `--no-reply` | 关 | 不自动应答 `BBMS_CtlWord` |
+| `--corrupt-tx-crc` | 关 | 测试：出站帧 Link CRC 故意错误（对端应拒收） |
 | `-v` / `--verbose` | 关 | DEBUG 日志（含 Rx 帧细节） |
 | `--init-config` | — | 生成默认 `rbms_sim.toml` 后退出 |
 | `--init-matrix-config` | — | 生成周期报文默认 CSV 后退出 |
@@ -174,6 +178,12 @@ uv run rbms-sim --mode server --host 0.0.0.0 --port 5002
 uv run rbms-sim --interval 1.0
 uv run rbms-sim --no-reply
 uv run rbms-sim -v
+
+# 测试：Link 层 CRC 故意错误（周期上送 + CtlWord 应答均受影响）
+uv run rbms-sim --mode client --corrupt-tx-crc
+uv run rbms-sim --mode client --rack-id 4 --host 192.168.1.136 --corrupt-tx-crc
+uv run rbms-sim --mode server --corrupt-tx-crc
+# 或在 rbms_sim.toml [protocol] 设 corrupt_tx_crc = true
 
 # 仅生成配置 / CSV（不启动）
 uv run rbms-sim --init-config
@@ -281,8 +291,8 @@ BBMS Server 监听 0.0.0.0:5002 rack_id=1 periodic=...
 | RBMS_CellBalSt | 0x03:0x04 | 52B | 10s |
 | RBMS_CellSdr | 0x03:0x05 | 416B | 30s |
 
-- 各报文独立 CSV；默认 **`[protocol] animate_payload = false`** → 固定 `value`（仅 SumInfo **StrCtrlHb** 递增）。演示缓变设 `animate_payload = true` 并配合 CSV `animate` 行（见 [REVIEW_CHECKLIST.md](docs/REVIEW_CHECKLIST.md) §10）
-- SumInfo 上送时会话心跳覆盖 `RBMS_StrCtrlHb`（§9.3）
+- 各报文独立 CSV；默认 **`[protocol] animate_payload = false`** → 固定 `value`（仅 SumInfo **StrCtrlHb** 按 `rack_id` 递增，见下）。演示缓变设 `animate_payload = true` 并配合 CSV `animate` 行（见 [REVIEW_CHECKLIST.md](docs/REVIEW_CHECKLIST.md) §10）
+- SumInfo 上送时会话心跳覆盖 `RBMS_StrCtrlHb`：`rack_id=N` 时取值 **N×1000 ~ N×1000+999**（如 rack 1→1000–1999，rack 4→4000–4999），区间内 +1，越界回绕
 - 处理经 HMI 转发的 `BBMS_CtlWord` / `BBMS_SafetySignal`
 
 ## BBMS Server 功能

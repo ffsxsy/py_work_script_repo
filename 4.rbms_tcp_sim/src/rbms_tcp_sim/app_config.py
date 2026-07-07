@@ -63,6 +63,8 @@ auto_reply_ctl_word = true
 animate_payload = false
 # 断线重连后是否沿用上一 Session 的 StrCtrlHb / frameId（false=新连接从 0 计）
 persist_session_counters = false
+# 测试：出站帧 Link CRC 故意错误（对端应拒收）
+corrupt_tx_crc = false
 
 [suminfo]
 config_path = "config/rbms_suminfo.csv"
@@ -137,6 +139,7 @@ class SimConfig:
     matrix_csv: dict[str, MatrixCsvConfig]
     persist_session_counters: bool = False
     animate_payload: bool = False
+    corrupt_tx_crc: bool = False
 
 
 def _resolve_path(raw: str) -> Path:
@@ -258,4 +261,5 @@ def load_sim_config(path: Path) -> SimConfig:
         matrix_csv=matrix_csv,
         persist_session_counters=bool(protocol.get("persist_session_counters", False)),
         animate_payload=bool(protocol.get("animate_payload", False)),
+        corrupt_tx_crc=bool(protocol.get("corrupt_tx_crc", False)),
     )

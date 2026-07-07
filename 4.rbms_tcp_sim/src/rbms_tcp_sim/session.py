@@ -10,7 +10,7 @@ import time
 from typing import TYPE_CHECKING
 
 from rbms_tcp_sim.handlers import dispatch
-from rbms_tcp_sim.protocol import DEV_HMI_BBMS_A, try_parse_frames
+from rbms_tcp_sim.protocol import DEV_HMI_BBMS_A, tamper_link_crc, try_parse_frames
 from rbms_tcp_sim.scheduler import TxScheduler
 from rbms_tcp_sim.state import RbmsState
 
@@ -42,11 +42,13 @@ class Session:
         on_close: Callable[[], None] | None = None,
         initial_str_ctrl_hb: int = 0,
         initial_frame_id: int = 0,
+        corrupt_tx_crc: bool = False,
     ) -> None:
         self._conn = conn
         self._peer = peer
         self._peer_role = peer_role
         self._auto_reply = auto_reply
+        self._corrupt_tx_crc = corrupt_tx_crc
         self._on_close = on_close
         self._stop = threading.Event()
         self._send_lock = threading.Lock()
@@ -83,6 +85,8 @@ class Session:
         if _SESSION_WARMUP_S > 0:
             LOGGER.debug("会话预热 %.1fs 后开始周期上送", _SESSION_WARMUP_S)
             time.sleep(_SESSION_WARMUP_S)
+        if self._corrupt_tx_crc:
+            LOGGER.warning("测试模式：出站 Link CRC 将被故意篡改")
         self._tx_thread.start()
         self._rx_loop()
 
@@ -95,6 +99,8 @@ class Session:
                 self._conn.close()
 
     def _send(self, frame: bytes) -> None:
+        if self._corrupt_tx_crc:
+            frame = tamper_link_crc(frame)
         with self._send_lock:
             self._conn.sendall(frame)
 
@@ -157,4 +163,5 @@ def create_session(
         on_close=on_close,
         initial_str_ctrl_hb=initial_str_ctrl_hb,
         initial_frame_id=initial_frame_id,
+        corrupt_tx_crc=config.corrupt_tx_crc,
     )

@@ -616,6 +616,15 @@ def build_frame(
     return bytes(frame)
 
 
+def tamper_link_crc(frame: bytes) -> bytes:
+    """测试用：翻转 Link 层 CRC 低字节一位，使 parse_check_frame 失败。"""
+    if len(frame) < 5:
+        return frame
+    tampered = bytearray(frame)
+    tampered[3] ^= 0x01
+    return bytes(tampered)
+
+
 def parse_check_frame(data: bytes) -> bool:
     """与 firmware `parseCheckRbmsData()` 等价校验。"""
     if len(data) < LINK_MSG_LEN + BODY_HEADER_LEN:

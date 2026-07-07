@@ -68,6 +68,7 @@ def _apply_cli_overrides(config: SimConfig, args: argparse.Namespace) -> SimConf
 
     interval_s = args.interval if args.interval is not None else config.interval_s
     auto_reply = config.auto_reply if not args.no_reply else False
+    corrupt_tx_crc = config.corrupt_tx_crc or getattr(args, "corrupt_tx_crc", False)
     rack_id = config.rack_id if args.rack_id is None else parse_rack_id(args.rack_id)
     return replace(
         config,
@@ -76,6 +77,7 @@ def _apply_cli_overrides(config: SimConfig, args: argparse.Namespace) -> SimConf
         interval_s=interval_s,
         auto_reply=auto_reply,
         rack_id=rack_id,
+        corrupt_tx_crc=corrupt_tx_crc,
     )
 
 
@@ -182,6 +184,11 @@ def main() -> None:
         help="不自动应答 BBMS_CtlWord",
     )
     parser.add_argument(
+        "--corrupt-tx-crc",
+        action="store_true",
+        help="测试：出站帧 Link CRC 故意错误（对端应拒收）",
+    )
+    parser.add_argument(
         "--init-matrix-config",
         action="store_true",
         help="生成六类周期报文默认 CSV（含 SumInfo 模板复制）后退出",
@@ -218,6 +225,9 @@ def main() -> None:
         raise SystemExit(msg)
 
     config = _apply_cli_overrides(load_sim_config(args.config), args)
+
+    if config.corrupt_tx_crc:
+        log.warning("已启用 corrupt_tx_crc：所有出站帧 Link CRC 将被篡改")
 
     for name in matrix_message_names_with_csv():
         if name not in config.periodic:

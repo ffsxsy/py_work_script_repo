@@ -2,7 +2,7 @@
 # 点表来源：BMS2.0 LAN Matrix V1.0.50（docs/BMS2.0 LAN Matrix V1.0.50.xlsx）
 # - value(物理值)：工程单位；编码 raw = round((value - offset) / Resolution)
 # - 修改 value 后保存；模拟器每帧 SumInfo 前重新读取
-# - RBMS_StrCtrlHb 心跳由模拟器自动递增，value 列可忽略
+# - RBMS_StrCtrlHb 心跳由模拟器按 rack_id 递增（rack N：N*1000~N*1000+999），value 列可忽略
 # - animate 行：仅当 rbms_sim.toml [protocol] animate_payload=true 时生效
 signal,Byte,Start Bit,Bit Length,Resolution,offset,value(物理值),data_type,unit
 RBMS_St,1,0,8,1,0,3,,Uint8,

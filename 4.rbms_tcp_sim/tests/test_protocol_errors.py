@@ -7,6 +7,7 @@ from rbms_tcp_sim.protocol import (
     TRANSPORT_NO_REPLY,
     build_frame,
     parse_check_frame,
+    tamper_link_crc,
     try_parse_frames,
 )
 
@@ -27,6 +28,14 @@ def test_parse_check_frame_rejects_tampered_crc() -> None:
     frame = bytearray(_sample_frame())
     frame[3] ^= 0x01
     assert not parse_check_frame(bytes(frame))
+
+
+def test_tamper_link_crc_invalidates_frame() -> None:
+    frame = _sample_frame()
+    assert parse_check_frame(frame)
+    tampered = tamper_link_crc(frame)
+    assert tampered != frame
+    assert not parse_check_frame(tampered)
 
 
 def test_parse_check_frame_rejects_tampered_body() -> None:

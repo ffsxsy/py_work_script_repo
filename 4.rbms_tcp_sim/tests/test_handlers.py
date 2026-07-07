@@ -141,6 +141,7 @@ def test_str_ctrl_hb_increments_each_suminfo() -> None:
     p2 = try_parse_frames(bytearray(f2))[0][0].payload
     hb1 = struct.unpack("<H", p1[RBMS_STR_CTRL_HB_OFFSET : RBMS_STR_CTRL_HB_OFFSET + 2])[0]
     hb2 = struct.unpack("<H", p2[RBMS_STR_CTRL_HB_OFFSET : RBMS_STR_CTRL_HB_OFFSET + 2])[0]
+    assert hb1 == 1000
     assert hb2 == hb1 + 1
 
 

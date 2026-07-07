@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from rbms_tcp_sim.messages import next_str_ctrl_hb_value
+
 if TYPE_CHECKING:
     from rbms_tcp_sim.matrix_runtime import MatrixMessageRuntime
 
@@ -64,7 +66,7 @@ class RbmsState:
         return self.frame_id
 
     def next_str_ctrl_hb(self) -> int:
-        self.str_ctrl_hb = (self.str_ctrl_hb + 1) & 0xFFFF
+        self.str_ctrl_hb = next_str_ctrl_hb_value(self.rack_id, self.str_ctrl_hb)
         return self.str_ctrl_hb
 
     def next_scheduler_tick(self) -> int:
