@@ -1,0 +1,328 @@
+// clang-format off
+// BBMS 测点枚举 — generated from Matrix V1.0.50 (pure)
+typedef enum
+{
+    kBbms_Online = 0,                                                                          // 在线状态
+
+    //单芯计算的SOC以及各簇SOC结果
+    kBbms_SaSOCB_BankCellSOCPctxT_Start,                                                       // 等间隔位置的电芯SOC
+    kBbms_SaSOCB_BankCellSOCPctxT_End = kBbms_SaSOCB_BankCellSOCPctxT_Start + 16,              // 等间隔位置的电芯SOC
+    kBbms_SaSOCB_BankCellSOCStatexT_Start = kBbms_SaSOCB_BankCellSOCPctxT_End,                 // 等间隔位置的电芯SOC状态
+    kBbms_SaSOCB_BankCellSOCStatexT_End = kBbms_SaSOCB_BankCellSOCStatexT_Start + 16,          // 等间隔位置的电芯SOC状态
+    kBbms_SaSOCB_RackRealSOCPct_Start = kBbms_SaSOCB_BankCellSOCStatexT_End,                   // 簇SOC数组（最多12个）
+    kBbms_SaSOCB_RackRealSOCPct_End = kBbms_SaSOCB_RackRealSOCPct_Start + 12,                  // 簇SOC数组（最多12个）
+    kBbms_SaSOCB_RackMaxSOCPct_Start = kBbms_SaSOCB_RackRealSOCPct_End,                        // 簇最大SOC数组（最多12个）
+    kBbms_SaSOCB_RackMaxSOCPct_End = kBbms_SaSOCB_RackMaxSOCPct_Start + 12,                    // 簇最大SOC数组（最多12个）
+    kBbms_SaSOCB_RackMinSOCPct_Start = kBbms_SaSOCB_RackMaxSOCPct_End,                         // 簇最小SOC数组（最多12个）
+    kBbms_SaSOCB_RackMinSOCPct_End = kBbms_SaSOCB_RackMinSOCPct_Start + 12,                    // 簇最小SOC数组（最多12个）
+
+    //单芯计算的SOH以及各簇SOH结果
+    kBbms_SaSOHB_BankCellCapAhxT_Start = kBbms_SaSOCB_RackMinSOCPct_End,                       // 等间隔位置的电芯容量
+    kBbms_SaSOHB_BankCellCapAhxT_End = kBbms_SaSOHB_BankCellCapAhxT_Start + 16,                // 等间隔位置的电芯容量
+    kBbms_SaSOHB_DFCLCapResultAhxT_Start = kBbms_SaSOHB_BankCellCapAhxT_End,                   // 等间隔位置的电芯DFCL容量
+    kBbms_SaSOHB_DFCLCapResultAhxT_End = kBbms_SaSOHB_DFCLCapResultAhxT_Start + 16,            // 等间隔位置的电芯DFCL容量
+    kBbms_SaSOHB_MFCLCapResultAhxT_Start = kBbms_SaSOHB_DFCLCapResultAhxT_End,                 // 等间隔位置的电芯MFCL容量
+    kBbms_SaSOHB_MFCLCapResultAhxT_End = kBbms_SaSOHB_MFCLCapResultAhxT_Start + 16,            // 等间隔位置的电芯MFCL容量
+    kBbms_SaSOHB_RackRealCapAh_Start = kBbms_SaSOHB_MFCLCapResultAhxT_End,                     // 簇容量数组（最多12个）
+    kBbms_SaSOHB_RackRealCapAh_End = kBbms_SaSOHB_RackRealCapAh_Start + 12,                    // 簇容量数组（最多12个）
+    kBbms_SaSOHB_RackMaxCapAh_Start = kBbms_SaSOHB_RackRealCapAh_End,                          // 簇最大容量数组（最多12个）
+    kBbms_SaSOHB_RackMaxCapAh_End = kBbms_SaSOHB_RackMaxCapAh_Start + 12,                      // 簇最大容量数组（最多12个）
+    kBbms_SaSOHB_RackMinCapAh_Start = kBbms_SaSOHB_RackMaxCapAh_End,                           // 簇最小容量数组（最多12个）
+    kBbms_SaSOHB_RackMinCapAh_End = kBbms_SaSOHB_RackMinCapAh_Start + 12,                      // 簇最小容量数组（最多12个）
+
+    //BBMS_A核的故障列表
+    kBbms_A_Fault_Start = kBbms_SaSOHB_RackMinCapAh_End,                                       // BBMS A核故障数组
+    kBbms_A_Fault_End = kBbms_A_Fault_Start + 25,                                              // BBMS A核故障数组
+
+    //读取-自放电率演变信息
+    kBbms_SbEMCR_RTCnCMTimeVldFlg = kBbms_A_Fault_End,                                         // RTC时间与电池生产日期有效性
+    kBbms_ScEMCR_CellUsedMonth,                                                                // 电池使用时长 (month)
+    kBbms_ScEMCR_CellDischargeRatePct,                                                         // 电池自放电率 (%)
+
+    //A核控制命令
+    kBbms_A_EMSCtrlPowerUp,                                                                    // EMS控制上下高压指令
+    kBbms_EMSCtrlFaultReset,                                                                   // EMS控制故障复位
+    kBbms_EMSCtrlMode,                                                                         // BMS控制模式
+
+    //Bank 概要数据
+    kBbms_BatSt,                                                                               // Bank工作状态
+    kBbms_ChSt,                                                                                // Bank充放电状态
+    kBbms_SysOperSt,                                                                           // Bank系统运行状态
+    kBbms_PmtRkFltNum,                                                                         // 允许运行的最小Rack数量
+    kBbms_SetInverterSt,                                                                       // 设置逆变器状态
+    kBbms_RackFltLvl1Nbr,                                                                      // 存在严重故障的Rack位置
+    kBbms_CntrSt,                                                                              // Bank接触器状态
+    kBbms_SOC,                                                                                 // 系统SOC (%)
+    kBbms_SOH,                                                                                 // 系统SOH (%)
+    kBbms_MaxChrgE,                                                                            // 系统可充能量 (kWh)
+    kBbms_MaxDisChrgE,                                                                         // 系统可放能量 (kWh)
+    kBbms_MaxContChrgPower,                                                                    // 持续充电功率限制 (kW)
+    kBbms_Max60sChrgPower,                                                                     // 脉冲充电功率限制 (kW)
+    kBbms_MaxContDisChrgPower,                                                                 // 持续放电功率限制 (kW)
+    kBbms_Max60sDisChrgPower,                                                                  // 脉冲放电功率限制 (kW)
+    kBbms_MaxContChrgCur,                                                                      // 持续充电电流限制 (A)
+    kBbms_Max60sChrgCur,                                                                       // 脉冲充电电流限制 (A)
+    kBbms_MaxContDisChrgCur,                                                                   // 持续放电电流限制 (A)
+    kBbms_Max60sDisChrgCur,                                                                    // 脉冲放电电流限制 (A)
+    kBbms_HumSensorRH,                                                                         // Bank湿度 (RH)
+    kBbms_TmpSensorRH,                                                                         // Bank温度 (℃)
+    kBbms_WtrSt,                                                                               // Bank水浸状态
+    kBbms_StrCtrlHb,                                                                           // Bank BMS心跳信号
+    kBbms_DCBusV,                                                                              // 母线电压 (V)
+    kBbms_TotalDCCur,                                                                          // 母线电流 (A)
+    kBbms_TotalPower,                                                                          // 总功率 (kW)
+    kBbms_MaxRackCur,                                                                          // 最大Rack电流 (A)
+    kBbms_MaxCurRackNr,                                                                        // 最大电流Rack位置
+    kBbms_MinRackCur,                                                                          // 最小Rack电流 (A)
+    kBbms_MinCurRackNr,                                                                        // 最小电流Rack位置
+    kBbms_MaxCellV,                                                                            // 最大电芯电压 (mV)
+    kBbms_MaxVCellRackNr,                                                                      // 最大电芯电压Rack位置
+    kBbms_MaxVCellTrayNr,                                                                      // 最大电芯电压模组位置
+    kBbms_MaxVCellNr,                                                                          // 最大电芯电压模组内位置
+    kBbms_MinCellV,                                                                            // 最小电芯电压 (mV)
+    kBbms_MinVCellRackNr,                                                                      // 最小电芯电压Rack位置
+    kBbms_MinVCellTrayNr,                                                                      // 最小电芯电压模组位置
+    kBbms_MinVCellNr,                                                                          // 最小电芯电压模组内位置
+    kBbms_AvgCellV,                                                                            // 平均电芯电压 (mV)
+    kBbms_MaxHvBoxTRackNr,                                                                     // 最高高压箱温度Rack位置
+    kBbms_MaxTCellRackNr,                                                                      // 最高电芯温度Rack位置
+    kBbms_MaxTCellTrayNr,                                                                      // 最高电芯温度模组位置
+    kBbms_MaxTCellNr,                                                                          // 最高电芯温度模组内位置
+    kBbms_MinHvBoxTRackNr,                                                                     // 最低高压箱温度Rack位置
+    kBbms_MinTCellRackNr,                                                                      // 最低电芯温度Rack位置
+    kBbms_MinTCellTrayNr,                                                                      // 最低电芯温度模组位置
+    kBbms_MinTCellNr,                                                                          // 最低电芯温度模组内位置
+    kBbms_ProhUpgradeFlg,                                                                      // 禁止升级标志位
+    kBbms_BMSMaxFltLevel,                                                                      // 系统故障等级
+    kBbms_IDLearnSt,                                                                           // Bank ID编码状态
+    kBbms_IDLearnFaiLocationNbr,                                                               // Bank ID编码失败位置
+    kBbms_IsoRPos,                                                                             // 正对地绝缘阻值 (kOhm)
+    kBbms_IsoRNeg,                                                                             // 负对地绝缘阻值 (kOhm)
+    kBbms_AccuChrgC,                                                                           // 累计充电容量 (Ah)
+    kBbms_AccuChrgE,                                                                           // 累计充电能量 (kWh)
+    kBbms_AccuDisChrgC,                                                                        // 累计放电容量 (Ah)
+    kBbms_AccuDisChrgE,                                                                        // 累计放电能量 (kWh)
+    kBbms_LstChEkWh,                                                                           // 最近一次堆充电能量 (kWh)
+    kBbms_LstDchEkWh,                                                                          // 最近一次堆放电能量 (kWh)
+    kBbms_RackEnaNbr,                                                                          // Rack使能数量
+    kBbms_RackOnlineNbr,                                                                       // Rack在线数量
+    kBbms_ConFail,                                                                             // 高压连接失败原因
+    kBbms_MaxChrgCap,                                                                          // 可充容量 (Ah)
+    kBbms_MaxDisChrgCap,                                                                       // 可放容量 (Ah)
+    kBbms_MaxHvBoxTDegC,                                                                       // 最高高压箱温度 (℃)
+    kBbms_MinHvBoxTDegC,                                                                       // 最低高压箱温度 (℃)
+    kBbms_MaxCellT,                                                                            // 最高电芯温度 (℃)
+    kBbms_MinCellT,                                                                            // 最低电芯温度 (℃)
+    kBbms_AvgCellT,                                                                            // 平均电芯温度 (℃)
+    kBbms_MaxPoleT,                                                                            // 最高极柱温度 (℃)
+    kBbms_MinPoleT,                                                                            // 最低极柱温度 (℃)
+    kBbms_MaxPoleTRackNr,                                                                      // 最高极柱温度Rack位置
+    kBbms_MaxPoleTMdulNr,                                                                      // 最高极柱温度模组位置
+    kBbms_MaxPoleTMdulInnerNr,                                                                 // 最高极柱温度模组内位置
+    kBbms_MinPoleTRackNr,                                                                      // 最低极柱温度Rack位置
+    kBbms_MinPoleTMdulNr,                                                                      // 最低极柱温度模组位置
+    kBbms_MinPoleTMdulInnerNr,                                                                 // 最低极柱温度模组内位置
+    kBbms_BBMSNo,                                                                              // 堆编号
+    kBbms_StartReConDectFlg,                                                                   // 簇防反接检测开始标志位
+    kBbms_Reserved_01,                                                                         // 预留占位
+    kBbms_ReverConRackFailNbr,                                                                 // 高压盒与汇流柜反接簇编号
+
+    //热管理信息（RBMS/BBMS）
+    kBbms_WtrTmpCmd,                                                                           // 设定温度(℃)
+    kBbms_cellTmpMax,                                                                          // 电芯最高温度(℃)
+    kBbms_cellTmpMin,                                                                          // 电芯最低温度(℃)
+    kBbms_cellTmpAvg,                                                                          // 电芯平均温度(℃)
+    kBbms_TMS_OutWtrTmp,                                                                       // 出水温度(℃)
+    kBbms_TMS_BackWtrTmp,                                                                      // 进水温度(℃)
+    kBbms_TMS_EnvTmp,                                                                          // 环境温度(℃)
+    kBbms_TMS_InWtrP,                                                                          // 进水水压(Bar)
+    kBbms_TMS_OutWtrP,                                                                         // 出水水压(Bar)
+    kBbms_TMS_BBMSFltLevel,                                                                    // TMS 故障等级
+    kBbms_TMS_BBMSFltCode,                                                                     // TMS 故障码
+    kBbms_BMS_TMSReqMode,                                                                      // BMS请求模式
+    kBbms_TMS_BMSMode,                                                                         // TMS工作模式
+    kBbms_TMSNo,                                                                               // TMS编号
+    kBbms_TMSCoolState,                                                                        // TMS制冷状态
+
+    //HMI TMS控制指令
+    kBbms_HMI_TMSManCtrlMode,                                                                  // 强控TMS工作模式
+    kBbms_HMI_TMSManCtrlTempDegC,                                                              // 强控TMS工作温度
+    kBbms_HMI_TMSManCtrlEnaFlg,                                                                // 强控TMS使能信号
+    kBbms_TMSNo,                                                                               // TMS编号
+
+    //HMI三级板DO控制指令（灯）
+    kBbms_HMI_LightManCtlNbr,                                                                  // 强控灯
+
+    //TMS阈值参数
+    kBbms_CcTHMC_EntHeatMinTemUpLimt,                                                          // 制热启动温度最小电芯温度阈值
+    kBbms_CcTHMC_EntHeatAvgTemUpLimt,                                                          // 制热启动温度平均电芯温度阈值
+    kBbms_CcTHMC_ExtHeatMinTemLowLimt,                                                         // 制热停止温度最小电芯温度阈值
+    kBbms_CcTHMC_ExtHeatAvgTemLowLimt,                                                         // 制热停止温度平均电芯温度阈值
+    kBbms_CcTHMC_EntCoolMaxTemLowLimtA,                                                        // 制冷A启动温度最大电芯温度阈值
+    kBbms_CcTHMC_EntCoolAvgTemLowLimtA,                                                        // 制冷A启动温度平均电芯温度阈值
+    kBbms_CcTHMC_ExtCoolMaxTemUpLimtA,                                                         // 制冷A停止温度最大电芯温度阈值
+    kBbms_CcTHMC_ExtCoolAvgTemUpLimtA,                                                         // 制冷A停止温度平均电芯温度阈值
+
+    //HMI三级板DO控制命令
+    kBbms_HMI_BBMSDO0CtrlFlg,                                                                  // DO0控制
+    kBbms_HMI_BBMSDO1CtrlFlg,                                                                  // DO1控制
+    kBbms_HMI_BBMSDO2CtrlFlg,                                                                  // DO2控制
+    kBbms_HMI_BBMSDO3CtrlFlg,                                                                  // DO3控制
+    kBbms_HMI_BBMSDO4CtrlFlg,                                                                  // DO4控制
+    kBbms_HMI_BBMSDO5CtrlFlg,                                                                  // DO5控制
+    kBbms_HMI_BBMSDO6CtrlFlg,                                                                  // DO6控制
+    kBbms_HMI_BBMSDO7CtrlFlg,                                                                  // DO7控制
+    kBbms_HMI_BBMSDO8CtrlFlg,                                                                  // DO8控制
+    kBbms_HMI_BBMSDO9CtrlFlg,                                                                  // DO9控制
+    kBbms_HMI_BBMSDO10CtrlFlg,                                                                 // DO10控制
+    kBbms_HMI_BBMSDO11CtrlFlg,                                                                 // DO11控制
+
+    //Bank故障累积次数标定
+    kBbms_HMI_BankFltHistInfoIndicator,                                                        // Bank故障数组历史信息标定指示
+    kBbms_HMI_BankAllFltHistAccuCaliVal_Start,                                                 // Bank故障数组历史信息标定值
+    kBbms_HMI_BankAllFltHistAccuCaliVal_End = kBbms_HMI_BankAllFltHistAccuCaliVal_Start + 200, // Bank故障数组历史信息标定值
+    kBbms_BBMSNo = kBbms_HMI_BankAllFltHistAccuCaliVal_End,                                    // 堆编号
+
+    //BBMS Control BBMS控制指令
+    kBbms_SetCon,                                                                              // 连接/断开电池串
+    kBbms_SetEnaIso,                                                                           // 使能/禁止绝缘检测
+    kBbms_FirstEnableRackFlg,                                                                  // 是否为使能第一簇标志位数组
+    kBbms_ReverConDetecCmpFlg,                                                                 // 防反接检测完成信号
+    kBbms_SetEna,                                                                              // 使能/禁止电池串
+    kBbms_Heartbeat,                                                                           // Bank 心跳
+    kBbms_RackEnableFlg,                                                                       // 退簇后使能/禁止电池串
+    kBbms_AllowRackExitFlg,                                                                    // 允许退簇系统标志位
+    kBbms_LocRemCtl,                                                                           // 控制模式
+    kBbms_SystemAchitectureNbr,                                                                // 系统架构类型
+    kBbms_BankFltLvl,                                                                          // Bank故障等级
+    kBbms_FltSOPDischCoeffPct,                                                                 // 基于故障的放电功率限制系数
+    kBbms_FltSOPChCoeffPct,                                                                    // 基于故障的充电功率限制系数
+
+    //功能安全相关信号
+    kBbms_ContainerEPOFlg,                                                                     // 集装箱急停标志
+    kBbms_RollingCounter,                                                                      // 滚动计数
+    kBbms_Checksum,                                                                            // 校验和
+
+    //BMS故障列表
+    kBbms_Fault_Start,                                                                         // BBMS故障数组
+    kBbms_Fault_End = kBbms_Fault_Start + 25,                                                  // BBMS故障数组
+
+    //电压阈值参数
+    kBbms_CcCLVH_MaxCellVOvLvl1FltVmV = kBbms_Fault_End,                                       // 单体过压一级报警阈值
+    kBbms_FULL_CHARGE_CELLV,                                                                   // 单体过压二级报警阈值
+    kBbms_CcCLVH_MaxCellVOvLvl2FltRcvryVmV,                                                    // 单体过压二级恢复阈值
+    kBbms_CcCLVH_MaxCellVOvLvl3FltVmV,                                                         // 单体过压三级报警阈值
+    kBbms_CcCLVH_MaxCellVOvLvl3FltRcvryVmV,                                                    // 单体过压三级恢复阈值
+    kBbms_CcCLVH_MaxCellVOvLvl4FltVmV,                                                         // 单体过压极限报警阈值
+    kBbms_CcCLVH_MinCellVUvLvl1FltVmV,                                                         // 单体欠压一级报警阈值
+    kBbms_FULL_DISCHARGE_CELLV,                                                                // 单体欠压二级报警阈值
+    kBbms_CcCLVH_MinCellVUvLvl2FltRcvryVmV,                                                    // 单体欠压二级恢复阈值
+    kBbms_CcCLVH_MinCellVUvLvl3FltVmV,                                                         // 单体欠压三级报警阈值
+    kBbms_CcCLVH_MinCellVUvLvl3FltRcvryVmV,                                                    // 单体欠压三级恢复阈值
+    kBbms_CcCLVH_MinCellVUvLvl4FltV1mV,                                                        // 低温单体欠压极限报警阈值
+    kBbms_CcCLVH_MinCellVUvLvl4FltV2mV,                                                        // 常温单体欠压极限报警阈值
+    kBbms_CcCLVH_DeltaCellVOLLvl1FltVmV,                                                       // 单体压差过大一级报警阈值
+    kBbms_CcCLVH_DeltaCellVOLLvl2FltVmV,                                                       // 单体压差过大二级报警阈值
+    kBbms_CcCLVH_DeltaCellVOLLvl2FltRcvryVmV,                                                  // 单体压差过大二级恢复阈值
+    kBbms_CcCLVH_DeltaCellVOLLvl3FltVmV,                                                       // 单体压差过大三级报警阈值
+    kBbms_CcCLVH_DeltaCellVOLLvl3FltRcvryVmV,                                                  // 单体压差过大三级恢复阈值
+
+    //簇电压阈值参数
+    kBbms_CcHVSH_BatOVLvl1FltCfmThdV,                                                          // 电池串过压一级报警阈值
+    kBbms_CcHVSH_BatOVLvl2FltCfmThdV,                                                          // 电池串过压二级报警阈值
+    kBbms_CcHVSH_BatOVLvl2FltRcvrThdV,                                                         // 电池串过压二级恢复阈值
+    kBbms_CcHVSH_BatOVLvl3FltCfmThdV,                                                          // 电池串过压三级报警阈值
+    kBbms_CcHVSH_BatOVLvl3FltRcvrThdV,                                                         // 电池串过压三级恢复阈值
+    kBbms_CcHVSH_BatUVLvl1FltCfmThdV,                                                          // 电池串欠压一级报警阈值
+    kBbms_CcHVSH_BatUVLvl2FltCfmThdV,                                                          // 电池串欠压二级报警阈值
+    kBbms_CcHVSH_BatUVLvl2FltRcvrThdV,                                                         // 电池串欠压二级恢复阈值
+    kBbms_CcHVSH_BatUVLvl3FltCfmThdV,                                                          // 电池串欠压三级报警阈值
+    kBbms_CcHVSH_BatUVLvl3FltRcvrThdV,                                                         // 电池串欠压三级恢复阈值
+
+    //簇电流阈值参数
+    kBbms_CcBTCD_RchaCurLvl1LimThdA,                                                           // 充电过流一级报警阈值
+    kBbms_CcBTCD_RchaCurLvl2LimThdA,                                                           // 充电过流二级报警阈值
+    kBbms_CcBTCD_RchaCurClrLvl2LimThdA,                                                        // 充电过流二级恢复阈值
+    kBbms_CcBTCD_RchaCurLvl3LimThdA,                                                           // 充电过流三级报警阈值
+    kBbms_CcBTCD_RchaCurClrLvl3LimThdA,                                                        // 充电过流三级恢复阈值
+    kBbms_CcBTCD_DchILimLvl1ThdA,                                                              // 放电过流一级报警阈值
+    kBbms_CcBTCD_DchILimLvl2ThdA,                                                              // 放电过流二级报警阈值
+    kBbms_CcBTCD_DchIClrLimLvl2ThdA,                                                           // 放电过流二级恢复阈值
+    kBbms_CcBTCD_DchILimLvl3ThdA,                                                              // 放电过流三级报警阈值
+    kBbms_CcBTCD_DchIClrLimLvl3ThdA,                                                           // 放电过流三级恢复阈值
+
+    //温度阈值参数
+    kBbms_CcCLTH_ChOvtempLvl1LimDegC,                                                          // 充电过温一级报警阈值
+    kBbms_CcCLTH_ChOvtempLvl2LimDegC,                                                          // 充电过温二级报警阈值
+    kBbms_CcCLTH_ChOvtempLvl2RcvryLimDegC,                                                     // 充电过温二级恢复阈值
+    kBbms_CcCLTH_ChOvtempLvl3LimDegC,                                                          // 充电过温三级报警阈值
+    kBbms_CcCLTH_ChOvtempLvl3RcvryLimDegC,                                                     // 充电过温三级恢复阈值
+    kBbms_CcCLTH_ChUnderTLvl1LimDegC,                                                          // 充电低温一级报警阈值
+    kBbms_CcCLTH_ChUnderTLvl2LimDegC,                                                          // 充电低温二级报警阈值
+    kBbms_CcCLTH_ChUnderTLvl2RcvryLimDegC,                                                     // 充电低温二级恢复阈值
+    kBbms_CcCLTH_ChUnderTLvl3LimDegC,                                                          // 充电低温三级报警阈值
+    kBbms_CcCLTH_ChUnderTLvl3RcvryLimDegC,                                                     // 充电低温三级恢复阈值
+    kBbms_CcCLTH_ChOvtempLvl0LimDegC,                                                          // 充电极限过温阈值
+    kBbms_CcCLTH_DischOvtempLvl1LimDegC,                                                       // 放电过温一级报警阈值
+    kBbms_CcCLTH_DischOvtempLvl2LimDegC,                                                       // 放电过温二级报警阈值
+    kBbms_CcCLTH_DischOvtempLvl2RcvryLimDegC,                                                  // 放电过温二级恢复阈值
+    kBbms_CcCLTH_DischOvtempLvl3LimDegC,                                                       // 放电过温三级报警阈值
+    kBbms_CcCLTH_DischOvtempLvl3RcvryLimDegC,                                                  // 放电过温三级恢复阈值
+    kBbms_CcCLTH_DischOvtempLvl0LimDegC,                                                       // 放电极限过温阈值
+    kBbms_CcCLTH_CellTempRiseChangeRate,                                                       // 温升过快极限故障阈值
+    kBbms_CcCLTH_DischUnderTLvl1LimDegC,                                                       // 放电低温一级报警阈值
+    kBbms_CcCLTH_DischUnderTLvl2LimDegC,                                                       // 放电低温二级报警阈值
+    kBbms_CcCLTH_DischUnderTLvl2RcvryLimDegC,                                                  // 放电低温二级恢复阈值
+    kBbms_CcCLTH_DischUnderTLvl3LimDegC,                                                       // 放电低温三级报警阈值
+    kBbms_CcCLTH_DischUnderTLvl3RcvryLimDegC,                                                  // 放电低温三级恢复阈值
+    kBbms_CcCLTH_TempDiffLvl1LimDegC,                                                          // 温差过大报警一级阈值
+    kBbms_CcCLTH_TempDiffLvl2LimDegC,                                                          // 温差过大报警二级阈值
+    kBbms_CcCLTH_TempDiffLvl2RcvryLimDegC,                                                     // 温差过大报警二级恢复阈值
+    kBbms_CcCLTH_TempDiffLvl3LimDegC,                                                          // 温差过大报警三级阈值
+    kBbms_CcCLTH_TempDiffLvl3RcvryLimDegC,                                                     // 温差过大报警三级恢复阈值
+
+    //SOX阈值参数
+    kBbms_CcSOCA_SOCOverLowLvl1EnaThdValPct,                                                   // SOC低一级报警阈值
+    kBbms_CcSOCA_SOCOverLowLvl1RecThdValPct,                                                   // SOC低一级恢复阈值
+    kBbms_CcSOHA_SOHCOverLowLvl1EnaThdValPct,                                                  // SOH低一级报警阈值
+    kBbms_CcSOHA_SOHCOverLowLvl2EnaThdValPct,                                                  // SOH低二级报警阈值
+    kBbms_CcSOHA_SOHCOverLowLvl3EnaThdValPct,                                                  // SOH低三级报警阈值
+    kBbms_CcSOCA_SOCDiffOverHighEnaThdValPct,                                                  // SOC差异过大报警阈值
+    kBbms_CcSOCA_SOCDiffOverHighRecThdValPct,                                                  // SOC差异过大恢复阈值
+    kBbms_CcCBCC_CellSelfDischOverHighLvl1EnaThdValPct,                                        // 自放电差异过大一级报警阈值
+    kBbms_CcCBCC_CellSelfDischOverHighLvl2EnaThdValPct,                                        // 自放电差异过大二级报警阈值
+    kBbms_CcCBCC_CellSelfDischOverHighLvl2RecThdValPct,                                        // 自放电差异过大二级恢复阈值
+    kBbms_CcCBCC_CellSelfDischOverHighLvl3EnaThdValPct,                                        // 自放电差异过大三级报警阈值
+    kBbms_CcCBCC_CellSelfDischOverHighLvl3RecThdValPct,                                        // 自放电差异过大三级恢复阈值
+    kBbms_CcSOCA_OverChgFltEnaThdValPct,                                                       // 过充故障判断阈值
+
+    //AUX阈值参数
+    kBbms_CbCBCC_BalFordCmdFlg,                                                                // 均衡禁止命令标定值
+
+    //HMI Control HMI 控制指令
+    kBbms_HMI_AlmRst,                                                                          // 清除所有故障信息
+    kBbms_HMI_SetEnaIso,                                                                       // 使能/禁止绝缘检测
+    kBbms_Reserved_04,                                                                         // 预留占位
+    kBbms_HMI_SetEna,                                                                          // 使能/禁止电池串
+    kBbms_HMI_EPORst,                                                                          // 清除所有EPO
+    kBbms_HMI_EnaIsoManualCtrl,                                                                // 手动控制使能/禁止绝缘检测
+    kBbms_HMI_SetCon,                                                                          // 连接/断开电池串
+    kBbms_HMI_IDLearnManualCtrl,                                                               // 手动控制Bank执行ID编码
+    kBbms_HMI_AutoHvUpConf,                                                                    // 自动上高压设置
+    kBbms_HMI_IDLearnDoCtrl,                                                                   // 自动编码DO输出控制
+    kBbms_HMI_PmtRkFltNum,                                                                     // 允许运行的最小Rack数量
+    kBbms_HMI_PCSComDiagConf,                                                                  // PCS 通讯诊断设置
+    kBbms_HMI_LocRemCtl,                                                                       // 控制模式
+    kBbms_BBMSNo,                                                                              // 堆编号
+
+    //RBMS/BBMS故障越限次数
+    kBbms_FltOvTiNbr_Start,                                                                    // 故障越限次数数组
+    kBbms_FltOvTiNbr_End = kBbms_FltOvTiNbr_Start + 200,                                       // 故障越限次数数组
+    kBbms_BBMSNo = kBbms_FltOvTiNbr_End,                                                       // 堆编号
+
+    //故障使能数组
+    kBbms_FaultEnaFlg_Start,                                                                   // RBMS/BBMS_M/BBMS_A 故障使能数组
+    kBbms_FaultEnaFlg_End = kBbms_FaultEnaFlg_Start + 25,                                      // RBMS/BBMS_M/BBMS_A 故障使能数组
+    kBbms_Data_End,                                                                            // BBMS测点结束
+} devBBMSPoint_e;
+// clang-format on

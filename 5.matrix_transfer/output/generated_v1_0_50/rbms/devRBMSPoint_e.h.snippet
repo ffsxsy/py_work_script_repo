@@ -1,0 +1,287 @@
+// clang-format off
+// RBMS 测点枚举 — generated from Matrix V1.0.50 (pure)
+typedef enum
+{
+    kRbms_Online_State = 0,                                               // 在线状态
+
+    //Rack概要数据
+    kRbms_St,                                                             // 电池串工作状态
+    kRbms_ChaSt,                                                          // Rack充放电状态
+    kRbms_SysOperSt,                                                      // Rack运行状态
+    kRbms_ConSt,                                                          // 继电器/干接点状态
+    kRbms_ConFail,                                                        // 高压连接失败原因
+    kRbms_V,                                                              // 电池串电压 (V)
+    kRbms_DCBusV,                                                         // 总线电压 (V)
+    kRbms_A_HighAccu,                                                     // 总线电流 (A) (高精度)
+    kRbms_IsoR,                                                           // 绝缘阻值 (kOhm)
+    kRbms_HvBoxMaxTemp,                                                   // 最高高压箱温度 (℃)
+    kRbms_HvBoxMinTemp,                                                   // 最低高压箱温度 (℃)
+    kRbms_Reserved3_01,                                                   // 预留占位3
+    kRbms_LowPowSply,                                                     // 低压供电电压 (mV)
+    kRbms_RlyCtrlSeqStState,                                              // 继电器控制状态
+    kRbms_ReverConDetecOpenFlg,                                           // 簇防反接检测功能使能标志位
+    kRbms_Reserved_01,                                                    // 预留占位
+    kRbms_Reserved1_01,                                                   // 预留占位1
+    kRbms_HisSleepTiWrMin,                                                // 历史休眠时间 (min)
+    kRbms_HisRunTiWrMin,                                                  // 历史运行时间 (min)
+    kRbms_LstSleepDurTiMin,                                               // 上次下电休眠时间 (min)
+    kRbms_IDLearnCodeSt,                                                  // Rack ID编码状态
+    kRbms_IsoRPos,                                                        // 正对地绝缘阻值 (kOhm)
+    kRbms_IsoRNeg,                                                        // 负对地绝缘阻值 (kOhm)
+    kRbms_CmdInhibitFlg,                                                  // 绝缘禁止标志位
+    kRbms_IslnHvVldNbr,                                                   // 绝缘高压有效性状态
+    kRbms_IslnInhibitNbr,                                                 // 绝缘禁止原因
+    kRbms_CellTMUXFaiIDNbr_Start,                                         // 温度采样MUX失效位置
+    kRbms_CellTMUXFaiIDNbr_End = kRbms_CellTMUXFaiIDNbr_Start + 64,       // 温度采样MUX失效位置
+    kRbms_SoC = kRbms_CellTMUXFaiIDNbr_End,                               // Rack SOC（%）
+    kRbms_SoH,                                                            // Rack SOH（%）
+    kRbms_SoEC,                                                           // Rack可充能量 (kWh)
+    kRbms_SoED,                                                           // Rack可放能量 (kWh)
+    kRbms_SoFPulseChrgCurr,                                               // 脉冲充电电流限制 (A)
+    kRbms_SoFPulseDisChrgCurr,                                            // 脉冲放电电流限制 (A)
+    kRbms_SoFPulseChrgPwr,                                                // 脉冲充电功率限制 (kW)
+    kRbms_SoFPulseDisChrgPwr,                                             // 脉冲放电功率限制 (kW)
+    kRbms_SoFContChrgCurr,                                                // 持续充电电流限制 (A)
+    kRbms_SoFContDisChrgCurr,                                             // 持续放电电流限制 (A)
+    kRbms_SoFContChrgPwr,                                                 // 持续充电功率限制 (kW)
+    kRbms_SoFContDisChrgPwr,                                              // 持续放电功率限制 (kW)
+    kRbms_CellVMax,                                                       // 最大电芯电压 (mV)
+    kRbms_CellVMaxPstn,                                                   // 最大电芯电压位置
+    kRbms_CellVMin,                                                       // 最小电芯电压 (mV)
+    kRbms_CellVMinPstn,                                                   // 最小电芯电压位置
+    kRbms_CellVAvg,                                                       // 平均电芯电压 (mV)
+    kRbms_ModTmpMax,                                                      // 最高电芯温度 (℃)
+    kRbms_Reserved4_01,                                                   // 预留占位4
+    kRbms_ModTmpMin,                                                      // 最低电芯温度 (℃)
+    kRbms_MCURstRsnFltNbr,                                                // 导致MCU复位的故障原因
+    kRbms_ModTmpAvg,                                                      // 平均电芯温度 (℃)
+    kRbms_MaxPoleTDegC,                                                   // 最高极柱温度 (℃)
+    kRbms_MaxPoleTIdxNbr,                                                 // 最高极柱温度位置
+    kRbms_MinPoleTDegC,                                                   // 最低极柱温度 (℃)
+    kRbms_MinPoleTIdxNbr,                                                 // 最低极柱温度位置
+    kRbms_MaxPoleTMdulIdxNbr,                                             // 最高极柱温度模组位置
+    kRbms_MinPoleTMdulIdxNbr,                                             // 最低极柱温度模组位置
+    kRbms_AvgPoleTDegC,                                                   // 平均极柱温度 (℃)
+    kRbms_CommType,                                                       // 通讯类型
+    kRbms_StrCtrlHb,                                                      // Rack BMS心跳信号
+    kRbms_ResChAvlCapAh,                                                  // 可充容量 (Ah)
+    kRbms_ResDischAvlCapAh,                                               // 可放容量 (Ah)
+    kRbms_LstFullChCapAh,                                                 // 最近一次簇满充容量 (Ah)
+    kRbms_LstFullDischCapAh,                                              // 最近一次簇满放容量 (Ah)
+    kRbms_CycNbr,                                                         // 等效完整充放电循环次数
+    kRbms_MaxPoleTMdulInnerIdxNbr,                                        // 最高极柱温度模组内位置
+    kRbms_MinPoleTMdulInnerIdxNbr,                                        // 最低极柱温度模组内位置
+    kRbms_AFEChipTmpMax,                                                  // 最高AFE芯片温度 (℃)
+    kRbms_AFEChipTmpMin,                                                  // 最低AFE温度 (℃)
+    kRbms_MCURstRsnNbr,                                                   // MCU复位源
+    kRbms_GenlVldFlg,                                                     // RBMS采样有效性标志
+    kRbms_IslnFinalBatV,                                                  // 绝缘总压 (V)
+    kRbms_IslnFinalPosV,                                                  // 绝缘正对地电压 (V)
+    kRbms_IslnFinalNegV,                                                  // 绝缘负对地电压 (V)
+    kRbms_IslnMeastStState,                                               // 绝缘测量状态
+    kRbms_LstChEkWh,                                                      // 最近一次簇充电能量 (kWh)
+    kRbms_LstDchEkWh,                                                     // 最近一次簇放电能量 (kWh)
+    kRbms_BalBdTmpMax,                                                    // 最高均衡板温 (℃)
+    kRbms_RmngCellBalTiMax,                                               // 最大剩余均衡时间 (min)
+    kRbms_RealSysSOHC,                                                    // Rack真实SOH (%)
+    kRbms_RealSysCapAh,                                                   // 电池簇最大可用容量 (Ah)
+    kRbms_RealCellCapAh,                                                  // 最小电芯真实容量 (Ah)
+    kRbms_SysMaxSOC,                                                      // RBMS最大SOC (%)
+    kRbms_SysMinSOC,                                                      // RBMS最小SOC (%)
+    kRbms_RealSysSOCPct,                                                  // Rack真实SOC (%)
+    kRbms_AccuDisChrgAh2,                                                 // 累计放电容量 (Ah)
+    kRbms_AccuDisChrgkWh2,                                                // 累计放电能量 (kWh)
+    kRbms_AccuChrgAh2,                                                    // 累计充电容量 (Ah)
+    kRbms_AccuChrgkWh2,                                                   // 累计充电能量 (kWh)
+    kRbms_BMSMaxFltLevel,                                                 // Rack故障等级
+    kRbms_MaxCellVMdulTDegC,                                              // 最大电压电芯对应温度 (℃)
+    kRbms_MinCellVMdulTDegC,                                              // 最小电压电芯对应温度 (℃)
+    kRbms_MaxCellVMdulTVldFlg,                                            // 最大电压电芯温度有效性
+    kRbms_MinCellVMdulTVldFlg,                                            // 最小电压电芯温度有效性
+    kRbms_A,                                                              // 总线电流 (A)
+    kRbms_A1,                                                             // 传感器1的簇电流 (A)
+    kRbms_A2,                                                             // 传感器2的簇电流 (A)
+    kRbms_BalBdTmpMin,                                                    // 最低均衡板温 (℃)
+    kRbms_PreChrgRT,                                                      // 预充电阻温度 (℃)
+    kRbms_RlyCtrlCmd,                                                     // 继电器控制命令
+    kRbms_FaultEvt,                                                       // 故障信息
+    kRbms_AttachState,                                                    // 附件状态
+    kRbms_Reserved2_01,                                                   // 预留占位2
+    kRbms_MaxCellVMdulIdxNbr,                                             // 最高电芯电压模组位置
+    kRbms_MinCellVMdulIdxNbr,                                             // 最低电芯电压模组位置
+    kRbms_MaxTMdulIdxNbr,                                                 // 最高电芯温度模组位置
+    kRbms_MinTMdulIdxNbr,                                                 // 最低电芯温度模组位置
+    kRbms_MaxCellVMdulInnerIdxNbr,                                        // 最高电芯电压模组内位置
+    kRbms_MinCellVMdulInnerIdxNbr,                                        // 最低电芯电压模组内位置
+    kRbms_MaxTMdulInnerIdxNbr,                                            // 最高电芯温度模组内位置
+    kRbms_MinTMdulInnerIdxNbr,                                            // 最低电芯温度模组内位置
+    kRbms_DaisyChain1LastNode,                                            // AFE菊花链主链节点数
+    kRbms_DaisyChain2LastNode,                                            // AFE菊花链副链节点数
+    kRbms_ModTmpMaxPstn,                                                  // 最高电芯温度位置
+    kRbms_ModTmpMinPstn,                                                  // 最低电芯温度位置
+    kRbms_AccuDisChrgAh,                                                  // 累计放电容量 (Ah) (低精度)
+    kRbms_AccuDisChrgkWh,                                                 // 累计放电能量 (kWh) (低精度)
+    kRbms_AccuChrgAh,                                                     // 累计充电容量 (Ah) (低精度)
+    kRbms_AccuChrgkWh,                                                    // 累计充电能量 (kWh) (低精度)
+    kRbms_LstChCapAh,                                                     // 最近一次簇充电容量 (Ah)
+    kRbms_LstDchCapAh,                                                    // 最近一次簇放电容量 (Ah)
+    kRbms_FltSOPDischCoeffPct,                                            // 基于故障的放电功率限制系数
+    kRbms_FltSOPChCoeffPct,                                               // 基于故障的充电功率限制系数
+    kRbms_CurrSnsrPowSplyVoltmV,                                          // 电流传感器供电电压 (mV)
+    kRbms_CtlBoxT0DegC,                                                   // 高压箱温度T0 (℃)
+    kRbms_CtlBoxT1DegC,                                                   // 高压箱温度T1 (℃)
+    kRbms_CtlBoxT2DegC,                                                   // 高压箱温度T2 (℃)
+    kRbms_CtlBoxT3DegC,                                                   // 高压箱温度T3 (℃)
+    kRbms_PCSChVoltLim,                                                   // 发送至PCS的充电限制电压 (V)
+    kRbms_PCSDchVoltLim,                                                  // 发送至PCS的放电限制电压 (V)
+    kRbms_PCSSOP,                                                         // 发送至PCS的SOP (kW)
+    kRbms_PCSBMSSt,                                                       // 发送至PCS的BMS状态
+
+    //电芯电压及其有效性
+    kRbms_CellVVldFlg_Start,                                              // 电芯电压有效性（最多416个）
+    kRbms_CellVVldFlg_End = kRbms_CellVVldFlg_Start + 52,                 // 电芯电压有效性（最多416个）
+    kRbms_CellV_Start = kRbms_CellVVldFlg_End,                            // 电芯电压 (mV)（最多416个）
+    kRbms_CellV_End = kRbms_CellV_Start + 416,                            // 电芯电压 (mV)（最多416个）
+    kRbms_AFEV_Start = kRbms_CellV_End,                                   // RACK中各AFE总压 (mV)（最多32个）
+    kRbms_AFEV_End = kRbms_AFEV_Start + 32,                               // RACK中各AFE总压 (mV)（最多32个）
+
+    //电芯温度
+    kRbms_ModTmp_Start = kRbms_AFEV_End,                                  // 电芯温度 (℃)（最多416个）
+    kRbms_ModTmp_End = kRbms_ModTmp_Start + 416,                          // 电芯温度 (℃)（最多416个）
+    kRbms_PoleTDegC_Start = kRbms_ModTmp_End,                             // 极柱温度（最多128个）
+    kRbms_PoleTDegC_End = kRbms_PoleTDegC_Start + 128,                    // 极柱温度（最多128个）
+    kRbms_PackPosNegConnTDegC_Start = kRbms_PoleTDegC_End,                // Pack正负极连接件温度（最多16个）
+    kRbms_PackPosNegConnTDegC_End = kRbms_PackPosNegConnTDegC_Start + 16, // Pack正负极连接件温度（最多16个）
+    kRbms_PCBBdTVldFlg_Start = kRbms_PackPosNegConnTDegC_End,             // 均衡板温有效性（最多32个）
+    kRbms_PCBBdTVldFlg_End = kRbms_PCBBdTVldFlg_Start + 4,                // 均衡板温有效性（最多32个）
+    kRbms_PCBBdTDegC_Start = kRbms_PCBBdTVldFlg_End,                      // 均衡板温（最多32个）
+    kRbms_PCBBdTDegC_End = kRbms_PCBBdTDegC_Start + 32,                   // 均衡板温（最多32个）
+
+    //Cell Balancing State
+    kRbms_CellBalStatus_Start = kRbms_PCBBdTDegC_End,                     // 电芯均衡状态（最多416个）
+    kRbms_CellBalStatus_End = kRbms_CellBalStatus_Start + 52,             // 电芯均衡状态（最多416个）
+
+    //单体电芯自放电率
+    kRbms_CellSdrate_Start = kRbms_CellBalStatus_End,                     // 电芯自放电率（最多416个）
+    kRbms_CellSdrate_End = kRbms_CellSdrate_Start + 416,                  // 电芯自放电率（最多416个）
+
+    //模型调试信息
+    kRbms_SbCTSC_AllwPrechFlg = kRbms_CellSdrate_End,                     // 允许预充标志位
+    kRbms_SbCTSC_BSWSMainNegRlyDryContactFlg,                             // 主负继电器干接点状态
+    kRbms_SbCTSC_BSWSMainPosRlyDryContactFlg,                             // 主正继电器干接点状态
+    kRbms_SbCTSC_SafetyState3TriggerFlg,                                  // 安全状态3下高压标志
+    kRbms_Reserved_23,                                                    // 预留占位
+    kRbms_ScCTSC_HvPowupCmdNbr,                                           // 上高压模式
+    kRbms_ScCTSC_CtrlModeState,                                           // 控制模式状态
+    kRbms_ScCTSC_MainPosRlyLsdDrvRawVoltV,                                // 主正低边驱动电压 (V)
+    kRbms_ScCTSC_MainNegRlyLsdDrvRawVoltV,                                // 主负低边驱动电压 (V)
+    kRbms_ScCTSC_GroundChannelRawVoltmV,                                  // 接地通道电压 (mV)
+    kRbms_ScCTSC_MainPosRlyHsdDrvRawCurmA,                                // 主正高边驱动电流 (mA)
+    kRbms_ScCTSC_PrechRlyHsdDrvRawCurmA,                                  // 预充高边驱动电流 (mA)
+    kRbms_ScCTSC_MainNegRlyHsdDrvRawCurmA,                                // 主负高边驱动电流 (mA)
+    kRbms_ScCTSC_PrechOverTiCnt,                                          // 连续预充超时次数
+    kRbms_ScBTCS_BSWSBatIDiagInfoNbr,                                     // 电流传感器硬件诊断信息
+    kRbms_ScBTCS_BSWSMsgAvlNbr,                                           // 电流传感器报文超时故障
+    kRbms_SbLVPH_CurrSnsrPowSplyNotOutRngFlg,                             // 电流传感器供电电压超上下限标志
+    kRbms_SbCTSC_RlyLoadBreakFlg,                                         // 继电器带载断开标志位
+    kRbms_Reserved1_23,                                                   // 预留占位1
+    kRbms_ScCTSC_RlyLoadBreakCurrentA,                                    // 继电器带载断开时的电池串电流 (A)
+    kRbms_ScBTCS_BSWSMsgCtrResNbr,                                        // 电流传感器报文RollingCounter故障
+    kRbms_ScBTCS_BSWSMsgCRCResNbr,                                        // 电流传感器报文CRC故障
+    kRbms_ScBTCS_BSWSCurValVldNbr,                                        // 电流传感器电流值无效
+    kRbms_ScBTCS_CANBatIZeroDriftNbr,                                     // 电流传感器零漂
+    kRbms_BSWSAFESampErrMonitor,                                          // 底层AFE采样错误监测
+    kRbms_BSWEthPHYChipResetNbr,                                          // 以太网PHY芯片复位次数
+
+    //SOX算法调试的输入数据
+    kRbms_ScSGPC_BatIA,                                                   // 簇电流(A)
+    kRbms_ScSGPC_MaxCellVmV,                                              // 最大电芯电压 (mV)
+    kRbms_ScSGPC_MinCellVmV,                                              // 最小电芯电压 (mV)
+    kRbms_ScSGPC_MaxCellTDegC,                                            // 最高电芯温度 (℃)
+    kRbms_ScSGPC_MinCellTDegC,                                            // 最低电芯温度 (℃)
+    kRbms_ScSGPC_AvgCellTDegC,                                            // 平均电芯温度 (℃)
+    kRbms_ScCSPC_FullChEnaNbr,                                            // 满充修正标志位
+    kRbms_ScCSPC_FullDischEnaNbr,                                         // 满放修正标志位
+    kRbms_ScHIST_HistAccuChCapAh,                                         // 累计充电容量 (Ah)
+    kRbms_ScHIST_HistAccuDischCapAh,                                      // 累计放电容量 (Ah)
+    kRbms_ScSGPC_BatIStNbr,                                               // Rack充放电状态
+    kRbms_ScSGPC_LstSleepDurTiMin,                                        // 上次下电休眠时间
+    kRbms_ScSGPC_HisSleepTiMin,                                           // 历史休眠时间
+    kRbms_ScSGPC_HisRunTiMin,                                             // 历史运行时间
+    kRbms_ScHIST_CycNbr,                                                  // 累计循环次数
+    kRbms_BSWSAllSOHCalIndicator,                                         // Rack所有SOH标定指示
+    kRbms_BSWSAllSOHCalValPct,                                            // Rack所有SOH标定值
+    kRbms_ScBTCS_RackChrgCapmAh,                                          // 累积充电容量 (mAh)
+    kRbms_ScBTCS_RackDsChrgCapmAh,                                        // 累积放电容量 (mAh)
+    kRbms_Reserved_25,                                                    // 预留占位
+    kRbms_Reserved1_25,                                                   // 预留占位1
+    kRbms_BSWSRSOXHistInfoIndicator,                                      // Rack历史信息标定指示
+    kRbms_BSWSAllSOCCalIndicator,                                         // Rack所有SOC标定指示
+    kRbms_BSWSAllSOCCalValPct,                                            // Rack所有SOC标定值
+    kRbms_SbSGPC_BatIVldFlg,                                              // 簇电流有效性
+    kRbms_SbSGPC_GenlCellVVldFlg,                                         // 电芯电压概要有效性
+    kRbms_SbSGPC_GenlCellTVldFlg,                                         // 电芯温度概要有效性
+    kRbms_SbSGPC_MaxCellVMdulTVldFlg,                                     // 最大电压电芯温度有效性
+    kRbms_SbSGPC_MinCellVMdulTVldFlg,                                     // 最小电压电芯温度有效性
+    kRbms_Reserved2_25,                                                   // 预留占位2
+    kRbms_ScSGPC_MaxCellVMdulTDegC,                                       // 最大电压电芯对应温度 (℃)
+    kRbms_ScSGPC_MinCellVMdulTDegC,                                       // 最小电压电芯对应温度 (℃)
+
+    //SOX算法调试的输出数据
+    kRbms_SaSGPC_CellVmVxT_Start,                                         // 等间隔位置的电芯电压 (mV)
+    kRbms_SaSGPC_CellVmVxT_End = kRbms_SaSGPC_CellVmVxT_Start + 10,       // 等间隔位置的电芯电压 (mV)
+    kRbms_ScSOHA_RealSysSOHCPct = kRbms_SaSGPC_CellVmVxT_End,             // Rack真实SOH (%)
+    kRbms_ScSOHA_DispSysSOHCPct,                                          // Rack显示SOH (%)
+    kRbms_ScSOHA_DFCLCapResultAh,                                         // DFCL模块容量 (Ah)
+    kRbms_ScSOHA_DFCLPointSOCPct,                                         // DFCL模块SOH特征点SOC (%)
+    kRbms_ScSOHA_DFCLPointStats,                                          // DFCL模块SOH特征点标志位
+    kRbms_ScSOHA_DFCLPointCapAh,                                          // DFCL模块SOH特征点容量 (Ah)
+    kRbms_ScSOHA_DFCLPointTimeDay,                                        // DFCL模块SOH特征点时间 (day)
+    kRbms_ScSOHA_MFCLCapResultAh,                                         // MFCL模块容量 (Ah)
+    kRbms_ScSOHA_MFCLTargtValueVmax,                                      // Vmax节电芯MFCL模块中特征点目标计算值
+    kRbms_ScSOHA_MFCLTargtValueVmin,                                      // Vmin节电芯MFCL模块中特征点目标计算值
+    kRbms_SaSOCA_MaxMinSOCPct1,                                           // 最大电压电芯SOC (%)
+    kRbms_SaSOCA_MaxMinSOCPct2,                                           // 最小电压电芯SOC (%)
+    kRbms_SaSOCA_MaxMinSOCState1,                                         // 最大电压电芯SOC状态
+    kRbms_SaSOCA_MaxMinSOCState2,                                         // 最小电压电芯SOC状态
+    kRbms_SaSOCA_SimCellVmV1,                                             // 最大电压电芯仿真电压 (mV)
+    kRbms_SaSOCA_SimCellVmV2,                                             // 最小电压电芯仿真电压 (mV)
+    kRbms_ScSOHA_RealSysCapAh_dbug,                                       // Rack真实容量 (Ah)
+    kRbms_ScSOCA_RealSysSOCPct_dbug,                                      // Rack真实SOC (%)
+    kRbms_ScSOCA_SmthSysSOCPct,                                           // Rack平滑SOC (%)
+    kRbms_ScSOCA_DispSysSOCPct,                                           // Rack显示SOC (%)
+    kRbms_ScSOHA_DFCLCalSuccFlg,                                          // DFCL模块容量计算成功标志位
+    kRbms_ScSOHA_MFCLCalSuccFlg,                                          // MFCL模块容量计算成功标志位
+    kRbms_ScSOHA_MFCLPoint1FlgVmax,                                       // Vmax节电芯MFCL模块特征点1
+    kRbms_ScSOHA_MFCLPoint1FlgVmin,                                       // Vmin节电芯MFCL模块特征点1
+    kRbms_ScSOHA_MFCLPoint2FlgVmax,                                       // Vmax节电芯MFCL模块中特征点2
+    kRbms_ScSOHA_MFCLPoint2FlgVmin,                                       // Vmin节电芯MFCL模块特征点2
+    kRbms_ScSOHA_MFCLPoint3FlgVmax,                                       // Vmax节电芯MFCL模块中特征点3
+    kRbms_ScSOHA_MFCLPoint3FlgVmin,                                       // Vmin节电芯MFCL模块特征点3
+    kRbms_ScSOCA_DispSOCState,                                            // 显示SOC跟随策略状态
+    kRbms_ScSOCA_TgtSysSOCPct,                                            // Rack目标SOC (%)
+    kRbms_ScSOCA_AccuCapAh,                                               // 最近一次累积充放电容量 (Ah)
+
+    //热管理信息
+    kRbms_BBMS_WtrTmpCmd,                                                 // 设定温度(℃)
+    kRbms_BBMS_cellTmpMax,                                                // 电芯最高温度(℃)
+    kRbms_BBMS_cellTmpMin,                                                // 电芯最低温度(℃)
+    kRbms_BBMS_cellTmpAvg,                                                // 电芯平均温度(℃)
+    kRbms_TMS_OutWtrTmp,                                                  // 出水温度(℃)
+    kRbms_TMS_BackWtrTmp,                                                 // 进水温度(℃)
+    kRbms_TMS_EnvTmp,                                                     // 环境温度(℃)
+    kRbms_TMS_InWtrP,                                                     // 进水水压(Bar)
+    kRbms_TMS_OutWtrP,                                                    // 出水水压(Bar)
+    kRbms_TMS_BBMSFltLevel,                                               // TMS 故障等级
+    kRbms_TMS_BBMSFltCode,                                                // TMS 故障码
+    kRbms_BMS_TMSReqMode,                                                 // BMS请求模式
+    kRbms_TMS_BMSMode,                                                    // TMS工作模式
+    kRbms_TMSNo,                                                          // TMS编号
+    kRbms_TMSCoolState,                                                   // TMS制冷状态
+
+    //RBMS故障列表
+    kRbms_Fault_Start,                                                    // RBMS故障数组
+    kRbms_Fault_End = kRbms_Fault_Start + 25,                             // RBMS故障数组
+    kRbms_Data_End,                                                       // RBMS测点结束
+} devRBMSPoint_e;
+// clang-format on

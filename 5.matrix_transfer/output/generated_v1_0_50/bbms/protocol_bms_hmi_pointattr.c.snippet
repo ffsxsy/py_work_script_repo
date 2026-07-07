@@ -1,0 +1,476 @@
+// clang-format off
+/* Generated bmsPointAttr_t blocks — pure Matrix BBMS */
+/* 依据 BMS2.0 LAN Matrix V1.0.50 Comm Matrix */
+
+/*============================================================
+ * BBMS_A_SOCInfo - 单芯计算的SOC以及各簇SOC结果
+ * 对应消息ID: BBMS_A_SOCInfo (cmdGroup: 0x01, cmdid: 7 (0x07))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd01_07_BBMS_A_SOCInfo_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_SaSOCB_BankCellSOCPctxT_Start,  0,      16,     0,             Uint16,       0.01f,    0.0f,      100.01f,      0.0f,         16},
+    {kBbms_SaSOCB_BankCellSOCStatexT_Start,32,     8,      256,           Uint8,        1.0f,     0.0f,      10.0f,        0.0f,         16},
+    {kBbms_SaSOCB_RackRealSOCPct_Start,    48,     16,     384,           Uint16,       0.01f,    0.0f,      100.01f,      0.0f,         12},
+    {kBbms_SaSOCB_RackMaxSOCPct_Start,     72,     16,     576,           Uint16,       0.01f,    0.0f,      100.01f,      0.0f,         12},
+    {kBbms_SaSOCB_RackMinSOCPct_Start,     96,     16,     768,           Uint16,       0.01f,    0.0f,      100.01f,      0.0f,         12},
+};
+
+/*============================================================
+ * BBMS_A_SOHInfo - 单芯计算的SOH以及各簇SOH结果
+ * 对应消息ID: BBMS_A_SOHInfo (cmdGroup: 0x01, cmdid: 8 (0x08))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd01_08_BBMS_A_SOHInfo_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_SaSOHB_BankCellCapAhxT_Start,  0,      16,     0,             Uint16,       0.1f,     0.0f,      1500.1f,      0.0f,         16},
+    {kBbms_SaSOHB_DFCLCapResultAhxT_Start,32,     16,     256,           Uint16,       0.1f,     0.0f,      1500.1f,      0.0f,         16},
+    {kBbms_SaSOHB_MFCLCapResultAhxT_Start,64,     16,     512,           Uint16,       0.1f,     0.0f,      1500.1f,      0.0f,         16},
+    {kBbms_SaSOHB_RackRealCapAh_Start,    96,     16,     768,           Uint16,       0.1f,     0.0f,      1500.1f,      0.0f,         12},
+    {kBbms_SaSOHB_RackMaxCapAh_Start,     120,    16,     960,           Uint16,       0.1f,     0.0f,      1500.1f,      0.0f,         12},
+    {kBbms_SaSOHB_RackMinCapAh_Start,     144,    16,     1152,          Uint16,       0.1f,     0.0f,      1500.1f,      0.0f,         12},
+};
+
+/*============================================================
+ * BBMS_A_Fault - BBMS_A核的故障列表
+ * 对应消息ID: BBMS_A_Fault (cmdGroup: 0x01, cmdid: 9 (0x09))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd01_09_BBMS_A_Fault_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_A_Fault_Start,        0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         25},
+};
+
+/*============================================================
+ * BBMS_A_Selfdr - 读取-自放电率演变信息
+ * 对应消息ID: BBMS_A_Selfdr (cmdGroup: 0x01, cmdid: 10 (0x0A))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd01_10_BBMS_A_Selfdr_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_SbEMCR_RTCnCMTimeVldFlg,    0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_ScEMCR_CellUsedMonth,       1,      16,     8,             Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_ScEMCR_CellDischargeRatePct,3,      16,     24,            Uint16,       0.01f,    0.0f,      655.35f,      0.0f,         0},
+};
+
+/*============================================================
+ * BBMS_A_CtlWord - A核控制命令
+ * 对应消息ID: BBMS_A_CtlWord (cmdGroup: 0x01, cmdid: 16 (0x10))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd01_16_BBMS_A_CtlWord_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_A_EMSCtrlPowerUp,     0,      16,     0,             Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_EMSCtrlFaultReset,    2,      8,      16,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_EMSCtrlMode,          3,      8,      24,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+};
+
+/*============================================================
+ * BBMS_SumInfo - Bank 概要数据
+ * 对应消息ID: BBMS_SumInfo (cmdGroup: 0x02, cmdid: 1 (0x01))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_01_BBMS_SumInfo_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_BatSt,                0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_ChSt,                 1,      8,      8,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_SysOperSt,            2,      16,     16,            Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_PmtRkFltNum,          4,      16,     32,            Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_SetInverterSt,        6,      8,      48,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_RackFltLvl1Nbr,       7,      16,     56,            Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_CntrSt,               9,      16,     72,            Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_SOC,                  11,     8,      88,            Uint8,        0.5f,     0.0f,      127.5f,       0.0f,         0},
+    {kBbms_SOH,                  12,     8,      96,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxChrgE,             13,     16,     104,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_MaxDisChrgE,          15,     16,     120,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_MaxContChrgPower,     17,     16,     136,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_Max60sChrgPower,      19,     16,     152,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_MaxContDisChrgPower,  21,     16,     168,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_Max60sDisChrgPower,   23,     16,     184,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_MaxContChrgCur,       25,     16,     200,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_Max60sChrgCur,        27,     16,     216,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_MaxContDisChrgCur,    29,     16,     232,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_Max60sDisChrgCur,     31,     16,     248,           Uint16,       0.125f,   0.0f,      8191.88f,     0.0f,         0},
+    {kBbms_HumSensorRH,          33,     16,     264,           Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_TmpSensorRH,          35,     16,     280,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_WtrSt,                37,     8,      296,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_StrCtrlHb,            38,     16,     304,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_DCBusV,               40,     16,     320,           Uint16,       0.5f,     0.0f,      32767.5f,     0.0f,         0},
+    {kBbms_TotalDCCur,           42,     16,     336,           Uint16,       0.125f,   -4000.0f,  4191.88f,     -4000.0f,     0},
+    {kBbms_TotalPower,           44,     16,     352,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_MaxRackCur,           46,     16,     368,           Uint16,       0.125f,   -2000.0f,  6191.88f,     -2000.0f,     0},
+    {kBbms_MaxCurRackNr,         48,     8,      384,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinRackCur,           49,     16,     392,           Uint16,       0.125f,   -2000.0f,  6191.88f,     -2000.0f,     0},
+    {kBbms_MinCurRackNr,         51,     8,      408,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxCellV,             52,     16,     416,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_MaxVCellRackNr,       54,     8,      432,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxVCellTrayNr,       55,     8,      440,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxVCellNr,           56,     8,      448,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinCellV,             57,     16,     456,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_MinVCellRackNr,       59,     8,      472,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinVCellTrayNr,       60,     8,      480,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinVCellNr,           61,     8,      488,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_AvgCellV,             62,     16,     496,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_MaxHvBoxTRackNr,      64,     8,      512,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxTCellRackNr,       65,     8,      520,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxTCellTrayNr,       66,     8,      528,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxTCellNr,           67,     8,      536,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinHvBoxTRackNr,      68,     8,      544,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinTCellRackNr,       69,     8,      552,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinTCellTrayNr,       70,     8,      560,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinTCellNr,           71,     8,      568,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_ProhUpgradeFlg,       72,     8,      576,           Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_BMSMaxFltLevel,       73,     8,      584,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_IDLearnSt,            74,     8,      592,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_IDLearnFaiLocationNbr,75,     8,      600,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_IsoRPos,              76,     16,     608,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_IsoRNeg,              78,     16,     624,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_AccuChrgC,            80,     32,     640,           Uint32,       1.0f,     0.0f,      4294967295.0f,0.0f,         0},
+    {kBbms_AccuChrgE,            84,     32,     672,           Uint32,       1.0f,     0.0f,      4294967295.0f,0.0f,         0},
+    {kBbms_AccuDisChrgC,         88,     32,     704,           Uint32,       1.0f,     0.0f,      4294967295.0f,0.0f,         0},
+    {kBbms_AccuDisChrgE,         92,     32,     736,           Uint32,       1.0f,     0.0f,      4294967295.0f,0.0f,         0},
+    {kBbms_LstChEkWh,            96,     16,     768,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_LstDchEkWh,           98,     16,     784,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_RackEnaNbr,           100,    8,      800,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_RackOnlineNbr,        101,    8,      808,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_ConFail,              102,    8,      816,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxChrgCap,           103,    16,     824,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_MaxDisChrgCap,        105,    16,     840,           Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+    {kBbms_MaxHvBoxTDegC,        107,    16,     856,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_MinHvBoxTDegC,        109,    16,     872,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_MaxCellT,             111,    16,     888,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_MinCellT,             113,    16,     904,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_AvgCellT,             115,    16,     920,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_MaxPoleT,             117,    16,     936,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_MinPoleT,             119,    16,     952,           Uint16,       0.1f,     -40.0f,    6513.5f,      -40.0f,       0},
+    {kBbms_MaxPoleTRackNr,       121,    8,      968,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxPoleTMdulNr,       122,    8,      976,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MaxPoleTMdulInnerNr,  123,    8,      984,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinPoleTRackNr,       124,    8,      992,           Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinPoleTMdulNr,       125,    8,      1000,          Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_MinPoleTMdulInnerNr,  126,    8,      1008,          Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_BBMSNo,               127,    4,      1016,          Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+    {kBbms_StartReConDectFlg,    127,    1,      1020,          Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_Reserved_01,          127,    3,      1021,          Uint8,        1.0f,     0.0f,      7.0f,         0.0f,         0},
+    {kBbms_ReverConRackFailNbr,  128,    16,     1024,          Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         0},
+};
+
+/*============================================================
+ * TMS_SumInfo - 热管理信息（RBMS/BBMS）
+ * 对应消息ID: TMS_SumInfo (cmdGroup: 0x02, cmdid: 2 (0x02))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_02_TMS_SumInfo_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_WtrTmpCmd,            0,      8,      0,             Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_cellTmpMax,           1,      8,      8,             Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_cellTmpMin,           2,      8,      16,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_cellTmpAvg,           3,      8,      24,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_TMS_OutWtrTmp,        4,      8,      32,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_TMS_BackWtrTmp,       5,      8,      40,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_TMS_EnvTmp,           6,      8,      48,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_TMS_InWtrP,           7,      8,      56,            Uint8,        0.1f,     0.0f,      25.5f,        0.0f,         0},
+    {kBbms_TMS_OutWtrP,          8,      8,      64,            Uint8,        0.1f,     0.0f,      25.5f,        0.0f,         0},
+    {kBbms_TMS_BBMSFltLevel,     9,      2,      72,            Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_TMS_BBMSFltCode,      9,      6,      74,            Uint8,        1.0f,     0.0f,      63.0f,        0.0f,         0},
+    {kBbms_BMS_TMSReqMode,       10,     2,      80,            Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_TMS_BMSMode,          10,     2,      82,            Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_TMSNo,                10,     4,      84,            Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+    {kBbms_TMSCoolState,         11,     8,      88,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+};
+
+/*============================================================
+ * HMI_TMSCtrlWord - HMI TMS控制指令
+ * 对应消息ID: HMI_TMSCtrlWord (cmdGroup: 0x02, cmdid: 3 (0x03))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_03_HMI_TMSCtrlWord_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_HMI_TMSManCtrlMode,    0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_HMI_TMSManCtrlTempDegC,1,      8,      8,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_HMI_TMSManCtrlEnaFlg,  2,      8,      16,            Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_TMSNo,                 3,      8,      24,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+};
+
+/*============================================================
+ * HMI_BankDOCtrl - HMI三级板DO控制指令（灯）
+ * 对应消息ID: HMI_BankDOCtrl (cmdGroup: 0x02, cmdid: 4 (0x04))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_04_HMI_BankDOCtrl_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_HMI_LightManCtlNbr,   0,      3,      0,             Uint8,        1.0f,     0.0f,      7.0f,         0.0f,         0},
+};
+
+/*============================================================
+ * ParaThr_TMS - TMS阈值参数
+ * 对应消息ID: ParaThr_TMS (cmdGroup: 0x02, cmdid: 6 (0x06); also: 0x02:7, 0x03:39)
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_06_ParaThr_TMS_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CcTHMC_EntHeatMinTemUpLimt,  0,      8,      0,             Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_EntHeatAvgTemUpLimt,  1,      8,      8,             Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_ExtHeatMinTemLowLimt, 2,      8,      16,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_ExtHeatAvgTemLowLimt, 3,      8,      24,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_EntCoolMaxTemLowLimtA,4,      8,      32,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_EntCoolAvgTemLowLimtA,5,      8,      40,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_ExtCoolMaxTemUpLimtA, 6,      8,      48,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+    {kBbms_CcTHMC_ExtCoolAvgTemUpLimtA, 7,      8,      56,            Uint8,        1.0f,     -40.0f,    215.0f,       -40.0f,       0},
+};
+
+/*============================================================
+ * HMI_BBMSDOCtrl - HMI三级板DO控制命令
+ * 对应消息ID: HMI_BBMSDOCtrl (cmdGroup: 0x02, cmdid: 10 (0x0A))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_10_HMI_BBMSDOCtrl_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_HMI_BBMSDO0CtrlFlg,   0,      1,      0,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO1CtrlFlg,   0,      1,      1,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO2CtrlFlg,   0,      1,      2,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO3CtrlFlg,   0,      1,      3,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO4CtrlFlg,   0,      1,      4,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO5CtrlFlg,   0,      1,      5,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO6CtrlFlg,   0,      1,      6,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO7CtrlFlg,   0,      1,      7,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO8CtrlFlg,   1,      1,      8,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO9CtrlFlg,   1,      1,      9,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO10CtrlFlg,  1,      1,      10,            Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_HMI_BBMSDO11CtrlFlg,  1,      1,      11,            Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+};
+
+/*============================================================
+ * HMI_BankFaultCali - Bank故障累积次数标定
+ * 对应消息ID: HMI_BankFaultCali (cmdGroup: 0x02, cmdid: 11 (0x0B))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_11_HMI_BankFaultCali_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_HMI_BankFltHistInfoIndicator,       0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_HMI_BankAllFltHistAccuCaliVal_Start,1,      16,     8,             Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         200},
+    {kBbms_BBMSNo,                             401,    4,      3208,          Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+};
+
+/*============================================================
+ * BBMS_CtlWord - BBMS Control BBMS控制指令
+ * 对应消息ID: BBMS_CtlWord (cmdGroup: 0x02, cmdid: 12 (0x0C); also: 0x03:7)
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_12_BBMS_CtlWord_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_SetCon,               0,      2,      0,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_SetEnaIso,            0,      2,      2,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_FirstEnableRackFlg,   0,      1,      4,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_ReverConDetecCmpFlg,  0,      1,      5,             Uint8,        1.0f,     0.0f,      1.0f,         0.0f,         0},
+    {kBbms_SetEna,               0,      2,      6,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_Heartbeat,            1,      8,      8,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_RackEnableFlg,        2,      8,      16,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_AllowRackExitFlg,     3,      5,      24,            Uint8,        1.0f,     0.0f,      31.0f,        0.0f,         0},
+    {kBbms_LocRemCtl,            3,      3,      29,            Uint8,        1.0f,     0.0f,      7.0f,         0.0f,         0},
+    {kBbms_SystemAchitectureNbr, 4,      4,      32,            Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+    {kBbms_BankFltLvl,           4,      4,      36,            Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+    {kBbms_FltSOPDischCoeffPct,  5,      8,      40,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_FltSOPChCoeffPct,     6,      8,      48,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+};
+
+/*============================================================
+ * BBMS_SafetySignal - 功能安全相关信号
+ * 对应消息ID: BBMS_SafetySignal (cmdGroup: 0x02, cmdid: 14 (0x0E))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_14_BBMS_SafetySignal_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_ContainerEPOFlg,      0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_RollingCounter,       1,      8,      8,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_Checksum,             2,      8,      16,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+};
+
+/*============================================================
+ * BBMS_Fault - BMS故障列表
+ * 对应消息ID: BBMS_Fault (cmdGroup: 0x02, cmdid: 19 (0x13))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd02_19_BBMS_Fault_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_Fault_Start,          0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         25},
+};
+
+/*============================================================
+ * ParaThr_CellV - 电压阈值参数
+ * 对应消息ID: ParaThr_CellV (cmdGroup: 0x03, cmdid: 10 (0x0A))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd03_10_ParaThr_CellV_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CcCLVH_MaxCellVOvLvl1FltVmV,       0,      16,     0,             Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_FULL_CHARGE_CELLV,                 2,      16,     16,            Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MaxCellVOvLvl2FltRcvryVmV,  4,      16,     32,            Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MaxCellVOvLvl3FltVmV,       6,      16,     48,            Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MaxCellVOvLvl3FltRcvryVmV,  8,      16,     64,            Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MaxCellVOvLvl4FltVmV,       10,     16,     80,            Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MinCellVUvLvl1FltVmV,       12,     16,     96,            Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_FULL_DISCHARGE_CELLV,              14,     16,     112,           Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MinCellVUvLvl2FltRcvryVmV,  16,     16,     128,           Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MinCellVUvLvl3FltVmV,       18,     16,     144,           Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MinCellVUvLvl3FltRcvryVmV,  20,     16,     160,           Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MinCellVUvLvl4FltV1mV,      22,     16,     176,           Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_MinCellVUvLvl4FltV2mV,      24,     16,     192,           Uint16,       1.0f,     0.0f,      4500.0f,      0.0f,         0},
+    {kBbms_CcCLVH_DeltaCellVOLLvl1FltVmV,     26,     16,     208,           Uint16,       1.0f,     0.0f,      500.0f,       0.0f,         0},
+    {kBbms_CcCLVH_DeltaCellVOLLvl2FltVmV,     28,     16,     224,           Uint16,       1.0f,     0.0f,      500.0f,       0.0f,         0},
+    {kBbms_CcCLVH_DeltaCellVOLLvl2FltRcvryVmV,30,     16,     240,           Uint16,       1.0f,     0.0f,      500.0f,       0.0f,         0},
+    {kBbms_CcCLVH_DeltaCellVOLLvl3FltVmV,     32,     16,     256,           Uint16,       1.0f,     0.0f,      500.0f,       0.0f,         0},
+    {kBbms_CcCLVH_DeltaCellVOLLvl3FltRcvryVmV,34,     16,     272,           Uint16,       1.0f,     0.0f,      500.0f,       0.0f,         0},
+};
+
+/*============================================================
+ * ParaThr_RackV - 簇电压阈值参数
+ * 对应消息ID: ParaThr_RackV (cmdGroup: 0x03, cmdid: 12 (0x0C))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd03_12_ParaThr_RackV_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CcHVSH_BatOVLvl1FltCfmThdV, 0,      16,     0,             Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatOVLvl2FltCfmThdV, 2,      16,     16,            Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatOVLvl2FltRcvrThdV,4,      16,     32,            Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatOVLvl3FltCfmThdV, 6,      16,     48,            Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatOVLvl3FltRcvrThdV,8,      16,     64,            Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatUVLvl1FltCfmThdV, 10,     16,     80,            Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatUVLvl2FltCfmThdV, 12,     16,     96,            Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatUVLvl2FltRcvrThdV,14,     16,     112,           Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatUVLvl3FltCfmThdV, 16,     16,     128,           Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+    {kBbms_CcHVSH_BatUVLvl3FltRcvrThdV,18,     16,     144,           Uint16,       0.001f,   0.0f,      5.0f,         0.0f,         0},
+};
+
+/*============================================================
+ * ParaThr_RackI - 簇电流阈值参数
+ * 对应消息ID: ParaThr_RackI (cmdGroup: 0x03, cmdid: 14 (0x0E))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd03_14_ParaThr_RackI_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CcBTCD_RchaCurLvl1LimThdA,   0,      16,     0,             Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_RchaCurLvl2LimThdA,   2,      16,     16,            Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_RchaCurClrLvl2LimThdA,4,      16,     32,            Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_RchaCurLvl3LimThdA,   6,      16,     48,            Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_RchaCurClrLvl3LimThdA,8,      16,     64,            Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_DchILimLvl1ThdA,      10,     16,     80,            Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_DchILimLvl2ThdA,      12,     16,     96,            Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_DchIClrLimLvl2ThdA,   14,     16,     112,           Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_DchILimLvl3ThdA,      16,     16,     128,           Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+    {kBbms_CcBTCD_DchIClrLimLvl3ThdA,   18,     16,     144,           Uint16,       0.1f,     0.0f,      6553.5f,      0.0f,         0},
+};
+
+/*============================================================
+ * ParaThr_ModuleT - 温度阈值参数
+ * 对应消息ID: ParaThr_ModuleT (cmdGroup: 0x03, cmdid: 16 (0x10))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd03_16_ParaThr_ModuleT_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CcCLTH_ChOvtempLvl1LimDegC,        0,      16,     0,             Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChOvtempLvl2LimDegC,        2,      16,     16,            Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChOvtempLvl2RcvryLimDegC,   4,      16,     32,            Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChOvtempLvl3LimDegC,        6,      16,     48,            Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChOvtempLvl3RcvryLimDegC,   8,      16,     64,            Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChUnderTLvl1LimDegC,        10,     16,     80,            Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChUnderTLvl2LimDegC,        12,     16,     96,            Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChUnderTLvl2RcvryLimDegC,   14,     16,     112,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChUnderTLvl3LimDegC,        16,     16,     128,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChUnderTLvl3RcvryLimDegC,   18,     16,     144,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_ChOvtempLvl0LimDegC,        20,     16,     160,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischOvtempLvl1LimDegC,     22,     16,     176,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischOvtempLvl2LimDegC,     24,     16,     192,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischOvtempLvl2RcvryLimDegC,26,     16,     208,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischOvtempLvl3LimDegC,     28,     16,     224,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischOvtempLvl3RcvryLimDegC,30,     16,     240,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischOvtempLvl0LimDegC,     32,     16,     256,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_CellTempRiseChangeRate,     34,     16,     272,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischUnderTLvl1LimDegC,     36,     16,     288,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischUnderTLvl2LimDegC,     38,     16,     304,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischUnderTLvl2RcvryLimDegC,40,     16,     320,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischUnderTLvl3LimDegC,     42,     16,     336,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_DischUnderTLvl3RcvryLimDegC,44,     16,     352,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_TempDiffLvl1LimDegC,        46,     16,     368,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_TempDiffLvl2LimDegC,        48,     16,     384,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_TempDiffLvl2RcvryLimDegC,   50,     16,     400,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_TempDiffLvl3LimDegC,        52,     16,     416,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+    {kBbms_CcCLTH_TempDiffLvl3RcvryLimDegC,   54,     16,     432,           Uint16,       0.1f,     -40.0f,    125.1f,       -40.0f,       0},
+};
+
+/*============================================================
+ * ParaThr_SOX - SOX阈值参数
+ * 对应消息ID: ParaThr_SOX (cmdGroup: 0x03, cmdid: 18 (0x12))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd03_18_ParaThr_SOX_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CcSOCA_SOCOverLowLvl1EnaThdValPct,           0,      32,     0,             Uint32,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcSOCA_SOCOverLowLvl1RecThdValPct,           4,      32,     32,            Uint32,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcSOHA_SOHCOverLowLvl1EnaThdValPct,          8,      16,     64,            Uint16,       0.0078125f, 0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcSOHA_SOHCOverLowLvl2EnaThdValPct,          10,     16,     80,            Uint16,       0.0078125f, 0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcSOHA_SOHCOverLowLvl3EnaThdValPct,          12,     16,     96,            Uint16,       0.0078125f, 0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcSOCA_SOCDiffOverHighEnaThdValPct,          14,     32,     112,           Uint32,       0.00195312f,0.0f,      50.0f,        0.0f,         0},
+    {kBbms_CcSOCA_SOCDiffOverHighRecThdValPct,          18,     32,     144,           Uint32,       0.00195312f,0.0f,      50.0f,        0.0f,         0},
+    {kBbms_CcCBCC_CellSelfDischOverHighLvl1EnaThdValPct,22,     16,     176,           Uint16,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcCBCC_CellSelfDischOverHighLvl2EnaThdValPct,24,     16,     192,           Uint16,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcCBCC_CellSelfDischOverHighLvl2RecThdValPct,26,     16,     208,           Uint16,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcCBCC_CellSelfDischOverHighLvl3EnaThdValPct,28,     16,     224,           Uint16,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcCBCC_CellSelfDischOverHighLvl3RecThdValPct,30,     16,     240,           Uint16,       0.00195312f,0.0f,      100.0f,       0.0f,         0},
+    {kBbms_CcSOCA_OverChgFltEnaThdValPct,               32,     32,     256,           Uint32,       0.00195312f,0.0f,      30.0f,        0.0f,         0},
+};
+
+/*============================================================
+ * ParaThr_AUX - AUX阈值参数
+ * 对应消息ID: ParaThr_AUX (cmdGroup: 0x03, cmdid: 20 (0x14))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd03_20_ParaThr_AUX_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_CbCBCC_BalFordCmdFlg, 0,      16,     0,             Uint16,       1.0f,     0.0f,      1.0f,         0.0f,         0},
+};
+
+/*============================================================
+ * HMI_CtlWord - HMI Control HMI 控制指令
+ * 对应消息ID: HMI_CtlWord (cmdGroup: 0x04, cmdid: 4 (0x04))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd04_04_HMI_CtlWord_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_HMI_AlmRst,           0,      2,      0,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_HMI_SetEnaIso,        0,      2,      2,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_Reserved_04,          0,      2,      4,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_HMI_SetEna,           0,      2,      6,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_HMI_EPORst,           1,      2,      8,             Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_HMI_EnaIsoManualCtrl, 1,      2,      10,            Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_HMI_SetCon,           1,      4,      12,            Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+    {kBbms_HMI_IDLearnManualCtrl,2,      8,      16,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_HMI_AutoHvUpConf,     3,      8,      24,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_HMI_IDLearnDoCtrl,    4,      8,      32,            Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         0},
+    {kBbms_HMI_PmtRkFltNum,      5,      6,      40,            Uint8,        1.0f,     0.0f,      63.0f,        0.0f,         0},
+    {kBbms_HMI_PCSComDiagConf,   5,      2,      46,            Uint8,        1.0f,     0.0f,      3.0f,         0.0f,         0},
+    {kBbms_HMI_LocRemCtl,        6,      4,      48,            Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+    {kBbms_BBMSNo,               6,      4,      52,            Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+};
+
+/*============================================================
+ * HMI_FltOvTiNbr - RBMS/BBMS故障越限次数
+ * 对应消息ID: HMI_FltOvTiNbr (cmdGroup: 0x04, cmdid: 5 (0x05))
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd04_05_HMI_FltOvTiNbr_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_FltOvTiNbr_Start,     0,      16,     0,             Uint16,       1.0f,     0.0f,      65535.0f,     0.0f,         200},
+    {kBbms_BBMSNo,               400,    4,      3200,          Uint8,        1.0f,     0.0f,      15.0f,        0.0f,         0},
+};
+
+/*============================================================
+ * HMI_FltEna - 故障使能数组
+ * 对应消息ID: HMI_FltEna (cmdGroup: 0x04, cmdid: 8 (0x08); also: 0x04:9)
+ *============================================================*/
+const bmsPointAttr_t bbmsCmd04_08_HMI_FltEna_PointAttr[] =
+{
+    /* pointId,                dataIdx,  dataBitLen,  dataStartBit,  dataType,  coeff,    offset,    maxVal,          minVal,   repeatCnt */
+    {kBbms_FaultEnaFlg_Start,    0,      8,      0,             Uint8,        1.0f,     0.0f,      255.0f,       0.0f,         25},
+};
+// clang-format on
