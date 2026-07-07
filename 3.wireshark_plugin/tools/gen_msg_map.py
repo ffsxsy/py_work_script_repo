@@ -13,11 +13,11 @@ from pathlib import Path
 TOOLS_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = TOOLS_ROOT.parent
 PLUGIN_DIR = PROJECT_ROOT / "plugin"
-SOURCES_DIR = PROJECT_ROOT / "sources"
+REFERENCES_DIR = PROJECT_ROOT / "docs" / "references"
 MATRIX_VERSION = "V1.0.50"
 MATRIX_XLSX_NAME = f"BMS2.0 LAN Matrix {MATRIX_VERSION}.xlsx"
 MATRIX_CANDIDATES = (
-    SOURCES_DIR / MATRIX_XLSX_NAME,  # 本工具本地备份（优先）
+    REFERENCES_DIR / MATRIX_XLSX_NAME,  # 本工具本地备份（优先）
     PROJECT_ROOT.parent / "4.rbms_tcp_sim" / "docs" / MATRIX_XLSX_NAME,
 )
 XLSX = next((path for path in MATRIX_CANDIDATES if path.is_file()), None)

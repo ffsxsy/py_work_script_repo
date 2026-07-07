@@ -10,7 +10,7 @@ from pathlib import Path
 WIRESHARK_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
 TOOLS_DIR = WIRESHARK_DIR / "tools"
 PLUGIN_DIR = WIRESHARK_DIR / "plugin"
-SOURCES_DIR = WIRESHARK_DIR / "sources"
+REFERENCES_DIR = WIRESHARK_DIR / "docs" / "references"
 
 
 def _load_gen_fault_defs():
@@ -29,7 +29,7 @@ def test_fault_profiles_cover_expected_routes() -> None:
     gen = _load_gen_fault_defs()
     routes: dict[int, dict[int, tuple[str, int]]] = {}
     for profile in gen.FAULT_PROFILES:
-        entries = gen.extract_fault_entries(SOURCES_DIR / profile.xlsm_name)
+        entries = gen.extract_fault_entries(REFERENCES_DIR / profile.xlsm_name)
         port_list = profile.ports if isinstance(profile.ports, tuple) else (profile.ports,)
         for port in port_list:
             for cmd_group, cmd_id in profile.cmd_specs:

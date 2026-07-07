@@ -12,7 +12,7 @@ PLUGIN_DIR = TOOLS_ROOT.parent / "plugin"
 
 
 def main() -> None:
-    scripts = ("gen_msg_map.py", "gen_payload_defs.py --default-set", "gen_fault_defs.py")
+    scripts = ("gen_msg_map.py", "gen_payload_defs.py --default-set", "gen_fault_defs.py", "gen_protocol_doc_lua.py")
     for script in scripts:
         cmd = [sys.executable, *script.split()]
         print(f">>> {' '.join(cmd)}")

@@ -6,10 +6,12 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import pytest
+
 WIRESHARK_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
 TOOLS_DIR = WIRESHARK_DIR / "tools"
 PLUGIN_DIR = WIRESHARK_DIR / "plugin"
-SOURCES_DIR = WIRESHARK_DIR / "sources"
+REFERENCES_DIR = WIRESHARK_DIR / "docs" / "references"
 
 
 def _load_gen_payload_defs():
@@ -31,10 +33,10 @@ def test_matrix_version_is_v1_0_50() -> None:
     assert "V1.0.50" in matrix.name
 
 
-def test_resolve_matrix_prefers_sources_backup() -> None:
+def test_resolve_matrix_prefers_local_references_backup() -> None:
     gen = _load_gen_payload_defs()
     matrix = gen.resolve_matrix_xlsx(None)
-    expected = SOURCES_DIR / gen.MATRIX_XLSX_NAME
+    expected = REFERENCES_DIR / gen.MATRIX_XLSX_NAME
     assert matrix == expected
     assert matrix.is_file()
 
@@ -282,9 +284,10 @@ def test_default_payload_messages_include_bbms_a_ctlword() -> None:
     assert "bms20_payload_BBMS_A_CtlWord.lua" in manifest
 
 
-def test_fault_messages_use_ref_payload_filename() -> None:
+def test_fault_messages_skip_payload_lua_generation() -> None:
     gen = _load_gen_payload_defs()
-    assert gen.output_path_for_message("BBMS_Fault").name == "ref_payload_BBMS_Fault.lua"
+    with pytest.raises(ValueError, match="gen_fault_defs"):
+        gen.output_path_for_message("BBMS_Fault")
     assert "BBMS_Fault" not in gen.manifest_message_names()
 
 

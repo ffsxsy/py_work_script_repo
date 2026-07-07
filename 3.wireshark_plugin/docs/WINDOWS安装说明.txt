@@ -23,7 +23,7 @@ BMS2.0 Wireshark 插件 — Windows 快速安装
     bms20_payload_manifest.lua
     bms20_payload_*.lua（全部字段表，约 34 个）
 
-  勿复制 docs\reference\ 下的 ref_payload_*.lua（仅开发参考）。
+  仅复制 plugin\ 目录下的 .lua 文件。
 
 【3】重载
   Analyze → Reload Lua Plugins

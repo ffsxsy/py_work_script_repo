@@ -122,8 +122,23 @@ local function is_fault_wire_id(wire_id)
 end
 
 local function lookup_msg_name(cmd_group, cmd_id)
+    if type(bms20_lookup_generic_msg_name) == "function" then
+        local generic_name = bms20_lookup_generic_msg_name(cmd_group, cmd_id)
+        if generic_name ~= nil then
+            return generic_name
+        end
+    end
     if type(bms20_lookup_msg_name) == "function" then
-        return bms20_lookup_msg_name(cmd_group, cmd_id)
+        local matrix_name = bms20_lookup_msg_name(cmd_group, cmd_id)
+        if matrix_name ~= nil then
+            return matrix_name
+        end
+    end
+    if type(bms20_lookup_protocol_msg_name) == "function" then
+        local protocol_name = bms20_lookup_protocol_msg_name(cmd_group, cmd_id)
+        if protocol_name ~= nil then
+            return protocol_name
+        end
     end
     return nil
 end
@@ -210,12 +225,10 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index, service_port)
     trans_tree:add(f_frame_id, tvb(10, 1))
 
     local app_tree = frame_tree:add(bms20_proto, tvb(11, 2), "Application Layer")
-    local cmd_group_item = app_tree:add(f_cmd_group, tvb(11, 1))
-    local cmd_id_item = app_tree:add(f_cmd_id, tvb(12, 1))
+    app_tree:add(f_cmd_group, tvb(11, 1))
+    app_tree:add(f_cmd_id, tvb(12, 1))
     if display_name then
         app_tree:add(f_msg_name, display_name)
-        cmd_group_item:append_text(string.format(" (%s)", display_name))
-        cmd_id_item:append_text(string.format(" (%s)", display_name))
     end
 
     if payload_len > 0 then
@@ -234,6 +247,15 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index, service_port)
                 and type(bms20_dissect_write_ack) == "function" then
             parsed = bms20_dissect_write_ack(
                 wire_id, payload_tvb, app_tree, frame_tree, pinfo, transport_type, service_port)
+        end
+        if not parsed and cmd_group == 0x00 and bms20_proto.prefs.parse_payload
+                and type(bms20_dissect_generic_cmd) == "function" then
+            parsed = bms20_dissect_generic_cmd(cmd_id, payload_tvb, app_tree, transport_type)
+        end
+        if not parsed and bms20_proto.prefs.parse_payload
+                and type(bms20_dissect_protocol_doc) == "function" then
+            parsed = bms20_dissect_protocol_doc(
+                cmd_group, cmd_id, payload_tvb, app_tree, transport_type)
         end
         if not parsed and type(bms20_dissect_fault_payload) == "function" then
             parsed = bms20_dissect_fault_payload(

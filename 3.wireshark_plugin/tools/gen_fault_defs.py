@@ -12,7 +12,7 @@ from pathlib import Path
 TOOLS_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = TOOLS_ROOT.parent
 PLUGIN_DIR = PROJECT_ROOT / "plugin"
-SOURCES_DIR = PROJECT_ROOT / "sources"
+REFERENCES_DIR = PROJECT_ROOT / "docs" / "references"
 OUT = PLUGIN_DIR / "bms20_fault_defs.lua"
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
@@ -194,7 +194,7 @@ def render_lua() -> str:
     fault_wire_ids: set[int] = set()
     wire_profile: dict[int, str] = {}
     for profile in FAULT_PROFILES:
-        xlsm_path = SOURCES_DIR / profile.xlsm_name
+        xlsm_path = REFERENCES_DIR / profile.xlsm_name
         entries = extract_fault_entries(xlsm_path)
         port_list = profile.ports if isinstance(profile.ports, tuple) else (profile.ports,)
         for port in port_list:
@@ -281,7 +281,7 @@ def main() -> None:
     content = render_lua()
     OUT.write_text(content, encoding="utf-8")
     for profile in FAULT_PROFILES:
-        count = len(extract_fault_entries(SOURCES_DIR / profile.xlsm_name))
+        count = len(extract_fault_entries(REFERENCES_DIR / profile.xlsm_name))
         port_list = profile.ports if isinstance(profile.ports, tuple) else (profile.ports,)
         port_desc = f"{port_list[0]}..{port_list[-1]}" if len(port_list) > 1 else str(port_list[0])
         cmd_desc = ", ".join(f"0x{g:02X}/0x{i:02X}" for g, i in profile.cmd_specs)

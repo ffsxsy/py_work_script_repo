@@ -35,8 +35,8 @@ wireshark_version: "4.6.x（已在 4.6.2 / Win11 验证）"
 | 协议识别 | TCP 端口 **5001..5014**（源或目的）自动解析；**同一 pcap 可同时含 HMI / BBMS / 多簇 RBMS 流量** |
 | 服务端口标注 | Info 列 `[HMI:5001]` / `[BBMS:5002]` / `[R1:5003]` 等；详情字段 `bms20.service_port`、`bms20.rack_id` |
 | V2 帧头 | 展开 Link / Network / Transport / Application 各层字段 |
-| 命令名称 | `cmdGroup + cmdId` → Message Name（如 `RBMS_SumInfo`） |
-| **Payload 展开** | BBMS_SumInfo / RBMS_SumInfo / BBMS_CtlWord / TMS_SumInfo（Comm Matrix） |
+| 命令名称 | `cmdGroup + cmdId` → Message Name（如 `RBMS_SumInfo`）；**cmdGroup=0x00** 为 [[通用命令协议文档.pdf]] 定义的 16 条通用命令（`GenCmd_*`） |
+| **Payload 展开** | BBMS_SumInfo / RBMS_SumInfo / BBMS_CtlWord / TMS_SumInfo（Comm Matrix）；**cmdGroup=0x00** 通用命令（产品信息 / 授时 / 参数读写 / OTA 等） |
 | **故障位图** | 按端口 + cmd 解析 RBMS_Fault / BBMS_Fault (M核) / BBMS_A_Fault (A核)（SystemConfiguration xlsm） |
 | 多帧拆分 | 一个 TCP 段内多帧按 `len` 字段循环解析 |
 | CRC 校验 | CRC16-Modbus，标注 valid / invalid |
@@ -75,7 +75,7 @@ Info 列示例：`V2 [BBMS:5002] BBMS_SumInfo frameId=49 len=135`（RBMS 簇 1 �
 
 ### 3.1 获取插件文件
 
-从本仓库 `3.wireshark_plugin/plugin/` 获取（**仅复制该目录下的 `.lua`**，勿复制 `tools/`、`docs/reference/`）：
+从本仓库 `3.wireshark_plugin/plugin/` 获取（**仅复制该目录下的 `.lua`**，勿复制 `tools/`）：
 
 ```text
 3.wireshark_plugin/
@@ -88,13 +88,15 @@ Info 列示例：`V2 [BBMS:5002] BBMS_SumInfo frameId=49 len=135`（RBMS 簇 1 �
 │   ├── bms20_payload_manifest.lua
 │   └── bms20_payload_*.lua             ← 全部字段表（必装）
 ├── tools/                              ← 维护者：生成脚本
-├── sources/                            ← LAN Matrix 本地备份 + FaultList xlsm
-│   ├── BMS2.0 LAN Matrix V1.0.50.xlsx
-│   └── SystemConfiguration_*.xlsm
-└── docs/                               ← 本说明与协议 PDF
+└── docs/
+    ├── references/                       ← 插件制作参考文档（PDF + Matrix + FaultList）
+    │   ├── BMS2.0 LAN Matrix V1.0.50.xlsx
+    │   ├── SystemConfiguration_*.xlsm
+    │   └── *.pdf
+    └── …                               ← 本说明等
 ```
 
-LAN Matrix：**优先生效** `sources/BMS2.0 LAN Matrix V1.0.50.xlsx`（本工具本地备份）；若缺失则回退 `4.rbms_tcp_sim/docs/` 同名文件。
+LAN Matrix：**优先生效** `docs/references/BMS2.0 LAN Matrix V1.0.50.xlsx`（本工具本地备份）；若缺失则回退 `4.rbms_tcp_sim/docs/` 同名文件。
 
 ### 3.2 确认插件目录
 

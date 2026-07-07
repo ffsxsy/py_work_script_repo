@@ -15,12 +15,11 @@ from pathlib import Path
 TOOLS_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = TOOLS_ROOT.parent
 PLUGIN_DIR = PROJECT_ROOT / "plugin"
-SOURCES_DIR = PROJECT_ROOT / "sources"
-REFERENCE_DIR = PROJECT_ROOT / "docs" / "reference"
+REFERENCES_DIR = PROJECT_ROOT / "docs" / "references"
 MATRIX_VERSION = "V1.0.50"
 MATRIX_XLSX_NAME = f"BMS2.0 LAN Matrix {MATRIX_VERSION}.xlsx"
 MATRIX_CANDIDATES = (
-    SOURCES_DIR / MATRIX_XLSX_NAME,  # 本工具本地备份（优先）
+    REFERENCES_DIR / MATRIX_XLSX_NAME,  # 本工具本地备份（优先）
     PROJECT_ROOT.parent / "4.rbms_tcp_sim" / "docs" / MATRIX_XLSX_NAME,
 )
 XLSX = next((path for path in MATRIX_CANDIDATES if path.is_file()), None)
@@ -30,6 +29,10 @@ BRACKET_SUFFIX_RE = re.compile(r"^(.+)\[[^\]]+\]$")
 BYTE_HINT_RANGE_RE = re.compile(r"^(\d+)-(\d+)$")
 
 FAULT_REFERENCE_MESSAGES = frozenset({"BBMS_Fault", "RBMS_Fault", "BBMS_A_Fault"})
+FAULT_PAYLOAD_GEN_HINT = (
+    "故障位图请用 gen_fault_defs.py 生成 bms20_fault_defs.lua，"
+    "运行时解析见 bms20_fault.lua"
+)
 # Message ID 表名 → bms20_fault_profiles 的 profile_key
 FAULT_MESSAGE_ID_TO_PROFILE: dict[str, str] = {
     "BBMS_Fault": "BBMS_Fault_M",
@@ -380,16 +383,7 @@ def format_float(value: float) -> str:
 
 
 def render_message_lua(message: MessagePayloadDef) -> str:
-    header_lines: list[str] = []
-    if message.message_name in FAULT_REFERENCE_MESSAGES:
-        header_lines.extend(
-            [
-                "-- REFERENCE ONLY: Wireshark 不会自动加载 ref_payload_*.lua。",
-                "-- 故障包请用 bms20_fault.lua + bms20_fault_defs.lua（Active Faults + BBMSNo）。",
-                "",
-            ]
-        )
-    lines = header_lines + [
+    lines = [
         f"-- Auto-generated payload defs for {message.message_name}",
         f"-- Regenerate: python3 gen_payload_defs.py --message {message.message_name}",
         "",
@@ -440,9 +434,10 @@ DEFAULT_PAYLOAD_MESSAGES = _load_default_payload_messages()
 
 
 def output_path_for_message(message_name: str) -> Path:
-    safe = message_name.replace(" ", "_")
     if message_name in FAULT_REFERENCE_MESSAGES:
-        return REFERENCE_DIR / f"ref_payload_{safe}.lua"
+        msg = f"{message_name!r}: {FAULT_PAYLOAD_GEN_HINT}"
+        raise ValueError(msg)
+    safe = message_name.replace(" ", "_")
     return PLUGIN_DIR / f"bms20_payload_{safe}.lua"
 
 
@@ -519,6 +514,9 @@ def main() -> None:
         selected = list(DEFAULT_PAYLOAD_MESSAGES)
 
     for message_name in selected:
+        if message_name in FAULT_REFERENCE_MESSAGES:
+            print(f"Skip {message_name!r}: {FAULT_PAYLOAD_GEN_HINT}")
+            continue
         if message_name not in all_defs:
             known = ", ".join(sorted(all_defs.keys())[:8])
             raise SystemExit(f"Unknown message {message_name!r}. Examples: {known} ...")
