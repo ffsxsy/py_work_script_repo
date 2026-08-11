@@ -6,8 +6,8 @@
 
 | 文件 | 作用 |
 | :--- | :--- |
-| `gen_scu_pcs_run_config.py` | 生成 `system.csv`、`protection.csv`、`run.csv`、`c_struct_param.c` |
-| `gen_dsp_meas_resp_from_xlsx.py` | 生成 `c_struct_meas.c`（测量响应） |
+| `gen_scu_pcs_run_config.py` | 生成 `output/system.csv`、`protection.csv`、`run.csv`、`c_struct_param.c` |
+| `gen_dsp_meas_resp_from_xlsx.py` | 生成 `output/c_struct_meas.c`（测量响应） |
 
 规则见 `docs/GEN_SCU_PCS_RUN_CONFIG.md`、`docs/GEN_DSP_MEAS_RESP.md`。
 

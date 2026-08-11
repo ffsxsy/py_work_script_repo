@@ -16,10 +16,10 @@
 | :--- | :--- | :--- |
 | 输入 | `McuCanMap.xlsx` | CAN 映射与配置变量默认值/量程 |
 | 输入 | `py_gen_pcs_id_point_name_ename_map.csv` | `param_ename` → 中文 `param_name` |
-| 输出 | `system.csv` | 系统参数 |
-| 输出 | `protection.csv` | 保护参数 |
-| 输出 | `run.csv` | 运行参数 |
-| 输出 | `c_struct_param.c` | `dsp_point_content_array[]` 写点表 |
+| 输出 | `output/system.csv` | 系统参数 |
+| 输出 | `output/protection.csv` | 保护参数 |
+| 输出 | `output/run.csv` | 运行参数 |
+| 输出 | `output/c_struct_param.c` | `dsp_point_content_array[]` 写点表 |
 
 ## CAN 帧与点位布局
 
@@ -69,4 +69,4 @@ python gen_scu_pcs_run_config.py
 
 依赖：`openpyxl`（读取 xlsx）。
 
-同时会生成测量响应 `c_struct_meas.c`（规则见 [GEN_DSP_MEAS_RESP.md](GEN_DSP_MEAS_RESP.md)，CAN ID `0x1A80`～`0x1AA1`）。
+同时会生成测量响应 `output/c_struct_meas.c`（规则见 [GEN_DSP_MEAS_RESP.md](GEN_DSP_MEAS_RESP.md)，CAN ID `0x1A80`～`0x1AA2`）。

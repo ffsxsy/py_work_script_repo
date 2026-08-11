@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """从 McuCanMap.xlsx「TX CAN-A」生成测量响应 C 数组（格式同 meas_example.c）。
 
-CAN ID 范围与解析规则见 ``docs/GEN_DSP_MEAS_RESP.md``（当前 0x1A80–0x1AA1）。
+CAN ID 范围与解析规则见 ``docs/GEN_DSP_MEAS_RESP.md``（当前 0x1A80–0x1AA2）。
 
 用法:
     python gen_dsp_meas_resp_from_xlsx.py
@@ -20,12 +20,13 @@ from typing import Any, Final
 import openpyxl
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = SCRIPT_DIR / "output"
 XLSX_PATH = SCRIPT_DIR / "McuCanMap.xlsx"
-OUT_PATH = SCRIPT_DIR / "c_struct_meas.c"
+OUT_PATH = OUTPUT_DIR / "c_struct_meas.c"
 SHEET = "TX CAN-A"
 ID_RE = re.compile(r"0x([0-9A-Fa-f]+)ssdd", re.IGNORECASE)
 CAN_ID_MIN = 0x1A80
-CAN_ID_MAX = 0x1AA1
+CAN_ID_MAX = 0x1AA2
 # 输出为 C 注释块（与 meas_example.c 一致，仍保留在表中便于对照 xlsx）
 COMMENTED_CAN_IDS: Final[frozenset[int]] = frozenset({0x1A92})
 
@@ -344,7 +345,8 @@ def generate_lines(packets: list[FramePacket]) -> list[str]:
     lines: list[str] = []
     lines.append(
         "/*\n"
-        " * 由 McuCanMap.xlsx「TX CAN-A」自动生成（CAN ID 0x1A80–0x1AA1，Node 形如 0x####ssdd）。\n"
+        f" * 由 McuCanMap.xlsx「TX CAN-A」自动生成（CAN ID 0x{CAN_ID_MIN:04X}–0x{CAN_ID_MAX:04X}，"
+        "Node 形如 0x####ssdd）。\n"
         " * 数组元素按报文 CAN ID 升序排列；同 ID 重复项保持表中顺序。\n"
         " * 枚举占位符为 kDSP_<CANID>_param1 … paramN，请在头文件中定义或映射为实际枚举。\n"
         " * 参数名 / factor / 类型优先取自测量明细区（与帧布局 byte 列不一致时以明细为准）；\n"
@@ -352,6 +354,7 @@ def generate_lines(packets: list[FramePacket]) -> list[str]:
         " * 0x1A92 整帧输出为注释块（与 meas_example.c 一致）。\n"
         " */"
     )
+    lines.append("// clang-format off")
     lines.append("meas_resp_value_t dsp_meas_resp_content_array[] = {")
     for packet in packets:
         block = emit_message(packet)
@@ -359,6 +362,7 @@ def generate_lines(packets: list[FramePacket]) -> list[str]:
             block = _as_c_comment(block)
         lines.extend(block)
     lines.append("};")
+    lines.append("// clang-format on")
     lines.append("")
     return lines
 
@@ -392,6 +396,7 @@ def write_meas_struct(
     """生成 c_struct_meas.c，返回 (输出路径, 报文条数)。"""
     packets = build_packets(xlsx_path)
     target = out_path or OUT_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text("\n".join(generate_lines(packets)), encoding="utf-8")
     return target, len(packets)
 

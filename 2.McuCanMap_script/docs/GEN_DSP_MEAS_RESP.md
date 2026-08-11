@@ -15,7 +15,7 @@
 | 类型 | 路径 | 说明 |
 | :--- | :--- | :--- |
 | 输入 | `McuCanMap.xlsx` → `TX CAN-A` | 帧布局（`0x####ssdd`）+ 测量明细区 |
-| 输出 | `c_struct_meas.c` | `meas_resp_value_t dsp_meas_resp_content_array[]` |
+| 输出 | `output/c_struct_meas.c` | `meas_resp_value_t dsp_meas_resp_content_array[]` |
 
 主流程脚本 `gen_scu_pcs_run_config.py` 在生成配置 CSV / `c_struct_param.c` 后会自动调用本脚本。
 
@@ -24,10 +24,10 @@
 | 常量 | 值 | 说明 |
 | :--- | :--- | :--- |
 | `CAN_ID_MIN` | `0x1A80` | 纳入生成的最小测量 CAN ID |
-| `CAN_ID_MAX` | `0x1AA1` | 纳入生成的最大测量 CAN ID（含 **0x1AA1**） |
+| `CAN_ID_MAX` | `0x1AA2` | 纳入生成的最大测量 CAN ID（含 **0x1AA2**，共模诊断帧） |
 
 > [!IMPORTANT]
-> 仅当某 CAN ID 在 **帧布局区** 与 **测量明细区** 均存在时才会写入 C 数组；超出 `0x1A80`～`0x1AA1` 的 Node（如 `0x1AFD`、`0x1AFF`）不生成。
+> 仅当某 CAN ID 在 **帧布局区** 与 **测量明细区** 均存在时才会写入 C 数组；超出 `0x1A80`～`0x1AA2` 的 Node（如 `0x1AFD`、`0x1AFF`）不生成。
 
 生成结果按 CAN ID **升序**排列；同一 ID 在表中出现多次时保持 xlsx 顺序。
 

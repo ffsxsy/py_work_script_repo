@@ -8,8 +8,8 @@
 与 mod_pcs_run_config.csv 一致；created_at / updated_at 仍由脚本写入当前时间。
 
 同时生成:
-- ``c_struct_param.c``：配置写点（point_value_t，来自 CSV）
-- ``c_struct_meas.c``：测量响应（meas_resp_value_t，来自 TX CAN-A，
+- ``output/c_struct_param.c``：配置写点（point_value_t，来自 CSV）
+- ``output/c_struct_meas.c``：测量响应（meas_resp_value_t，来自 TX CAN-A，
   见 gen_dsp_meas_resp_from_xlsx.py）
 
 点位表 ``py_gen_pcs_id_point_name_ename_map.csv`` 由 ``gen_scu_pcs_point_id_map.py``
@@ -41,9 +41,11 @@ from gen_dsp_meas_resp_from_xlsx import write_meas_struct
 # --- 路径 -----------------------------------------------------------------------------------
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
 XLSX_PATH = os.path.join(SCRIPT_DIR, "McuCanMap.xlsx")
+# 输入：英文名 → 中文名映射（非生成物）
 OUTPUT_POINT_MAP = os.path.join(SCRIPT_DIR, "py_gen_pcs_id_point_name_ename_map.csv")
-OUTPUT_C_STRUCT_PARAM = os.path.join(SCRIPT_DIR, "c_struct_param.c")
+OUTPUT_C_STRUCT_PARAM = os.path.join(OUTPUT_DIR, "c_struct_param.c")
 
 MAIN_CSV_FIELDNAMES: Final[tuple[str, ...]] = (
     "id",
@@ -597,12 +599,17 @@ def _build_generated_row(
     )
 
 
+def _ensure_output_dir() -> None:
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
 def _write_output_csv(
     filename: str,
     rows: list[tuple[int, GeneratedRow]],
     ts: str,
 ) -> str:
-    path = os.path.join(SCRIPT_DIR, filename)
+    _ensure_output_dir()
+    path = os.path.join(OUTPUT_DIR, filename)
     with open(path, "w", newline="", encoding="utf-8-sig") as f:
         writer: csv.DictWriter[str] = csv.DictWriter(
             f,
@@ -642,7 +649,10 @@ def _section_comment(filename: str, first_base: str) -> str:
 
 
 def _write_point_content_array(paths: list[str]) -> None:
-    lines = ["point_value_t dsp_point_content_array[] = {"]
+    lines = [
+        "// clang-format off",
+        "point_value_t dsp_point_content_array[] = {",
+    ]
     for path in paths:
         rows = _read_csv_rows([path])
         if not rows:
@@ -685,7 +695,8 @@ def _write_point_content_array(paths: list[str]) -> None:
                     f'{prefix}{point_id}, "CAN", "{data_type}", '
                     f"{slot_idx * 2}, 2, {coefficient}{suffix}"
                 )
-    lines.extend(["};", ""])
+    lines.extend(["};", "// clang-format on", ""])
+    _ensure_output_dir()
     with open(OUTPUT_C_STRUCT_PARAM, "w", newline="\n", encoding="utf-8") as f:
         _ = f.write("\n".join(lines))
 

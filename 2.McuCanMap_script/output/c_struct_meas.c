@@ -1,11 +1,12 @@
 /*
- * 由 McuCanMap.xlsx「TX CAN-A」自动生成（CAN ID 0x1A80–0x1AA1，Node 形如 0x####ssdd）。
+ * 由 McuCanMap.xlsx「TX CAN-A」自动生成（CAN ID 0x1A80–0x1AA2，Node 形如 0x####ssdd）。
  * 数组元素按报文 CAN ID 升序排列；同 ID 重复项保持表中顺序。
  * 枚举占位符为 kDSP_<CANID>_param1 … paramN，请在头文件中定义或映射为实际枚举。
  * 参数名 / factor / 类型优先取自测量明细区（与帧布局 byte 列不一致时以明细为准）；
  * 类型由该行 min 是否小于 0 判定（负 -> int16_t，非负 -> uint16_t）。
  * 0x1A92 整帧输出为注释块（与 meas_example.c 一致）。
  */
+// clang-format off
 meas_resp_value_t dsp_meas_resp_content_array[] = {
     {0x1A80,
      4,
@@ -169,4 +170,11 @@ meas_resp_value_t dsp_meas_resp_content_array[] = {
       {kDSP_1AA1_param2, "IgridOffsetMaxAbs (A)", "int16_t", 2, 2, 0.01F},
       {kDSP_1AA1_param3, "IdcOffsetSum (A)"     , "int16_t", 4, 2, 0.01F},
       {kDSP_1AA1_param4, "Rinsul (kOhm)"        , "int16_t", 6, 2,  1.0F}}},
+    {0x1AA2,
+     4,
+     {{kDSP_1AA2_param1, "IcmdDcMagMax (A)" , "int16_t" , 0, 2, 0.01F},
+      {kDSP_1AA2_param2, "VmidRefOffset (V)", "int16_t" , 2, 2, 0.01F},
+      {kDSP_1AA2_param3, "IcmSumMean (A)"   , "int16_t" , 4, 2, 0.01F},
+      {kDSP_1AA2_param4, "(unused)"         , "uint16_t", 6, 2,  1.0F}}},
 };
+// clang-format on
