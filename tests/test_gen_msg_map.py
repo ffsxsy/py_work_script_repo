@@ -34,6 +34,15 @@ def test_parathr_cellv_read_write_labels() -> None:
     assert gen.display_label(write_row.name, write_row.description) == "ParaThr_CellV (Write)"
 
 
+def test_bbms_ctlword_all_rack_label() -> None:
+    gen = _load_gen_msg_map()
+    rows = gen.load_message_id_rows(gen.resolve_matrix_xlsx(None))
+    by_wire_id = {(row.cmd_group << 8) | row.cmd_id: row for row in rows}
+    all_rack = by_wire_id[0x020C]
+    assert all_rack.name == "BBMS_CtlWord"
+    assert gen.display_label(all_rack.name, all_rack.description) == "BBMS_CtlWordAllRack"
+
+
 def test_render_msg_map_contains_parathr_cellv_entries() -> None:
     gen = _load_gen_msg_map()
     matrix = gen.resolve_matrix_xlsx(None)

@@ -8,29 +8,19 @@ local f_fault_active = ProtoField.uint16("bms20.fault.active_count", "Active Fau
 
 fault_proto.fields = { f_fault_bitmap, f_fault_active }
 
-function bms20_fault_is_enabled(profile_key, service_port)
+function bms20_fault_is_enabled(profile_key, _service_port)
+    -- 故障深度解析不按 TCP 端口限制
     if profile_key == nil then
         return false
     end
     if type(bms20_ensure_parse_index) == "function" then
         bms20_ensure_parse_index()
     end
-    -- 未安装 bms20_parse_config.lua 时保持旧行为：按端口段开关，默认展开故障
-    if type(bms20_payload_by_segment) ~= "table" then
-        if type(bms20_parse_segment_enabled) == "function" then
-            return bms20_parse_segment_enabled(service_port)
-        end
+    if type(bms20_payload_by_segment) ~= "table" and type(bms20_payload_enabled) ~= "table" then
         return true
     end
-    local seg = nil
-    if type(bms20_fault_profile_segment) == "table" then
-        seg = bms20_fault_profile_segment[profile_key]
-    end
-    if seg == nil and type(bms20_segment_from_port) == "function" then
-        seg = bms20_segment_from_port(service_port)
-    end
-    if type(bms20_item_enabled_in_segment) == "function" then
-        return bms20_item_enabled_in_segment(profile_key, seg)
+    if type(bms20_payload_is_enabled) == "function" then
+        return bms20_payload_is_enabled(profile_key, nil)
     end
     return true
 end

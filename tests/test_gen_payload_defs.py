@@ -303,6 +303,12 @@ def test_rbms_temp_expands_cell_array_from_byte_hint() -> None:
     assert cell_temps.signed is True
 
 
+def test_all_messages_enabled_on_both_segments() -> None:
+    gen = _load_gen_payload_defs()
+    for name in ("BBMS_CtlWord", "BBMS_SafetySignal", "RBMS_SumInfo", "RBMS_Fault"):
+        assert gen.parse_config_segments_for_item(name) == gen.PARSE_SEGMENT_KEYS
+
+
 def test_parse_config_covers_message_id_sheet() -> None:
     gen = _load_gen_payload_defs()
     matrix = gen.resolve_matrix_xlsx(None)

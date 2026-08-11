@@ -266,6 +266,13 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index, service_port)
                 "BMS2.0 fault message: copy bms20_fault*.lua and Reload Lua Plugins for Active Faults")
         end
         if not parsed and fault_profile_key == nil and not is_fault_wire_id(wire_id)
+                and bms20_proto.prefs.parse_payload and wire_id == 0x020C
+                and type(bms20_dissect_payload_repeated) == "function" then
+            parsed = bms20_dissect_payload_repeated(
+                "BBMS_CtlWord", display_name or "BBMS_CtlWordAllRack",
+                payload_tvb, app_tree, frame_tree, pinfo, service_port)
+        end
+        if not parsed and fault_profile_key == nil and not is_fault_wire_id(wire_id)
                 and bms20_proto.prefs.parse_payload and payload_msg
                 and type(bms20_dissect_payload) == "function" then
             parsed = bms20_dissect_payload(

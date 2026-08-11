@@ -245,8 +245,8 @@ Wireshark 菜单：**Analyze → Reload Lua Plugins**（中文：**分析 → �
 
 | 手段 | 作用 |
 | :--- | :--- |
-| `bms20_parse_config.lua` → `bms20_parse_segments` | 按段关闭：`hmi_bbms`（5001/5002）或 `bbms_rbms`（5003..5014） |
-| `bms20_parse_config.lua` → `bms20_payload_by_segment` | 段内逐项 `= true` / `= false`（含 Payload 消息与故障 profile） |
+| `bms20_parse_config.lua` → `bms20_parse_segments` | 段总开关（可选；运行时**不按端口拦截**） |
+| `bms20_parse_config.lua` → `bms20_payload_by_segment` | 消息白名单：`= true` / `= false`（两段默认相同） |
 | **Preferences → Parse Payload** | 一键关闭全部 Payload 展开，仅保留帧头 |
 | 显示过滤器收窄 | 如 `bms20.service_port >= 5003 && bms20.msg_name == "RBMS_SumInfo"` |
 | 不安装的 payload 文件 | 未生成/未复制的消息自动回退为 raw Payload |
@@ -320,7 +320,7 @@ uv run python 3.wireshark_plugin/tools/regenerate_plugins.py
 
 - 仅完整支持 **V2**；V1 帧会提示不支持
 - 无匹配 `(cmdGroup, cmdId)` 时，不显示 Message Name，仅显示十六进制
-- **Payload / 故障深度解析** 均由 `bms20_parse_config.lua` 按段控制
+- **Payload / 故障深度解析** 由 `bms20_parse_config.lua` 白名单控制（**不按 TCP 端口限制**）
 - `(0x03, 0x29)` / `(0x02, 0x13)` / `(0x01, 0x09)` 为 Matrix V1.0.50 故障路由；插件按端口分别显示 **RBMS_Fault**、**BBMS_Fault (M核)** 或 **BBMS_A_Fault (A核)**
 - 对端 TCP 端口**不固定**，无需注册；只要本端含 **5001..5014** 中任一服务端口即可
 

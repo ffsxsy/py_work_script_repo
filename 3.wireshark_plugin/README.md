@@ -40,14 +40,14 @@ Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\
 
 ## 深度解析配置
 
-帧头、CRC、`Message Name` 始终解析。Payload 字段树与 **Active Faults** 由 **`plugin/bms20_parse_config.lua`** 按通信段开关（重新 `--default-set` 会覆盖该文件）。
+帧头、CRC、`Message Name` 始终解析。Payload 字段树与 **Active Faults** 由 **`plugin/bms20_parse_config.lua`** 白名单控制（**不按 TCP 端口限制**；重新 `--default-set` 会覆盖该文件）。
 
-| 段 key | TCP 端口 | 典型流量 |
-| :--- | :--- | :--- |
-| `hmi_bbms` | 5001、5002 | 上位机 ↔ BBMS |
-| `bbms_rbms` | 5003..5014 | BBMS ↔ 各簇 RBMS |
+| 段 key | 说明（仅分组，不拦截端口） |
+| :--- | :--- |
+| `hmi_bbms` | 上位机 ↔ BBMS 相关消息 |
+| `bbms_rbms` | BBMS ↔ RBMS 相关消息 |
 
-段内逐项 `= true` / `= false` 控制各 Payload 消息与故障 profile（`BBMS_Fault_M` / `RBMS_Fault` / `BBMS_A_Fault`）。
+两段默认含相同消息项；逐项 `= true` / `= false` 即可开关。
 
 ## 故障位图
 

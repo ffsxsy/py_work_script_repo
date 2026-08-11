@@ -55,6 +55,8 @@ def parse_hex(value: object) -> int:
 
 def display_label(name: str, description: str) -> str:
     desc = description.strip()
+    if name == "BBMS_CtlWord" and "所有Rack" in desc.replace(" ", ""):
+        return "BBMS_CtlWordAllRack"
     if desc.startswith("读取") or desc.startswith("读取-"):
         return f"{name} (Read)"
     if desc.startswith("写入") or desc.startswith("写入-"):

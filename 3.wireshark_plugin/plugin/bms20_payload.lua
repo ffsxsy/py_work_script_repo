@@ -140,7 +140,8 @@ local function payload_enabled_for_segment(msg_name, seg)
     return payload_enabled_index[msg_name][seg] == true
 end
 
-function bms20_payload_is_enabled(msg_name, service_port)
+function bms20_payload_is_enabled(msg_name, _service_port)
+    -- 深度解析不按 TCP 端口限制：只要白名单含该消息名即展开
     if msg_name == nil then
         return false
     end
@@ -150,33 +151,12 @@ function bms20_payload_is_enabled(msg_name, service_port)
     if not has_config then
         return true
     end
-    if not payload_enabled_for_segment(msg_name, nil) then
-        return false
-    end
-    if service_port == nil then
-        for seg, _ in pairs(payload_enabled_index[msg_name]) do
-            if bms20_parse_segments == nil or bms20_parse_segments[seg] == true then
-                return true
-            end
-        end
-        return false
-    end
-    if not bms20_parse_segment_enabled(service_port) then
-        return false
-    end
-    local seg = bms20_segment_from_port(service_port)
-    return payload_enabled_for_segment(msg_name, seg)
+    return payload_enabled_for_segment(msg_name, nil)
 end
 
-function bms20_item_enabled_in_segment(item_name, seg)
-    if item_name == nil or seg == nil then
-        return false
-    end
-    bms20_ensure_parse_index()
-    if bms20_parse_segments ~= nil and bms20_parse_segments[seg] ~= true then
-        return false
-    end
-    return payload_enabled_for_segment(item_name, seg)
+function bms20_item_enabled_in_segment(item_name, _seg)
+    -- 兼容旧 API；不再按段/端口拦截
+    return bms20_payload_is_enabled(item_name, nil)
 end
 
 local function field_abbr(message_name, signal_name)
@@ -191,6 +171,9 @@ end
 
 function bms20_resolve_payload_msg_name(msg_name, wire_id)
     if wire_id ~= nil and type(bms20_is_fault_wire_id) == "function" and bms20_is_fault_wire_id(wire_id) then
+        return nil
+    end
+    if msg_name == "BBMS_CtlWordAllRack" then
         return nil
     end
     if msg_name == nil or bms20_payload_defs == nil then
@@ -426,36 +409,8 @@ function bms20_dissect_write_ack(wire_id, tvb, parent_tree, expert_tree, pinfo, 
     return true
 end
 
-function bms20_dissect_payload(msg_name, tvb, parent_tree, expert_tree, pinfo, service_port)
-    ensure_payload_fields_registered()
-    if bms20_payload_defs == nil then
-        return false
-    end
-    if not bms20_payload_is_enabled(msg_name, service_port) then
-        return false
-    end
-
-    local def = bms20_payload_defs[msg_name]
-    if def == nil then
-        return false
-    end
-
-    local payload_len = tvb:len()
-    if payload_len == 0 then
-        return false
-    end
-    if payload_len < def.total_bytes and payload_len <= 4 then
-        return false
-    end
-    if payload_len < def.total_bytes and expert_tree ~= nil then
-        expert_tree:add_expert_info(PI_PROTOCOL, PI_NOTE,
-            string.format(
-                "BMS2.0 %s wire payload %uB < LAN Matrix %s %uB; parsed available fields only",
-                msg_name, payload_len, BMS20_MATRIX_VERSION, def.total_bytes))
-    end
-
-    local parse_len = math.min(payload_len, def.total_bytes)
-    local msg_tree = parent_tree:add(payload_proto, tvb(0, parse_len), msg_name)
+local function dissect_payload_signals(
+    msg_name, def, tvb, msg_tree, expert_tree, parse_len)
     local function add_scalar_signal(parent_tree, signal, signal_name, start_bit)
         local raw, err = read_signal_raw(tvb, start_bit, signal.bit_len, signal.signed == true)
         if raw == nil then
@@ -493,6 +448,93 @@ function bms20_dissect_payload(msg_name, tvb, parent_tree, expert_tree, pinfo, s
             add_scalar_signal(msg_tree, signal, signal.name, signal.start_bit)
         end
     end
+end
+
+function bms20_dissect_payload_repeated(
+    msg_name, display_name, tvb, parent_tree, expert_tree, pinfo, service_port)
+    ensure_payload_fields_registered()
+    if bms20_payload_defs == nil then
+        return false
+    end
+    if not bms20_payload_is_enabled(msg_name, service_port) then
+        return false
+    end
+
+    local def = bms20_payload_defs[msg_name]
+    if def == nil or def.total_bytes <= 0 then
+        return false
+    end
+
+    local payload_len = tvb:len()
+    if payload_len == 0 then
+        return false
+    end
+
+    local element_bytes = def.total_bytes
+    local element_count = math.floor(payload_len / element_bytes)
+    if element_count == 0 then
+        return false
+    end
+
+    local title = display_name or msg_name
+    local root_tree = parent_tree:add(
+        payload_proto, tvb(0, element_count * element_bytes),
+        string.format("%s [%u x %u B]", title, element_count, element_bytes))
+
+    for idx = 0, element_count - 1 do
+        local offset = idx * element_bytes
+        local elem_tvb = tvb(offset, element_bytes)
+        local elem_tree = root_tree:add(
+            payload_proto, elem_tvb,
+            string.format("Rack[%u] %s", idx + 1, msg_name))
+        dissect_payload_signals(msg_name, def, elem_tvb, elem_tree, expert_tree, element_bytes)
+    end
+
+    local remainder = payload_len - element_count * element_bytes
+    if remainder > 0 and payload_bytes_field ~= nil then
+        root_tree:add(payload_bytes_field, tvb(element_count * element_bytes, remainder))
+        if expert_tree ~= nil then
+            expert_tree:add_expert_info(PI_PROTOCOL, PI_NOTE,
+                string.format(
+                    "BMS2.0 %s: trailing %u B not a multiple of %u B element",
+                    title, remainder, element_bytes))
+        end
+    end
+
+    return true
+end
+
+function bms20_dissect_payload(msg_name, tvb, parent_tree, expert_tree, pinfo, service_port)
+    ensure_payload_fields_registered()
+    if bms20_payload_defs == nil then
+        return false
+    end
+    if not bms20_payload_is_enabled(msg_name, service_port) then
+        return false
+    end
+
+    local def = bms20_payload_defs[msg_name]
+    if def == nil then
+        return false
+    end
+
+    local payload_len = tvb:len()
+    if payload_len == 0 then
+        return false
+    end
+    if payload_len < def.total_bytes and payload_len <= 4 then
+        return false
+    end
+    if payload_len < def.total_bytes and expert_tree ~= nil then
+        expert_tree:add_expert_info(PI_PROTOCOL, PI_NOTE,
+            string.format(
+                "BMS2.0 %s wire payload %uB < LAN Matrix %s %uB; parsed available fields only",
+                msg_name, payload_len, BMS20_MATRIX_VERSION, def.total_bytes))
+    end
+
+    local parse_len = math.min(payload_len, def.total_bytes)
+    local msg_tree = parent_tree:add(payload_proto, tvb(0, parse_len), msg_name)
+    dissect_payload_signals(msg_name, def, tvb, msg_tree, expert_tree, parse_len)
 
     if payload_len > def.total_bytes and payload_bytes_field ~= nil then
         msg_tree:add(payload_bytes_field, tvb(def.total_bytes, payload_len - def.total_bytes))

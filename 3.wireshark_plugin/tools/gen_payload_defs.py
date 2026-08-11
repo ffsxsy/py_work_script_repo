@@ -30,8 +30,7 @@ BYTE_HINT_RANGE_RE = re.compile(r"^(\d+)-(\d+)$")
 
 FAULT_REFERENCE_MESSAGES = frozenset({"BBMS_Fault", "RBMS_Fault", "BBMS_A_Fault"})
 FAULT_PAYLOAD_GEN_HINT = (
-    "故障位图请用 gen_fault_defs.py 生成 bms20_fault_defs.lua，"
-    "运行时解析见 bms20_fault.lua"
+    "故障位图请用 gen_fault_defs.py 生成 bms20_fault_defs.lua，运行时解析见 bms20_fault.lua"
 )
 # Message ID 表名 → bms20_fault_profiles 的 profile_key
 FAULT_MESSAGE_ID_TO_PROFILE: dict[str, str] = {
@@ -40,8 +39,6 @@ FAULT_MESSAGE_ID_TO_PROFILE: dict[str, str] = {
     "BBMS_A_Fault": "BBMS_A_Fault",
 }
 FAULT_PROFILE_KEYS = frozenset(FAULT_MESSAGE_ID_TO_PROFILE.values())
-BOTH_SEGMENT_MESSAGES = frozenset({"TMS_SumInfo"})
-BBMS_RBMS_SEGMENT_EXTRA = frozenset({"BBMS_CtlWord", "BBMS_SafetySignal"})
 PARSE_SEGMENT_KEYS = ("hmi_bbms", "bbms_rbms")
 
 # xlsx 不可用时的回退（与 V1.0.50 Message ID 非故障项一致）
@@ -108,11 +105,9 @@ def message_id_payload_names(xlsx_path: Path) -> list[str]:
 
 
 def parse_config_segments_for_item(item_name: str) -> tuple[str, ...]:
-    if item_name in BOTH_SEGMENT_MESSAGES:
-        return PARSE_SEGMENT_KEYS
-    if item_name.startswith("RBMS_") or item_name in BBMS_RBMS_SEGMENT_EXTRA:
-        return ("bbms_rbms",)
-    return ("hmi_bbms",)
+    """所有消息/故障 profile 均写入两段；运行时不按端口过滤。"""
+    _ = item_name
+    return PARSE_SEGMENT_KEYS
 
 
 def build_payload_by_segment(xlsx_path: Path) -> dict[str, dict[str, bool]]:
@@ -135,10 +130,11 @@ def render_parse_config_lua(xlsx_path: Path) -> str:
         "-- 手改请用独立文件覆盖，或在生成后编辑；重新 --default-set 会覆盖本文件。",
         "",
         "-- 控制 Payload / 故障 Active Faults / 写应答；帧头、CRC、msg_name 始终解析。",
+        "-- 深度解析不按 TCP 端口限制（两段内容相同；逐项 true/false 即可开关）。",
         "--",
-        "-- | 段 key     | TCP 端口     | 典型流量                         |",
-        "-- | hmi_bbms  | 5001、5002  | 上位机 ↔ BBMS                    |",
-        "-- | bbms_rbms | 5003..5014  | BBMS ↔ 各簇 RBMS                 |",
+        "-- | 段 key     | 说明（仅作分组，不拦截端口）              |",
+        "-- | hmi_bbms  | 上位机 ↔ BBMS 相关消息                   |",
+        "-- | bbms_rbms | BBMS ↔ RBMS 相关消息                     |",
         "",
         "bms20_parse_segments = {",
         '    ["hmi_bbms"] = true,',
