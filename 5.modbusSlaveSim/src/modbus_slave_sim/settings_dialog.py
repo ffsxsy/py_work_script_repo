@@ -157,6 +157,12 @@ class SettingsDialog(QDialog):
         )
         result = self.controller.apply_step("link", serial, modbus)
         if not result.ok:
-            QMessageBox.warning(self, "无法应用", result.message or "settings failed")
+            QMessageBox.warning(
+                self,
+                "无法应用",
+                result.message or "settings failed",
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
             return
         self.accept()

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Signal
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -128,7 +128,6 @@ class MainWindow(QMainWindow):
         """Thread-safe: server frame traces may call from worker threads."""
         self.log_message.emit(message)
 
-    @Slot(str)
     def _route_log(self, message: str) -> None:
         matched = False
         for i in range(self.tabs.count()):
@@ -214,7 +213,13 @@ class MainWindow(QMainWindow):
         ports = list_serial_ports()
         result = self.controller.add_blank_device(default_serial=ports[0] if ports else "COM1")
         if not result.ok:
-            QMessageBox.warning(self, "无法新增", result.message)
+            QMessageBox.warning(
+                self,
+                "无法新增",
+                result.message,
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
             return
         self._sync_tabs()
         page = self.current_page()
@@ -241,9 +246,10 @@ class MainWindow(QMainWindow):
                 self,
                 "删除通信",
                 f"「{d.name}」正在运行，确定停止并删除？",
-                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            if r != QMessageBox.Yes:
+            if r != QMessageBox.StandardButton.Yes:
                 return
         self.controller.select_device(device_id)
         self.controller.remove_selected()
@@ -252,7 +258,13 @@ class MainWindow(QMainWindow):
     def start_all(self) -> None:
         result = self.controller.start_all()
         if not result.ok and result.errors:
-            QMessageBox.warning(self, result.message or "Cannot start", "\n".join(result.errors))
+            QMessageBox.warning(
+                self,
+                result.message or "Cannot start",
+                "\n".join(result.errors),
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
         self._sync_tabs()
 
     def stop_all(self) -> None:
@@ -300,9 +312,10 @@ class MainWindow(QMainWindow):
                 self,
                 "Unsaved changes",
                 "Discard unsaved changes?",
-                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            if r != QMessageBox.Yes:
+            if r != QMessageBox.StandardButton.Yes:
                 event.ignore()
                 return
         self.controller.shutdown()

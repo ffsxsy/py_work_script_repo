@@ -255,7 +255,13 @@ class DevicePage(QWidget):
             return
         result = self.controller.set_point_csv(path)
         if not result.ok:
-            QMessageBox.warning(self, "Busy", result.message)
+            QMessageBox.warning(
+                self,
+                "Busy",
+                result.message,
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
             return
         self.reload()
 
@@ -267,7 +273,13 @@ class DevicePage(QWidget):
             self.status_label.setObjectName("statusError")
             self.status_label.style().unpolish(self.status_label)
             self.status_label.style().polish(self.status_label)
-            QMessageBox.warning(self, result.message or "Cannot start", "\n".join(result.errors))
+            QMessageBox.warning(
+                self,
+                result.message or "Cannot start",
+                "\n".join(result.errors),
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
         self.reload()
 
     def stop_slave(self) -> None:

@@ -80,7 +80,7 @@ class PointTableWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.empty = QLabel("No points — 请先选择点表 CSV")
-        self.empty.setAlignment(Qt.AlignCenter)
+        self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table = QTableWidget(0, len(_HEADERS))
         self.table.setHorizontalHeaderLabels(list(_HEADERS))
         header = self.table.horizontalHeader()
@@ -91,11 +91,12 @@ class PointTableWidget(QWidget):
         # Name: interactive with a sensible default width (not full stretch).
         header.setSectionResizeMode(_COL_NAME, QHeaderView.ResizeMode.Interactive)
         self.table.setColumnWidth(_COL_NAME, _NAME_WIDTH_DEFAULT)
-        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table.setAlternatingRowColors(True)
         self.table.setSortingEnabled(False)
         self.table.setEditTriggers(
-            QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked
+            QAbstractItemView.EditTrigger.DoubleClicked
+            | QAbstractItemView.EditTrigger.SelectedClicked
         )
         self.table.itemChanged.connect(self._on_item_changed)
         layout.addWidget(self.empty)
@@ -143,7 +144,7 @@ class PointTableWidget(QWidget):
             for col, text in enumerate(vals):
                 item = QTableWidgetItem(text)
                 if col not in (_COL_RAW, _COL_PHYS):
-                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
                 self.table.setItem(row, col, item)
         self._fit_name_column()
         # Restore hit styling for already-counted rows.
@@ -179,10 +180,12 @@ class PointTableWidget(QWidget):
             self._style_row(row, hit=True)
             # ensure the first hit is visible
             if matched == 1:
-                self.table.scrollToItem(
-                    self.table.item(row, _COL_ADDR),
-                    QAbstractItemView.ScrollHint.PositionAtCenter,
-                )
+                item = self.table.item(row, _COL_ADDR)
+                if item is not None:
+                    self.table.scrollToItem(
+                        item,
+                        QAbstractItemView.ScrollHint.PositionAtCenter,
+                    )
         self.table.viewport().update()
         return matched
 

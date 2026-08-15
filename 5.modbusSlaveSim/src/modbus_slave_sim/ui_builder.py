@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import socket
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import Any
 
 from PySide6.QtCore import Qt
@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from serial.tools import list_ports
 
 from modbus_slave_sim.point_csv import Area
 from modbus_slave_sim.ui_spec import (
@@ -37,15 +38,8 @@ from modbus_slave_sim.ui_spec import (
 )
 from modbus_slave_sim.widgets.point_table import PointTableWidget
 
-try:
-    from serial.tools import list_ports
-except ImportError:  # pragma: no cover
-    list_ports = None  # type: ignore[assignment]
-
 
 def list_serial_ports() -> list[str]:
-    if list_ports is None:
-        return []
     return [p.device for p in list_ports.comports()]
 
 
@@ -55,7 +49,7 @@ def list_bind_hosts() -> list[str]:
     try:
         hostname = socket.gethostname()
         for info in socket.getaddrinfo(hostname, None, socket.AF_INET):
-            ip = info[4][0]
+            ip = str(info[4][0])
             if ip not in hosts:
                 hosts.append(ip)
     except OSError:
@@ -66,7 +60,7 @@ def list_bind_hosts() -> list[str]:
 def build_toolbar(
     toolbar: QToolBar,
     actions: tuple[ToolbarAction, ...],
-    handlers: dict[str, Callable[[], None]],
+    handlers: Mapping[str, Callable[..., None]],
 ) -> None:
     """Reserved for later (project / run toolbar). Not used by the slim UI."""
     for spec in actions:

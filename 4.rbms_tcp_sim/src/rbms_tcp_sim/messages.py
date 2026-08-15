@@ -34,6 +34,7 @@ def next_str_ctrl_hb_value(rack_id: int, current: int) -> int:
         return base
     return next_val
 
+
 # RBMS_St 位定义（见 BBMS_RBMS_Communication_Protocol.md）
 RBMS_ST_ENABLE: Final[int] = 0x01
 RBMS_ST_ONLINE: Final[int] = 0x02

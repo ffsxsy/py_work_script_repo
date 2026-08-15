@@ -1,0 +1,90 @@
+name: Python checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-types:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install global tools
+        run: |
+          uv tool install ruff
+          uv tool install ty
+          uv tool install pytest
+
+      - name: Sync project dependencies
+        run: uv sync --locked
+
+      - name: Install openpyxl and pytest into venv
+        run: uv pip install openpyxl pytest
+
+      - name: Ruff check
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: ty check
+        run: ty check
+
+      - name: pytest
+        run: uv run pytest -q
+
+      - name: Syntax check script dirs (1/2/3/CAN_dbc)
+        run: uv run python -m compileall -q 1.fault_recording_parse_excel_template 2.McuCanMap_script 3.wireshark_plugin CAN_dbc
+
+  subprojects:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dir:
+          - 4.rbms_tcp_sim
+          - 5.modbusSlaveSim
+          - 6.pms_demo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install global tools
+        run: |
+          uv tool install ruff
+          uv tool install ty
+          uv tool install pytest
+
+      - name: Sync dependencies (dev extra)
+        working-directory: ${{ matrix.dir }}
+        run: uv sync --locked --extra dev
+
+      - name: Ruff check
+        working-directory: ${{ matrix.dir }}
+        run: ruff check .
+
+      - name: Ruff format check
+        working-directory: ${{ matrix.dir }}
+        run: ruff format --check .
+
+      - name: ty check
+        working-directory: ${{ matrix.dir }}
+        run: ty check
+
+      - name: pytest
+        working-directory: ${{ matrix.dir }}
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: uv run pytest -q

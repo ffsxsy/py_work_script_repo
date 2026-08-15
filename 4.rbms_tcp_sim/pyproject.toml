@@ -6,6 +6,11 @@ readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = []
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+]
+
 [project.scripts]
 rbms-sim = "rbms_tcp_sim.cli:main"
 

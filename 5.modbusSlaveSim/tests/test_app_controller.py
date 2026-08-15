@@ -26,6 +26,7 @@ def test_add_device_and_apply_link_step():
     )
     assert ctl.apply_step("link", serial, modbus).ok
     d = ctl.selected()
+    assert d is not None
     assert d.link.type == LinkType.TCP
     assert d.link.port == 5502
     assert d.name == "unit-a"
@@ -37,6 +38,7 @@ def test_add_device_and_apply_link_step():
     )
     assert ctl.apply_step("link", serial_rtu, modbus_rtu).ok
     d = ctl.selected()
+    assert d is not None
     assert d.name == "unit-b"
     assert d.unit_id == 3
     assert d.link.serial_port == "COM5"
@@ -48,19 +50,24 @@ def test_add_device_and_apply_link_step():
 def test_project_roundtrip(tmp_path):
     ctl = AppController()
     ctl.add_device(MINI_CSV)
-    ctl.selected().set_raw(Area.HOLDING_REGISTER, 200, 99)
+    d = ctl.selected()
+    assert d is not None
+    d.set_raw(Area.HOLDING_REGISTER, 200, 99)
     path = tmp_path / "c.mssproj.json"
     assert ctl.save_project(path).ok
     ctl2 = AppController()
     assert ctl2.open_project(path).ok
-    assert ctl2.selected() is not None
-    assert ctl2.selected().get_raw(Area.HOLDING_REGISTER, 200) == 99
+    d2 = ctl2.selected()
+    assert d2 is not None
+    assert d2.get_raw(Area.HOLDING_REGISTER, 200) == 99
 
 
 def test_reject_apply_when_running():
     ctl = AppController()
     ctl.add_device(MINI_CSV)
-    ctl.selected().running = True
+    d = ctl.selected()
+    assert d is not None
+    d.running = True
     result = ctl.apply_step(
         "link",
         SerialStepInput("RTU", "COM1", "0.0.0.0", 5020),
@@ -75,9 +82,13 @@ def test_register_value_and_export_import(tmp_path):
     assert ctl.set_register_value(Area.COIL, 10, 1).ok
     path = tmp_path / "vals.json"
     assert ctl.export_values(path).ok
-    ctl.selected().set_raw(Area.COIL, 10, 0)
+    d = ctl.selected()
+    assert d is not None
+    d.set_raw(Area.COIL, 10, 0)
     assert ctl.import_values(path).ok
-    assert ctl.selected().get_raw(Area.COIL, 10) == 1
+    d = ctl.selected()
+    assert d is not None
+    assert d.get_raw(Area.COIL, 10) == 1
 
 
 def test_new_project_clears():
@@ -93,7 +104,9 @@ def test_ensure_default_device():
     ctl = AppController()
     assert ctl.ensure_default_device(default_serial="COM9").ok
     assert len(ctl.devices) == 1
-    assert ctl.selected().link.serial_port == "COM9"
+    d = ctl.selected()
+    assert d is not None
+    assert d.link.serial_port == "COM9"
     # idempotent
     assert ctl.ensure_default_device().ok
     assert len(ctl.devices) == 1
@@ -112,8 +125,10 @@ def test_set_point_csv():
     ctl = AppController()
     ctl.ensure_default_device()
     assert ctl.set_point_csv(MINI_CSV).ok
-    assert ctl.selected().points
-    assert Path(ctl.selected().point_csv).name == MINI_CSV.name
+    d = ctl.selected()
+    assert d is not None
+    assert d.points
+    assert Path(d.point_csv).name == MINI_CSV.name
 
 
 def _modbus() -> ModbusStepInput:
