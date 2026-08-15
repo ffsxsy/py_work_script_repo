@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "can-zlg"
+version = "0.1.0"
+description = "Thin ZLG CAN send/recv wrapper for HIL (USBCAN-2E-U / USBCANFD-200U)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+# 开发门禁工具（ruff / ty / pytest）按系统 PATH 安装，不绑进本包依赖。
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["can_zlg*"]
+exclude = ["tests*", "vendor*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["can_zlg", "tests"]
+exclude = [".venv", "__pycache__", "build", "dist", "vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

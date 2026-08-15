@@ -1,0 +1,1474 @@
+{
+  "version": 1,
+  "source": "McuCanMap.xlsx",
+  "frames": [
+    {
+      "kind": "measurement",
+      "base_id": "0x1A80",
+      "title": "Battery & power",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Ibat",
+          "byte_offset": 0,
+          "factor": 0.125,
+          "unit": "A",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 1,
+          "name": "Vbat",
+          "byte_offset": 2,
+          "factor": 0.125,
+          "unit": "V",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 2,
+          "name": "Pavg10cyc (kW)",
+          "byte_offset": 4,
+          "factor": 0.125,
+          "unit": "kW",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 3,
+          "name": "Qavg10cyc (kVAr)",
+          "byte_offset": 6,
+          "factor": 0.125,
+          "unit": "kVAr",
+          "min": -4096.0,
+          "max": 4096.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A81",
+      "title": "IGBT temps W,V",
+      "slots": [
+        {
+          "index": 0,
+          "name": "TempIGBT_W1",
+          "byte_offset": 0,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 1,
+          "name": "TempIGBT_W2",
+          "byte_offset": 2,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 2,
+          "name": "TempIGBT_V1",
+          "byte_offset": 4,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 3,
+          "name": "TempIGBT_V2",
+          "byte_offset": 6,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A82",
+      "title": "IGBT temps U, DC bus, int filter",
+      "slots": [
+        {
+          "index": 0,
+          "name": "TempIGBT_U1",
+          "byte_offset": 0,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 1,
+          "name": "TempIGBT_U2",
+          "byte_offset": 2,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 2,
+          "name": "TempDcBusBrd",
+          "byte_offset": 4,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 3,
+          "name": "TempIntFiltBrd",
+          "byte_offset": 6,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A83",
+      "title": "Clock since reset",
+      "slots": [
+        {
+          "index": 0,
+          "name": "days",
+          "byte_offset": 0,
+          "factor": 0.125,
+          "unit": "day",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 1,
+          "name": "hours",
+          "byte_offset": 2,
+          "factor": 0.125,
+          "unit": "hr",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 2,
+          "name": "minutes",
+          "byte_offset": 4,
+          "factor": 0.125,
+          "unit": "min",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 3,
+          "name": "seconds",
+          "byte_offset": 6,
+          "factor": 0.125,
+          "unit": "sec",
+          "min": -4096.0,
+          "max": 4096.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A84",
+      "title": "Temps, ROCOF, FreqAvg",
+      "slots": [
+        {
+          "index": 0,
+          "name": "TempHsInAir",
+          "byte_offset": 0,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 1,
+          "name": "TempCplateIn",
+          "byte_offset": 2,
+          "factor": 0.125,
+          "unit": "degC",
+          "min": -4096.0,
+          "max": 4096.0
+        },
+        {
+          "index": 2,
+          "name": "ROCOF",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "Hz/s",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 3,
+          "name": "FreqAvg",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "Hz",
+          "min": -327.68,
+          "max": 327.67
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A85",
+      "title": "Freq trip elapsed",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF1Elapsed",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "UF1Elapsed",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "OF2Elapsed",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "UF2Elapsed",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A86",
+      "title": "Avg line V & per-phase p.u.",
+      "slots": [
+        {
+          "index": 0,
+          "name": "AvgVll",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "VllC p.u.",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 2,
+          "name": "VllA p.u.",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 3,
+          "name": "VllB p.u.",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -327.68,
+          "max": 327.67
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A87",
+      "title": "Voltage trip elapsed",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OV1Elapsed",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "UV1Elapsed",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "OV2Elapsed",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "UV2Elapsed",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "sec",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A88",
+      "title": "DC bus & grid phase currents",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VdcTop",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "VdcBot",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "IgridA",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "IgridB",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A89",
+      "title": "IEEE flags",
+      "slots": [
+        {
+          "index": 0,
+          "name": "configFlag",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        {
+          "index": 1,
+          "name": "C2flag",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        {
+          "index": 2,
+          "name": "Local1547Flag",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        {
+          "index": 3,
+          "name": "C2State",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A8A",
+      "title": "IgridC & exec-time counters",
+      "slots": [
+        {
+          "index": 0,
+          "name": "IgridC",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "ExecUsecMax",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "us",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 2,
+          "name": "BgExecUsecMax",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "us",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 3,
+          "name": "Cpu2ExecUsecMax",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "us",
+          "min": -32768.0,
+          "max": 32767.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A8B",
+      "title": "Vref DQ & PQ ref",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VrefD",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "V",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 1,
+          "name": "VrefQ",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "V",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 2,
+          "name": "Pref (kW)",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "kW",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 3,
+          "name": "Qref (kVAr)",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "kVAr",
+          "min": -32768.0,
+          "max": 32767.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A8C",
+      "title": "Current ref & voltage cmd",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Iref D",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "A",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 1,
+          "name": "Iref Q",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "A",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 2,
+          "name": "Vcmd D",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "V",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 3,
+          "name": "Vcmd Q",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "V",
+          "min": -32768.0,
+          "max": 32767.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A8D",
+      "title": "PWM sync, C2 state elapsed",
+      "slots": [
+        {
+          "index": 0,
+          "name": "PwmSyncMinMs",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "ms",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 1,
+          "name": "C2CurrStElapsed",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "sec",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 2,
+          "name": "C2PrevStElapsed",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "sec",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 3,
+          "name": "PrevPCSState",
+          "byte_offset": 6,
+          "factor": 0.125,
+          "unit": "",
+          "min": -4096.0,
+          "max": 4096.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A8E",
+      "title": "Anti-island + VoltVar Vref",
+      "slots": [
+        {
+          "index": 0,
+          "name": "AIDeltaIdMax",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "AIDeltaIqMax",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "AISatCntMax",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 3,
+          "name": "VoltVar VrefPU",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A8F",
+      "title": "Vdq out & Idq feedback",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VdqFdbk D",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "V",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 1,
+          "name": "VdqFdbk Q",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "V",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 2,
+          "name": "IdqFdbk D",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "IdqFdbk Q",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A90",
+      "title": "FreqWatt / VoltWatt droop",
+      "slots": [
+        {
+          "index": 0,
+          "name": "FreqWatt DPpu",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 1,
+          "name": "FreqWatt fpreHz",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "Hz",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 2,
+          "name": "FreqWatt PprePU",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 3,
+          "name": "VoltWatt DPpu",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -327.68,
+          "max": 327.67
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A91",
+      "title": "Pavl / thermal / mod index",
+      "slots": [
+        {
+          "index": 0,
+          "name": "PavlGeneratePU",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 1,
+          "name": "PavlAbsorbPU",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 2,
+          "name": "ThermalDerateFactor",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 3,
+          "name": "Modulation index",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "",
+          "min": -32.768,
+          "max": 32.767
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A92",
+      "title": "Fault words",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Fault Short0",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        {
+          "index": 1,
+          "name": "Fault Short1",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        {
+          "index": 2,
+          "name": "Fault Short2",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        {
+          "index": 3,
+          "name": "Fault Short3",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A93",
+      "title": "PCS state, discrete, CPU2 state",
+      "slots": [
+        {
+          "index": 0,
+          "name": "PCSState",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 1,
+          "name": "DiscreteInputs S0",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "",
+          "min": -32768.0,
+          "max": 32767.0
+        },
+        {
+          "index": 2,
+          "name": "C2State",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 65535.0
+        },
+        null
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A94",
+      "title": "P/Q envelope after curtailment",
+      "slots": [
+        {
+          "index": 0,
+          "name": "PmaxPU",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 1,
+          "name": "PminPU",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 2,
+          "name": "QmaxPU",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 3,
+          "name": "QminPU",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -32.768,
+          "max": 32.767
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A95",
+      "title": "Vdc max & IinvMax A/B",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VdcTopMax",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "VdcBotMax",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "IinvMaxA",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "IinvMaxB",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9D",
+      "title": "IinvMaxC & VinvMax phases",
+      "slots": [
+        {
+          "index": 0,
+          "name": "IinvMaxC",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "VinvMaxA",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "VinvMaxB",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "VinvMaxC",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "V",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9E",
+      "title": "Per-phase active power + IbatMax",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Pa (kW)",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "kW",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "Pb (kW)",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "kW",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "Pc (kW)",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "kW",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "IbatMax (A)",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "A",
+          "min": -32768.0,
+          "max": 32767.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9F",
+      "title": "Per-phase reactive power + Pdc",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Qa (kVAr)",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "kVAr",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 1,
+          "name": "Qb (kVAr)",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "kVAr",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 2,
+          "name": "Qc (kVAr)",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "kVAr",
+          "min": -3276.8,
+          "max": 3276.7
+        },
+        {
+          "index": 3,
+          "name": "Pdc (kW)",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "kW",
+          "min": -3276.8,
+          "max": 3276.7
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1AA0",
+      "title": "Per-phase power factor + recent fault info",
+      "slots": [
+        {
+          "index": 0,
+          "name": "pfa",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 1,
+          "name": "pfb",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 2,
+          "name": "pfc",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "",
+          "min": -32.768,
+          "max": 32.767
+        },
+        {
+          "index": 3,
+          "name": "RecentRecordIdx×10 + SnapshotCount (0; 11..43)",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1AA1",
+      "title": "ADC offset cal + Rinsul",
+      "slots": [
+        {
+          "index": 0,
+          "name": "IinvOffsetMaxAbs",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "A",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 1,
+          "name": "IgridOffsetMaxAbs",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "A",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 2,
+          "name": "IdcOffsetSum",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "A",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 3,
+          "name": "Rinsul (kOhm)",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "kOhm",
+          "min": -32768.0,
+          "max": 32767.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1AA2",
+      "title": "Common-mode diagnostics",
+      "slots": [
+        {
+          "index": 0,
+          "name": "IcmdDcMagMax (A)",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "A",
+          "min": -327.68,
+          "max": 327.67
+        },
+        {
+          "index": 1,
+          "name": "VmidRefOffset (V)",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "V",
+          "min": -30.0,
+          "max": 30.0
+        },
+        {
+          "index": 2,
+          "name": "IcmSumMean (A)",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "A",
+          "min": -327.68,
+          "max": 327.67
+        },
+        null
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A96",
+      "title": "trace_buffer1",
+      "slots": [
+        {
+          "index": 0,
+          "name": "iInvU",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "iInvV",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "iInvW",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "iNPmod",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A97",
+      "title": "trace_buffer2",
+      "slots": [
+        {
+          "index": 0,
+          "name": "iGridU",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "iGridV",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "iGridW",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "iBat",
+          "byte_offset": 6,
+          "factor": 0.125,
+          "unit": "A",
+          "min": -4096.0,
+          "max": 4096.0
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A98",
+      "title": "trace_buffer3",
+      "slots": [
+        {
+          "index": 0,
+          "name": "vBusPos",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "vBusNeg",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "VcmdDQ.D",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "VcmdDQ.Q",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A99",
+      "title": "trace_buffer4",
+      "slots": [
+        {
+          "index": 0,
+          "name": "DabcOrig.A",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "DabcOrig.B",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "DabcOrig.C",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "ThetaPLL",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9A",
+      "title": "trace_buffer5",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Icmd.D",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "Icmd.Q",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "IacRegErr.D",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "IacRegErr.Q",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9B",
+      "title": "trace_buffer6",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VgridLN.A",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "VgridLN.B",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "VgridLN.C",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "VgridMagPLL",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9C",
+      "title": "Bode sweep header",
+      "slots": [
+        {
+          "index": 0,
+          "name": "0xB0DE magic",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "u16PointCount",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "log10(fMin) x1000",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "log10(fMax) x1000",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    },
+    {
+      "kind": "measurement",
+      "base_id": "0x1A9C",
+      "title": "Bode sweep point",
+      "slots": [
+        {
+          "index": 0,
+          "name": "log10(freq) x1000",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 1,
+          "name": "gain_dB x10",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 2,
+          "name": "phase_deg x10",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": ""
+        },
+        {
+          "index": 3,
+          "name": "pointIndex",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": ""
+        }
+      ]
+    }
+  ]
+}

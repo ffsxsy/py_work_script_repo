@@ -1,0 +1,1085 @@
+{
+  "version": 1,
+  "source": "McuCanMap.xlsx",
+  "frames": [
+    {
+      "kind": "command",
+      "tx_base_id": "0x1826",
+      "rx_base_id": "0x1A26",
+      "title": "PQ command 0x1826",
+      "slots": [
+        {
+          "index": 0,
+          "name": "P preset %",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "%",
+          "min": -115.0,
+          "max": 115.0
+        },
+        {
+          "index": 1,
+          "name": "Q preset %",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "%",
+          "min": -115.0,
+          "max": 115.0
+        },
+        {
+          "index": 2,
+          "name": "Ibat ref",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "A",
+          "min": -350.0,
+          "max": 350.0
+        },
+        {
+          "index": 3,
+          "name": "Vbat ref",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "V",
+          "min": 950.0,
+          "max": 1520.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1830",
+      "rx_base_id": "0x1A30",
+      "title": "Config 0x1830",
+      "slots": [
+        {
+          "index": 0,
+          "name": "g_sBodeCfg.f32FMax",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "Hz",
+          "min": 0.1,
+          "max": 1000.0
+        },
+        {
+          "index": 1,
+          "name": "Cal.Rviricm",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "Ohm",
+          "min": 0.0,
+          "max": 20.0
+        },
+        {
+          "index": 2,
+          "name": "FreqOffsetComp_temp",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "Hz",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 3,
+          "name": "vGridLLGaincomp",
+          "byte_offset": 6,
+          "factor": 0.0001,
+          "unit": "V",
+          "min": -0.002,
+          "max": 0.002
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1831",
+      "rx_base_id": "0x1A31",
+      "title": "Config 0x1831",
+      "slots": [
+        {
+          "index": 0,
+          "name": "g_sBodeCfg.f32Mag",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "",
+          "min": 0.0,
+          "max": 300.0
+        },
+        {
+          "index": 1,
+          "name": "g_sBodeCfg.f32TAvg",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "Sec",
+          "min": 0.01,
+          "max": 60.0
+        },
+        {
+          "index": 2,
+          "name": "g_sBodeCfg.u16PDec",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "pts/Dec",
+          "min": 5.0,
+          "max": 50.0
+        },
+        {
+          "index": 3,
+          "name": "g_sBodeCfg.f32FMin",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "Hz",
+          "min": 0.1,
+          "max": 1000.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1832",
+      "rx_base_id": "0x1A32",
+      "title": "Config 0x1832",
+      "slots": [
+        {
+          "index": 0,
+          "name": "Cal.Rvircf",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "Ohm",
+          "min": 0.0,
+          "max": 1.5
+        },
+        {
+          "index": 1,
+          "name": "Cal.RvirIcmLF",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "Ohm",
+          "min": 0.0,
+          "max": 5.0
+        },
+        {
+          "index": 2,
+          "name": "Cal.RvirIcmLfFc",
+          "byte_offset": 4,
+          "factor": 0.1,
+          "unit": "Hz",
+          "min": 1.0,
+          "max": 100.0
+        },
+        {
+          "index": 3,
+          "name": "g_f32VmidGainScale",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 0.01,
+          "max": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1833",
+      "rx_base_id": "0x1A33",
+      "title": "Config 0x1833",
+      "slots": [
+        {
+          "index": 0,
+          "name": "PCC_REFERENCE_VOLTAGE",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "V",
+          "min": 680.0,
+          "max": 730.0
+        },
+        {
+          "index": 1,
+          "name": "GRID_RATED_FREQUENCY",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "Hz",
+          "min": 50.0,
+          "max": 60.0
+        },
+        {
+          "index": 2,
+          "name": "FRE_WATT_ENABLE",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        },
+        {
+          "index": 3,
+          "name": "VOLT_WATT_ENABLE",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1834",
+      "rx_base_id": "0x1A34",
+      "title": "Config 0x1834",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VOLT_VAR_VREF_AUTO_ADJ_ENABLE",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        },
+        {
+          "index": 1,
+          "name": "ANTI_ISLANDING_ENABLE",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        },
+        {
+          "index": 2,
+          "name": "LIMIT_ACTIVE_POWER_ENABLE",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        },
+        {
+          "index": 3,
+          "name": "REACTIVE_POWER_REG_MODE",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 3.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1835",
+      "rx_base_id": "0x1A35",
+      "title": "Config 0x1835",
+      "slots": [
+        {
+          "index": 0,
+          "name": "CHARGE_MODE",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "",
+          "min": 1.0,
+          "max": 3.0
+        },
+        {
+          "index": 1,
+          "name": "LIMIT_APPARENT_POWER_ENABLE",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1836",
+      "rx_base_id": "0x1A36",
+      "title": "Config 0x1836",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF_LEVEL1_PROTECTION_VALUE",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "index": 1,
+          "name": "UF_LEVEL1_PROTECTION_VALUE",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "index": 2,
+          "name": "OV_LEVEL1_PROTECTION_VALUE",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 1.1,
+          "max": 1.2
+        },
+        {
+          "index": 3,
+          "name": "UV_LEVEL1_PROTECTION_VALUE",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 0.0,
+          "max": 0.88
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1837",
+      "rx_base_id": "0x1A37",
+      "title": "Config 0x1837",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF_LEVEL1_PROTECTION_TIME",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 180.0,
+          "max": 1000.0
+        },
+        {
+          "index": 1,
+          "name": "UF_LEVEL1_PROTECTION_TIME",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 180.0,
+          "max": 1000.0
+        },
+        {
+          "index": 2,
+          "name": "OV_LEVEL1_PROTECTION_TIME",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 1.0,
+          "max": 13.0
+        },
+        {
+          "index": 3,
+          "name": "UV_LEVEL1_PROTECTION_TIME",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 2.0,
+          "max": 50.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1838",
+      "rx_base_id": "0x1A38",
+      "title": "Config 0x1838",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF_LEVEL1_PROTECTION_TIME (ms)",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 180000.0,
+          "max": 1000000.0
+        },
+        {
+          "index": 1,
+          "name": "UF_LEVEL1_PROTECTION_TIME (ms)",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 180000.0,
+          "max": 1000000.0
+        },
+        {
+          "index": 2,
+          "name": "OV_LEVEL1_PROTECTION_TIME (ms)",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 1000.0,
+          "max": 13000.0
+        },
+        {
+          "index": 3,
+          "name": "UV_LEVEL1_PROTECTION_TIME (ms)",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 2000.0,
+          "max": 50000.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1839",
+      "rx_base_id": "0x1A39",
+      "title": "Config 0x1839",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF_LEVEL2_PROTECTION_VALUE",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "index": 1,
+          "name": "UF_LEVEL2_PROTECTION_VALUE",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "index": 2,
+          "name": "OV_LEVEL2_PROTECTION_VALUE",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 1.2,
+          "max": 1.2
+        },
+        {
+          "index": 3,
+          "name": "UV_LEVEL2_PROTECTION_VALUE",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 0.0,
+          "max": 0.5
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x183A",
+      "rx_base_id": "0x1A3A",
+      "title": "Config 0x183A",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF_LEVEL2_PROTECTION_TIME",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 0.16,
+          "max": 1000.0
+        },
+        {
+          "index": 1,
+          "name": "UF_LEVEL2_PROTECTION_TIME",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 0.16,
+          "max": 1000.0
+        },
+        {
+          "index": 2,
+          "name": "OV_LEVEL2_PROTECTION_TIME",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 0.16,
+          "max": 0.16
+        },
+        {
+          "index": 3,
+          "name": "UV_LEVEL2_PROTECTION_TIME",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 0.16,
+          "max": 21.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x183B",
+      "rx_base_id": "0x1A3B",
+      "title": "Config 0x183B",
+      "slots": [
+        {
+          "index": 0,
+          "name": "OF_LEVEL2_PROTECTION_TIME (ms)",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 160.0,
+          "max": 1000000.0
+        },
+        {
+          "index": 1,
+          "name": "UF_LEVEL2_PROTECTION_TIME (ms)",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 160.0,
+          "max": 1000000.0
+        },
+        {
+          "index": 2,
+          "name": "OV_LEVEL2_PROTECTION_TIME (ms)",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 160.0,
+          "max": 160.0
+        },
+        {
+          "index": 3,
+          "name": "UV_LEVEL2_PROTECTION_TIME (ms)",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "mSec",
+          "min": 160.0,
+          "max": 21000.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x183C",
+      "rx_base_id": "0x1A3C",
+      "title": "Config 0x183C",
+      "slots": [
+        {
+          "index": 0,
+          "name": "BATTERY_VOLTAGE_UPPER_LIMIT",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "V",
+          "min": 1200.0,
+          "max": 1570.0
+        },
+        {
+          "index": 1,
+          "name": "BATTERY_VOLTAGE_LOWER_LIMIT",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "V",
+          "min": 900.0,
+          "max": 1200.0
+        },
+        null,
+        null
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x183D",
+      "rx_base_id": "0x1A3D",
+      "title": "Config 0x183D",
+      "slots": [
+        {
+          "index": 0,
+          "name": "ES_RAMP_RATE",
+          "byte_offset": 0,
+          "factor": 0.1,
+          "unit": "Sec",
+          "min": 1.0,
+          "max": 1000.0
+        },
+        {
+          "index": 1,
+          "name": "ES_DELAY",
+          "byte_offset": 2,
+          "factor": 0.1,
+          "unit": "Sec",
+          "min": 0.0,
+          "max": 600.0
+        },
+        {
+          "index": 2,
+          "name": "ES_FREQUENCY_LOW",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "Hz"
+        },
+        {
+          "index": 3,
+          "name": "ES_FREQUENCY_HIGH",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "Hz"
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x183E",
+      "rx_base_id": "0x1A3E",
+      "title": "Config 0x183E",
+      "slots": [
+        {
+          "index": 0,
+          "name": "ES_VOLTAGE_LOW",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 0.88,
+          "max": 0.95
+        },
+        {
+          "index": 1,
+          "name": "ES_VOLTAGE_HIGH",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 1.05,
+          "max": 1.06
+        },
+        {
+          "index": 2,
+          "name": "VOLT_VAR_TRESP",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "Sec",
+          "min": 1.0,
+          "max": 90.0
+        },
+        {
+          "index": 3,
+          "name": "VARREF_TRESP",
+          "byte_offset": 6,
+          "factor": 0.1,
+          "unit": "Sec",
+          "min": 0.1,
+          "max": 10.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x183F",
+      "rx_base_id": "0x1A3F",
+      "title": "Config 0x183F",
+      "slots": [
+        {
+          "index": 0,
+          "name": "FRE_WATT_TRESP",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "Sec",
+          "min": 0.2,
+          "max": 10.0
+        },
+        {
+          "index": 1,
+          "name": "VOLT_WATT_TRESP",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "Sec",
+          "min": 0.5,
+          "max": 60.0
+        },
+        {
+          "index": 2,
+          "name": "VOLT_VAR_VREF_AUTO_ADJ_TIME",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "Sec",
+          "min": 300.0,
+          "max": 5000.0
+        },
+        {
+          "index": 3,
+          "name": "LIMITED_POWER_PERCENTAGE",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "%",
+          "min": 0.0,
+          "max": 110.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1840",
+      "rx_base_id": "0x1A40",
+      "title": "Config 0x1840",
+      "slots": [
+        {
+          "index": 0,
+          "name": "FRE_WATT_KUF",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 0.02,
+          "max": 0.05
+        },
+        {
+          "index": 1,
+          "name": "FRE_WATT_DBOF",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "Hz",
+          "min": 0.017,
+          "max": 1.0
+        },
+        {
+          "index": 2,
+          "name": "FRE_WATT_KOF",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 0.02,
+          "max": 0.05
+        },
+        {
+          "index": 3,
+          "name": "FRE_WATT_DBUF",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "Hz",
+          "min": 0.017,
+          "max": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1841",
+      "rx_base_id": "0x1A41",
+      "title": "Config 0x1841",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VOLT_WATT_V1",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 1.05,
+          "max": 1.09
+        },
+        {
+          "index": 1,
+          "name": "VOLT_WATT_V2",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "max": 1.1
+        },
+        {
+          "index": 2,
+          "name": "VOLT_WATT_P2",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 3,
+          "name": "VOLT_VAR_VREF",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 0.95,
+          "max": 1.05
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1842",
+      "rx_base_id": "0x1A42",
+      "title": "Config 0x1842",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VOLT_VAR_V1",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u."
+        },
+        {
+          "index": 1,
+          "name": "VOLT_VAR_V2",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "p.u."
+        },
+        {
+          "index": 2,
+          "name": "VOLT_VAR_V3",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u."
+        },
+        {
+          "index": 3,
+          "name": "VOLT_VAR_V4",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "p.u."
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1843",
+      "rx_base_id": "0x1A43",
+      "title": "Config 0x1843",
+      "slots": [
+        {
+          "index": 0,
+          "name": "VOLT_VAR_Q1",
+          "byte_offset": 0,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": 0.0,
+          "max": 1.0
+        },
+        {
+          "index": 1,
+          "name": "VOLT_VAR_Q2",
+          "byte_offset": 2,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 2,
+          "name": "VOLT_VAR_Q3",
+          "byte_offset": 4,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 3,
+          "name": "VOLT_VAR_Q4",
+          "byte_offset": 6,
+          "factor": 0.001,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1844",
+      "rx_base_id": "0x1A44",
+      "title": "Config 0x1844",
+      "slots": [
+        {
+          "index": 0,
+          "name": "WATT_VAR_P3P",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0
+        },
+        {
+          "index": 1,
+          "name": "WATT_VAR_P2P",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -0.8,
+          "max": -0.4
+        },
+        {
+          "index": 2,
+          "name": "WATT_VAR_P1P",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "max": 0.0
+        },
+        {
+          "index": 3,
+          "name": "WATT_VAR_P1",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 0.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1845",
+      "rx_base_id": "0x1A45",
+      "title": "Config 0x1845",
+      "slots": [
+        {
+          "index": 0,
+          "name": "WATT_VAR_Q3P",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 1,
+          "name": "WATT_VAR_Q2P",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 2,
+          "name": "WATT_VAR_Q1P",
+          "byte_offset": 4,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 3,
+          "name": "WATT_VAR_Q1",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1846",
+      "rx_base_id": "0x1A46",
+      "title": "Config 0x1846",
+      "slots": [
+        {
+          "index": 0,
+          "name": "WATT_VAR_P2",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": 0.4,
+          "max": 0.8
+        },
+        {
+          "index": 1,
+          "name": "WATT_VAR_P3",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "max": 1.0
+        },
+        {
+          "index": 2,
+          "name": "ACTIVE_POWER_RISE_SPEED",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "kW/sec",
+          "min": 100.0,
+          "max": 10000.0
+        },
+        {
+          "index": 3,
+          "name": "CONST_POWER_FACTOR_EXCITATION",
+          "byte_offset": 6,
+          "factor": 1.0,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1847",
+      "rx_base_id": "0x1A47",
+      "title": "Config 0x1847",
+      "slots": [
+        {
+          "index": 0,
+          "name": "WATT_VAR_Q2",
+          "byte_offset": 0,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 1,
+          "name": "WATT_VAR_Q3",
+          "byte_offset": 2,
+          "factor": 0.01,
+          "unit": "p.u.",
+          "min": -1.0,
+          "max": 1.0
+        },
+        {
+          "index": 2,
+          "name": "REACTIVE_POWER_RISE_SPEED",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "kVar/sec",
+          "min": 100.0,
+          "max": 10000.0
+        },
+        {
+          "index": 3,
+          "name": "CONST_POWER_FACTOR_SETTING",
+          "byte_offset": 6,
+          "factor": 0.01,
+          "unit": "",
+          "min": 0.0,
+          "max": 1.0
+        }
+      ]
+    },
+    {
+      "kind": "config",
+      "tx_base_id": "0x1848",
+      "rx_base_id": "0x1A48",
+      "title": "Config 0x1848",
+      "slots": [
+        {
+          "index": 0,
+          "name": "ISLANDING_VOLTAGE_SLOPE",
+          "byte_offset": 0,
+          "factor": 1.0,
+          "unit": "V/sec",
+          "min": 10.0,
+          "max": 200.0
+        },
+        {
+          "index": 1,
+          "name": "APPARENT_POWER_PERCENTAGE",
+          "byte_offset": 2,
+          "factor": 1.0,
+          "unit": "%",
+          "min": 0.0,
+          "max": 100.0
+        },
+        {
+          "index": 2,
+          "name": "g_s16InternalDerateStart",
+          "byte_offset": 4,
+          "factor": 1.0,
+          "unit": "degC",
+          "min": 40.0,
+          "max": 90.0
+        },
+        null
+      ]
+    }
+  ]
+}
