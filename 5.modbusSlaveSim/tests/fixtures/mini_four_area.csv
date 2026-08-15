@@ -1,0 +1,8 @@
+Template ID,Protocol Type,Device Type,Group Type,Ename,Code,Name,Data Type,Attribute,Function Code,Register Address,Bit Position,Bit Number,Endian,Precision,Ratio,Offset,Is Persisted,Storage Interval,Mutate Bound,Default Value,Min Value,Max Value,Unit,Is Show
+1,3,5,0,Online,0,在线状态,0,2,0,0,0,0,0,0,1.0,0.0,1,30000,0.0,,,,,1
+1,3,5,0,CoilA,1,线圈A,2,2,1,10,0,0,0,0,1.0,0.0,0,30000,0.0,1,0.0,1.0,,1
+1,3,5,0,CoilASet,2,线圈A设置,2,2,5,10,0,0,0,0,1.0,0.0,0,30000,0.0,,0.0,1.0,,1
+1,3,5,0,DiA,3,离散A,2,0,2,20,0,0,0,0,1.0,0.0,0,30000,0.0,0,0.0,1.0,,1
+1,3,5,1,IrTemp,4,输入温度,3,0,4,100,0,0,0,1,0.1,0.0,0,30000,0.0,250,-40.0,125.0,℃,1
+1,3,5,1,HrSet,5,保持设定,3,2,3,200,0,0,0,0,1.0,0.0,0,30000,0.0,30,0.0,100.0,℃,1
+1,3,5,1,HrSetWrite,6,保持设定写,3,2,6,200,0,0,0,0,1.0,0.0,0,30000,0.0,,0.0,100.0,℃,1

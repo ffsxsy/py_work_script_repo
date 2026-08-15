@@ -1,0 +1,238 @@
+/* Modbus Slave Sim — modern light theme */
+* {
+  font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", sans-serif;
+  font-size: 13px;
+}
+
+QMainWindow, QWidget {
+  background-color: #f4f7f6;
+  color: #1a2b2a;
+}
+
+QToolBar {
+  background: #ffffff;
+  border: none;
+  border-bottom: 1px solid #d5e0dd;
+  spacing: 8px;
+  padding: 6px 10px;
+}
+
+QToolBar QToolButton {
+  background: #ffffff;
+  border: 1px solid #c9d8d4;
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-right: 2px;
+}
+
+QToolBar QToolButton:hover {
+  background: #e8f5f1;
+  border-color: #2a9d8f;
+}
+
+QToolBar QToolButton:pressed {
+  background: #d4efe9;
+}
+
+QToolBar QToolButton:disabled {
+  color: #8aa19c;
+  background: #f0f3f2;
+}
+
+QListWidget {
+  background: #ffffff;
+  border: 1px solid #d5e0dd;
+  border-radius: 10px;
+  padding: 4px;
+  outline: none;
+}
+
+QListWidget::item {
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 2px;
+}
+
+QListWidget::item:selected {
+  background: #d9f3ee;
+  color: #0f3d38;
+  border: 1px solid #2a9d8f;
+}
+
+QListWidget::item:hover:!selected {
+  background: #eef6f4;
+}
+
+QTabWidget::pane {
+  background: #ffffff;
+  border: 1px solid #d5e0dd;
+  border-radius: 10px;
+  top: -1px;
+}
+
+QTabBar::tab {
+  background: #e8eeec;
+  border: 1px solid #d5e0dd;
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 8px 14px;
+  margin-right: 4px;
+}
+
+QTabBar::tab:selected {
+  background: #ffffff;
+  color: #0f3d38;
+  border-color: #2a9d8f;
+}
+
+QTableWidget {
+  background: #ffffff;
+  border: 1px solid #d5e0dd;
+  border-radius: 8px;
+  gridline-color: #e4ece9;
+  selection-background-color: #d9f3ee;
+  selection-color: #0f3d38;
+}
+
+QHeaderView::section {
+  background: #eef5f3;
+  color: #355350;
+  border: none;
+  border-bottom: 1px solid #d5e0dd;
+  border-right: 1px solid #e4ece9;
+  padding: 8px;
+  font-weight: 600;
+}
+
+QLineEdit, QSpinBox, QComboBox {
+  background: #ffffff;
+  border: 1px solid #c9d8d4;
+  border-radius: 8px;
+  padding: 6px 8px;
+  min-height: 28px;
+  max-height: 36px;
+}
+
+QLineEdit:focus, QSpinBox:focus, QComboBox:focus {
+  border-color: #2a9d8f;
+}
+
+QPushButton {
+  background: #2a9d8f;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+}
+
+QPushButton:hover {
+  background: #238b7f;
+}
+
+QPushButton:pressed {
+  background: #1c7369;
+}
+
+QPushButton:disabled {
+  background: #b7ccc8;
+  color: #f4f7f6;
+}
+
+QPushButton[secondary="true"] {
+  background: #ffffff;
+  color: #1a2b2a;
+  border: 1px solid #c9d8d4;
+}
+
+QPushButton[secondary="true"]:hover {
+  background: #e8f5f1;
+}
+
+QTextEdit#logView {
+  background: #14201f;
+  color: #d7ebe7;
+  border: 1px solid #1f3330;
+  border-radius: 10px;
+  font-family: "Cascadia Mono", "Consolas", "DejaVu Sans Mono", monospace;
+  font-size: 12px;
+  padding: 8px;
+}
+
+QLabel#statusRunning {
+  color: #1b7f4a;
+  font-weight: 700;
+}
+
+QLabel#statusStopped {
+  color: #6b7c79;
+  font-weight: 600;
+}
+
+QLabel#statusError {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+QLabel#sectionTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f3d38;
+}
+
+QLabel#stepHint {
+  color: #4a635f;
+  padding: 4px 0 8px 0;
+}
+
+QLabel#deviceName {
+  color: #1a2b2a;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+QLabel#linkBadge {
+  background: #d9f3ee;
+  color: #0f3d38;
+  border: 2px solid #2a9d8f;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+QLabel#accessHint {
+  color: #b35c00;
+  font-weight: 600;
+  padding: 2px 0 8px 0;
+}
+
+QLabel#accessHint[idle="true"] {
+  color: #4a635f;
+  font-weight: 500;
+}
+
+QLabel#formSectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2a6b62;
+  padding-top: 6px;
+}
+
+QFrame#formSection {
+  background: transparent;
+  border: none;
+}
+
+QPushButton:checked {
+  background: #2a9d8f;
+  color: #ffffff;
+  border: none;
+}
+
+QFrame#card {
+  background: #ffffff;
+  border: 1px solid #d5e0dd;
+  border-radius: 12px;
+}
