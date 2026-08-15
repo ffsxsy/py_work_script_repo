@@ -20,9 +20,6 @@ dev = [
     "pytest-cov>=5.0",
 ]
 
-[project.scripts]
-pms-can-demo = "pms_can_demo.main:main"
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/pms_can_demo"]
 

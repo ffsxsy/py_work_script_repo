@@ -33,7 +33,7 @@ $env:PMS_CAN_USE_FAKE="1"; uv run main.py
 
 | 路径 | 说明 |
 | :--- | :--- |
-| `src/pms_can_demo/main.py` | 应用入口 |
+| `main.py` | 应用入口（`uv run main.py`） |
 | `src/pms_can_demo/app/` | 组合根、总线服务、QML 路径、Property 包装 |
 | `src/pms_can_demo/can/` | TX/RX 队列、按源地址分发、session、Worker |
 | `src/pms_can_demo/models/` | 页模型、PcCommand、周期/事件表 |
