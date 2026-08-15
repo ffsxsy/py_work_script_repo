@@ -1,6 +1,6 @@
 # Agent 说明（AI 协作）
 
-本仓库代码多由 AI 生成或辅助编写。**以本文件与 `pyproject.toml` 中的命令为验收基线**。
+本仓库代码多由 AI 生成或辅助编写。**以本文件与** `pyproject.toml` **中的命令为验收基线**。
 
 ## 环境初始化（首次）
 
@@ -12,40 +12,51 @@ uv tool install ruff    # 全局 CLI，本机一次；ty / pytest 同理各装�
 uv tool install ty
 uv tool install pytest
 uv sync                   # 创建 .venv，安装 cantools / pywin32 等依赖组
-uv pip install openpyxl   # 库依赖（无 CLI，不能用 uv tool）；装入 .venv，本机一次
+uv pip install openpyxl pytest  # openpyxl 无 CLI 不能用 uv tool；pytest 需在 .venv 才能 import 项目依赖（全局 tool 隔离环境不行）；均装入 .venv，本机一次
 uv run python --version   # 应显示 3.13.x
 ```
 
-| 来源 | 子项目 | 包 |
-| :--- | :--- | :--- |
-| `uv tool install` | 全仓 | `ruff`、`ty`、`pytest` |
-| `uv pip install`（`.venv`） | `1.fault_recording_parse_excel_template/`、`2.McuCanMap_script/` | `openpyxl` |
-| `fault-recording` 组 | `1.fault_recording_parse_excel_template/` | `pywin32` |
-| `can-dbc` 组 | `CAN_dbc/` | `cantools` |
+
+| 来源                        | 子项目                                                             | 包                    |
+| ------------------------- | --------------------------------------------------------------- | -------------------- |
+| `uv tool install`         | 全仓                                                              | `ruff`、`ty`、`pytest` |
+| `uv pip install`（`.venv`） | 仓库根                                                            | `openpyxl`、`pytest` |
+| `uv pip install`（`.venv`） | `1.fault_recording_parse_excel_template/`、`2.McuCanMap_script/` | `openpyxl`           |
+| `fault-recording` 组       | `1.fault_recording_parse_excel_template/`                       | `pywin32`            |
+| `can-dbc` 组               | `CAN_dbc/`                                                      | `cantools`           |
+
 
 各子目录另有 `requirements.txt` 便于 pip 或拆仓后单独安装。
 
-> **openpyxl 为何不用 `uv tool install`？** `uv tool` 只安装带 CLI 入口的包（如 `ruff`）；openpyxl 是 `import` 库，用 `uv pip install openpyxl` 装入项目 `.venv`。
+> **openpyxl 为何不用** `uv tool install`**？** `uv tool` 只安装带 CLI 入口的包（如 `ruff`）；openpyxl 是 `import` 库，用 `uv pip install openpyxl` 装入项目 `.venv`。
+
+
 
 ## IDE 设置（ty 扩展）
 
 类型检查 **IDE / 终端 / CI 统一使用 [ty](https://docs.astral.sh/ty/)**（配置见 `[tool.ty]`）。
 
-1. 安装 Cursor/VS Code 扩展：**ty**（`astral-sh.ty`）
-2. **禁用** Cursor Pyright（`anysphere.cursorpyright`），避免两套 LSP 重复报错
-3. 解释器选仓库 **`.venv`**（`uv sync` 后）；工作区已含 [`.vscode/settings.json`](.vscode/settings.json) 指向 `.venv`
+1. 安装 VS Code 扩展：**ty**（`astral-sh.ty`）
+2. 解释器选仓库 `.venv`（`uv sync` 后）；工作区已含 `[.vscode/settings.json](.vscode/settings.json)` 指向 `.venv`
+
+
 
 ## opencode AI Agent 配置
 
-项目已配置 `opencode.json` + `.opencode/`（详见 `docs/opencode-best-practices.md`）：
+项目已配置 `opencode.json` + `.opencode/`（配置指南见 `docs/opencode-config-guide.md`，早期实践归档见 `docs/archive/opencode-best-practices.md`）：
 
-| 文件 | 说明 |
-| :--- | :--- |
-| `opencode.json` | 主配置：引用 `.cursor/rules/`、formatter(ruff)、LSP(ty)、自定义命令 |
-| `.opencode/agents/python-reviewer.md` | Python 代码审查 subagent（`@python-reviewer`） |
-| `.opencode/agents/monorepo-guard.md` | 跨目录边界守卫 subagent（`@monorepo-guard`） |
-| `.opencode/commands/verify-python.md` | 一键运行 ruff/ty/pytest |
-| `.opencode/skills/python-standards/SKILL.md` | Python 规范技能包 |
+
+| 文件                                           | 说明                                                                                  |
+| -------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `opencode.json`                              | 主配置：`instructions` 引用 `AGENTS.md` + `docs/rules/*.md`、formatter(ruff)、LSP(ty)、自定义命令 |
+| `docs/rules/*.md`                            | 常驻规则，经 `instructions` glob 自动加载                                                     |
+| `.opencode/agents/python-reviewer.md`        | Python 代码审查 subagent（`@python-reviewer`）                                            |
+| `.opencode/agents/monorepo-guard.md`         | 跨目录边界守卫 subagent（`@monorepo-guard`）                                                 |
+| `.opencode/commands/verify-python.md`        | 一键运行 ruff/ty/pytest                                                                 |
+| `.opencode/skills/python-standards/SKILL.md` | Python 规范技能包                                                                        |
+
+
+
 
 ### 使用方式
 
@@ -55,9 +66,13 @@ uv run python --version   # 应显示 3.13.x
 4. **边界检查**：`@monorepo-guard` 检查跨目录引用
 5. **验收**：`/verify` 命令或手动跑 ruff/ty/pytest
 
+
+
 ## Python 代码要求（MUST）
 
-- **类型注解**、**函数与库调用**须符合 **Python 3.13** 与 `uv.lock` 中依赖的**当前推荐用法**，不用已废弃 API。细则见 `.cursor/rules/codegen-python-standards.mdc`。
+- **类型注解**、**函数与库调用**须符合 **Python 3.13** 与 `uv.lock` 中依赖的**当前推荐用法**，不用已废弃 API。细则见 `docs/rules/codegen-python-standards.md`。
+
+
 
 ### 类型注解具体规范
 
@@ -73,19 +88,23 @@ from typing import Optional, List, Dict, Tuple, Set, Union, Callable, Iterable, 
 def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 ```
 
-| 旧写法（禁止） | 3.13 写法 |
-|---|---|
-| `Optional[str]` | `str \| None` |
-| `List[int]` | `list[int]` |
-| `Dict[str, int]` | `dict[str, int]` |
-| `Tuple[int, ...]` | `tuple[int, ...]` |
-| `Set[str]` | `set[str]` |
-| `Union[A, B]` | `A \| B` |
+
+| 旧写法（禁止）           | 3.13 写法                    |
+| ----------------- | -------------------------- |
+| `Optional[str]`   | `str | None`               |
+| `List[int]`       | `list[int]`                |
+| `Dict[str, int]`  | `dict[str, int]`           |
+| `Tuple[int, ...]` | `tuple[int, ...]`          |
+| `Set[str]`        | `set[str]`                 |
+| `Union[A, B]`     | `A | B`                    |
 | `typing.Callable` | `collections.abc.Callable` |
 | `typing.Iterable` | `collections.abc.Iterable` |
 | `typing.Sequence` | `collections.abc.Sequence` |
 
+
 > `typing.TYPE_CHECKING`、`typing.Final`、`typing.Literal`、`typing.TypedDict`、`typing.Protocol`、`typing.cast` 在 3.13 中继续可用，不需要改。
+
+
 
 ## Python 修改后必须执行（MUST）
 
@@ -99,18 +118,20 @@ def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 ruff check .                              # lint
 ruff format --check .                     # 排版；改排版用 ruff format .
 ty check                                  # 类型检查（与 IDE ty 扩展同一引擎）
-uv tool run pytest -q --python .venv      # 测试（使用项目 .venv 解释器）
+uv run pytest -q                              # 测试（pytest 在 .venv；见下）
 ```
 
-> 上述 `ruff` / `ty` / `pytest` 来自 `uv tool install`；若未加入 PATH，可改用 `uv tool run ruff check .` 等形式。
+> 上述 `ruff` / `ty` 来自 `uv tool install`；若未加入 PATH，可改用 `uv tool run ruff check .` 等形式。
+>
+> **pytest 例外（实测验证）**：`uv tool run pytest` 是隔离环境，import 不到项目 `.venv` 依赖（且 `--python` 写在工具名后会报 `unrecognized arguments: --python`）。跑项目测试一律 `uv run pytest -q`，项目 `.venv` 须含 pytest（仓库根：`uv pip install pytest`；子项目：dev extra 含 `pytest>=8`）。
 
 > **Ruff 说明**：`check`（lint）与 `format`（排版）是两套机制；`format` **不会**自动修复 `E501` 行过长等 lint 问题，须手改或 `ruff check . --fix`（若该规则可自动修）。
 
-**适用范围**：仅改非 Python 文件（如 `.lua` / `.md` / `.ps1`）且未触达 `.py` 时，本节四条可跳过；**同时改了 `.py` 则必须执行**。
+**适用范围**：仅改非 Python 文件（如 `.lua` / `.md` / `.ps1`）且未触达 `.py` 时，本节四条可跳过；**同时改了** `.py` **则必须执行**。
 
-**遗留代码**：全仓尚未全绿时，至少保证**本次改动的 `.py` 文件**无新增 ruff / ty 问题；全仓清零可作为独立任务。
+**遗留代码**：全仓尚未全绿时，至少保证**本次改动的** `.py` **文件**无新增 ruff / ty 问题；全仓清零可作为独立任务。
 
-版本以 `pyproject.toml` 与 **`uv.lock`** 为准。
+版本以 `pyproject.toml` 与 `uv.lock` 为准。
 
 ## 完成定义（DoD）
 
@@ -118,37 +139,43 @@ uv tool run pytest -q --python .venv      # 测试（使用项目 .venv 解释�
 - [ ] 新功能已补或更新 `tests/`（除非用户明确不要测试）
 - [ ] 版本与规则以 `pyproject.toml`、`uv.lock` 为准
 
+
+
 ## 范围说明
 
-| 工具 | 说明 |
-| :--- | :--- |
-| **Ruff check** | Lint（`[tool.ruff.lint]`） |
-| **Ruff format --check** | 排版是否与 `[tool.ruff.format]` 一致 |
-| **ty** | IDE（`astral-sh.ty`）+ 终端 + CI；读 `[tool.ty]` |
-| **pytest** | 用例在 `tests/` 或各工具目录 `tests/` |
+
+| 工具                      | 说明                                         |
+| ----------------------- | ------------------------------------------ |
+| **Ruff check**          | Lint（`[tool.ruff.lint]`）                   |
+| **Ruff format --check** | 排版是否与 `[tool.ruff.format]` 一致              |
+| **ty**                  | IDE（`astral-sh.ty`）+ 终端 + CI；读 `[tool.ty]` |
+| **pytest**              | 用例在 `tests/` 或各工具目录 `tests/`               |
+
 
 `pywin32` 已包含在 `fault-recording` 依赖组；仅在该工具构建 `.xlsm` 时需要。`ty` 对 `win32com` 等可能报 unresolved 时，以**本次改动目录**为准。
 
-## 其他文件类型
+## 其他文件类型`.opencode/rules/*.mdc`
 
-| 类型 | 规则 |
-| :--- | :--- |
-| PowerShell (`*.ps1`) | `codegen-powershell.mdc` |
-| VBA (`*.bas`) | `codegen-vba-excel.mdc`；改后重跑 build / `repair_vba_module.ps1` |
-| C 生成物 | 优先改 `gen_*.py`，见 `codegen-c-standards.mdc` |
+
+| 类型                   | 规则                                                     |
+| -------------------- | ------------------------------------------------------ |
+| PowerShell (`*.ps1`) | skill `powershell-standards`                           |
+| VBA (`*.bas`)        | skill `vba-excel`；改后重跑 build / `repair_vba_module.ps1` |
+| C 生成物                | 优先改 `gen_*.py`，见 skill `c-standards`                   |
+
+
+
 
 ## 子项目
 
-顶层目录互不相关；全仓检查用根目录上述四条命令。目录边界见 `repo-monorepo.mdc`。
+顶层目录互不相关；全仓检查用根目录上述四条命令。目录边界见 `docs/rules/repo-monorepo.md`。
 
-## Cursor 规则
+## opencode 规则
 
-- Always：`zh-engineering-standards.mdc`、`repo-monorepo.mdc`
-- 按 glob：`codegen-python-standards.mdc`、`ai-codegen-verification.mdc`、`06-Python_PySide6上位机规范-python_pyside6.mdc`（`**/*.{py,qml}`，**GUI 默认 QML**）等
-- Skill：`.cursor/skills/pyside6-gui/`（写/改 PySide6·QML 时加载）
+- 常驻规则位于 `docs/rules/`，由 `opencode.json` 的 `instructions`（glob `docs/rules/*.md`）自动加载。
+- 核心规则：`zh-engineering-standards.md`、`01-通用基础规范.md`、`repo-monorepo.md`、`codegen-python-standards.md`、`ai-codegen-verification.md`、`codegen-monorepo-subproject.md`、`technical-obsidian-markdown.md`
+- 按需 Skill（写对应文件类型时加载）：`pyside6-standards` + `pyside6-gui`（PySide6·QML，**GUI 默认 QML**）、`c-standards`、`powershell-standards`、`vba-excel`、`python-standards`
+- opencode 配置指南（当前）：[docs/opencode-config-guide.md](./docs/opencode-config-guide.md)
+- 历史（Cursor 时代，已归档）：[docs/archive/cursor-3.5-ai-coding-rules.md](./docs/archive/cursor-3.5-ai-coding-rules.md)、[docs/archive/ai-coding-setup-practice.md](./docs/archive/ai-coding-setup-practice.md)、[docs/archive/opencode-best-practices.md](./docs/archive/opencode-best-practices.md)
 
-- 规范要求：[docs/cursor-3.5-ai-coding-rules.md](./docs/cursor-3.5-ai-coding-rules.md)
-- 当前实践（供后来者）：[docs/ai-coding-setup-practice.md](./docs/ai-coding-setup-practice.md)
-- opencode 最佳配置：[docs/opencode-best-practices.md](./docs/opencode-best-practices.md)
-
-在 **Settings → Rules** 确认 Project Rules 已启用。可选 IDE 扩展：Qt Python Extension Pack（`TheQtCompany.qt-python-pack`）。
+可选 IDE 扩展：Qt Python Extension Pack（`TheQtCompany.qt-python-pack`）。

@@ -165,7 +165,7 @@ flowchart TB
 
 ```text
 6.pms_demo/
-  PLAN.md
+  docs/ { DESIGN.md, PLAN.md }  # 设计文档与项目计划
   README.md
   pyproject.toml
   main.py

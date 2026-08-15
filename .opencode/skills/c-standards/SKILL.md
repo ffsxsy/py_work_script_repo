@@ -1,7 +1,6 @@
 ---
-description: C 代码生成规则（版本锚点与质量基线）
-globs: "**/*.{c,h,cc,cpp,hpp,cxx,hxx}"
-alwaysApply: false
+name: c-standards
+description: C code generation standards for this repo (McuCanMap generated headers). Use when writing or editing C sources/headers (.c/.h/.cc/.hpp) or the gen_*.py generators that produce them.
 ---
 
 # C 代码生成规则

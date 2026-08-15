@@ -1,9 +1,3 @@
----
-description: Python 代码生成规则（版本锚点与类型质量）
-globs: "**/*.py"
-alwaysApply: false
----
-
 # Python 代码生成规则
 
 ## 1) 版本锚点（MUST）
@@ -49,7 +43,7 @@ value: Optional[str] = row.get("id")
 
 ## 5) 校验与测试（MUST）
 
-- 验收命令与顺序见 **`ai-codegen-verification.mdc`** 与 [AGENTS.md](../../AGENTS.md)；不得未跑通即声称完成。
+- 验收命令与顺序见 **`ai-codegen-verification.md`** 与 [AGENTS.md](../../AGENTS.md)；不得未跑通即声称完成。
 - 新增 / 变更功能须在 `tests/` 或工具目录下补 pytest（用户明确不要测试时除外）。
 
 ## 6) 输出模板（MUST）
@@ -65,5 +59,5 @@ value: Optional[str] = row.get("id")
 ## 8) 变更日志
 
 - 2026-05-25：强调类型注解与函数调用须用当前版本推荐 API / 语法。
-- 2026-05-25：验收命令合并至 `ai-codegen-verification.mdc`；锚定 `uv.lock`。
+- 2026-05-25：验收命令合并至 `ai-codegen-verification.md`；锚定 `uv.lock`。
 - 2026-04-23：初版。

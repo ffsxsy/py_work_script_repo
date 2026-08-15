@@ -2,7 +2,7 @@
 
 > 文档日期：2026-08-15
 > 适用范围：`6.pms_demo` 全目录（自包含，可整目录拆仓）
-> 配套文档：[`README.md`](README.md)（运行/安装）、[`PLAN.md`](PLAN.md)（项目计划与进度）
+> 配套文档：[`README.md`](../README.md)（运行/安装）、[`PLAN.md`](PLAN.md)（项目计划与进度）
 > 依据源码版本：`src/pms_can_demo` + `can-zlg`（以本文件为准，PLAN.md 为进度视图）
 
 ---
@@ -132,7 +132,8 @@ $env:PMS_CAN_USE_FAKE="1"; uv run main.py   # 无硬件
 
 ```text
 6.pms_demo/
-  PLAN.md / README.md / DESIGN.md / pyproject.toml / uv.lock
+  docs/ { DESIGN.md, PLAN.md }  # 设计文档与项目计划
+  README.md / pyproject.toml / uv.lock
   main.py                        # 唯一应用入口（uv run main.py）
   can-zlg/                       # 本地 CAN 接口层（独立可拆，包名 can_zlg）
     can_zlg/  { __init__, bus, frame, fake, zlg_bus, sdk, profiles,

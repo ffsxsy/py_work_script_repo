@@ -1,16 +1,10 @@
----
-description: 技术 Markdown 速读规则（短版，Obsidian 优先；仅 docs 下笔记）
-globs: "docs/**/*.md"
-alwaysApply: false
----
-
 # 技术 Markdown 规则（短版）
 
 ## 1. Scope
 
 - 本规则只约束 Markdown/Obsidian 的写法与结构。
-- 代码可运行性、版本、安全、测试统一遵循 `zh-engineering-standards.mdc`。
-- 详细解释与示例见 `technical-obsidian-markdown-examples.mdc`。
+- 代码可运行性、版本、安全、测试统一遵循 `zh-engineering-standards.md`。
+- 详细解释与示例见 `technical-obsidian-markdown-examples.md`。
 
 ## 2. MUST
 

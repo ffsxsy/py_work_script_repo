@@ -1,12 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "shell": "pwsh",
   "instructions": [
     "AGENTS.md",
-    ".cursor/rules/zh-engineering-standards.mdc",
-    ".cursor/rules/codegen-python-standards.mdc",
-    ".cursor/rules/ai-codegen-verification.mdc",
-    ".cursor/rules/repo-monorepo.mdc",
-    ".cursor/rules/06-Python_PySide6上位机规范-python_pyside6.mdc"
+    "docs/rules/*.md"
   ],
   "formatter": {
     "ruff": {
@@ -15,23 +12,51 @@
     }
   },
   "lsp": true,
+  "compaction": {
+    "auto": true,
+    "reserved": 10000
+  },
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      ".venv/**",
+      "**/.venv/**",
+      "node_modules/**",
+      "**/__pycache__/**",
+      ".pytest_cache/**",
+      ".ruff_cache/**",
+      "dist/**",
+      "build/**",
+      "*.egg-info/**"
+    ]
+  },
   "permission": {
     "edit": "allow",
     "bash": {
-      "git push": "ask",
-      "Stop-Process -Name rbms-sim*": "ask",
-      "*": "allow"
+      "*": "allow",
+      "git push*": "ask",
+      "git rm*": "ask",
+      "git reset --hard*": "ask",
+      "git clean*": "ask",
+      "git checkout --*": "ask",
+      "git rebase*": "ask",
+      "git merge*": "ask",
+      "git tag -d*": "ask",
+      "rm -rf*": "ask",
+      "Remove-Item*": "ask",
+      "Stop-Process*": "ask"
     },
     "webfetch": "allow",
-    "websearch": "allow"
+    "websearch": "allow",
+    "external_directory": "ask"
   },
   "command": {
     "verify": {
-      "template": "Run the full Python verification suite at repo root:\n1. ruff check .\n2. ruff format --check .\n3. ty check\n4. uv tool run pytest -q --python .venv\n\nShow any failures and suggest fixes.",
+      "template": "Run the full Python verification suite at repo root:\n1. ruff check .\n2. ruff format --check .\n3. ty check\n4. uv run pytest -q\n\nFor subprojects, run the same suite inside the project directory (GUI tests need QT_QPA_PLATFORM=offscreen). Show any failures and suggest fixes.",
       "description": "Python 四项验收（ruff → ty → pytest）"
     },
     "test": {
-      "template": "Run pytest for the relevant test directory. Use -q for quiet, -x to stop on first failure.\nIf no directory specified, run `uv tool run pytest -q --python .venv` at repo root.",
+      "template": "Run pytest for the relevant test directory. Use -q for quiet, -x to stop on first failure.\nIf no directory specified, run `uv run pytest -q` at repo root or inside the subproject directory.",
       "description": "运行 pytest 测试"
     }
   }

@@ -1,7 +1,6 @@
 ---
-description: PowerShell 构建脚本规则（Excel 模板构建等）
-globs: "**/*.ps1"
-alwaysApply: false
+name: powershell-standards
+description: PowerShell build-script rules (Excel template builds, repair_vba_module.ps1, xlsm embedding). Use when writing or editing *.ps1 scripts under this repo.
 ---
 
 # PowerShell 规则

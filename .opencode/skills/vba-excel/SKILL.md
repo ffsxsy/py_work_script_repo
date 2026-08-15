@@ -1,7 +1,6 @@
 ---
-description: Excel VBA 模块规则（CAN 故障录制模板等）
-globs: "**/*.{bas,vbs}"
-alwaysApply: false
+name: vba-excel
+description: Excel VBA module rules (CAN fault recording template, .xlsm embedding). Use when writing or editing .bas/.vbs sources embedded into Excel workbooks.
 ---
 
 # VBA / Excel 规则

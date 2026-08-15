@@ -17,10 +17,9 @@ htmlcov/
 .coverage
 
 # IDE / OS
-*.opencode/
 .idea/
 .vscode/
-# Cursor：忽略本地会话/命令，但保留可共享的 rules / skills
+# Cursor（已停用，仅忽略以防误提交重建的 .cursor）
 *.cursor/*
 *.swp
 *~

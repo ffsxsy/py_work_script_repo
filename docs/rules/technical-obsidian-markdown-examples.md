@@ -1,14 +1,8 @@
----
-description: 技术 Markdown 规则附录（示例与解释；仅 docs 下笔记）
-globs: "docs/**/*.md"
-alwaysApply: false
----
-
 # 技术 Markdown 规则附录
 
 ## 1. 用途
 
-- 本文件是 `technical-obsidian-markdown.mdc` 的示例与解释补充。
+- 本文件是 `technical-obsidian-markdown.md` 的示例与解释补充。
 - 主规则用于高命中扫读；本附录用于需要细节时再展开。
 
 ## 2. 结构示例
