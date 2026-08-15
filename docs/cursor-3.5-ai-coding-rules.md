@@ -69,15 +69,18 @@ flowchart TB
 | `.cursor/rules/repo-monorepo.mdc` | Always Apply | 多工具 monorepo 目录边界、拆仓约定 |
 | `.cursor/rules/codegen-python-standards.mdc` | `globs: **/*.py` | Python：**类型注解与 API 调用必须用 3.13 推荐写法** |
 | `.cursor/rules/ai-codegen-verification.mdc` | `globs: **/*.py` | 改 Python 后四条验收命令 |
+| `.cursor/rules/06-Python_PySide6上位机规范-python_pyside6.mdc` | `globs: **/*.{py,qml}` | 上位机：CLI + **PySide6/QML 优先**、通信卡点、测试契约 |
+| `.cursor/rules/01-通用基础规范.mdc` | Always（若已启用） | 跨栈纪律、三件套、自检清单 |
 | `.cursor/rules/codegen-powershell.mdc` | `globs: **/*.ps1` | 构建脚本 |
 | `.cursor/rules/codegen-vba-excel.mdc` | `globs: **/*.{bas,vbs}` | Excel VBA |
 | `.cursor/rules/codegen-c-standards.mdc` | `globs: **/*.{c,h,...}` | C；生成物优先改 `gen_*.py` |
 | `.cursor/rules/technical-obsidian-markdown.mdc` | `globs: docs/**/*.md` | 仅 `docs/` 下技术笔记 |
+| `.cursor/skills/pyside6-gui/SKILL.md` | Skill（按需） | PySide6 + **QML** 工作流、Backend/Worker 模板 |
 | `docs/archive/codegen-vue-standards.mdc` | 未加载 | Vue 备用；有前端时再移回 `.cursor/rules/` |
 | [AGENTS.md](../AGENTS.md) | — | Agent 验收命令（执行版） |
 | [pyproject.toml](../pyproject.toml) + [uv.lock](../uv.lock) | — | dev 依赖与锁定版本 |
 
-`.gitignore` 忽略 `.cursor/*`，但**保留** `.cursor/rules/**`，以便规则随 Git 共享。
+`.gitignore` 忽略 `.cursor/*`，但**保留** `.cursor/rules/**` 与 `.cursor/skills/**`，以便规则与 Skill 随 Git 共享。
 
 ## Project Rules 四种应用模式
 
@@ -108,12 +111,16 @@ globs: "**/*.py"
 alwaysApply: false
 ---
 
-修改后必须在仓库根执行并通过：
+修改后必须在仓库根**终端实际执行**并通过（详见 [AGENTS.md](../AGENTS.md)）：
 
-uv run ruff check .
-uv run ruff format --check .
-uv run ty check
-uv run pytest -q
+```bash
+uv tool install ruff   # 本机一次；ty / pytest 同理各装一条
+uv tool install ty
+uv tool install pytest
+ruff check .
+ruff format --check .
+ty check
+uv tool run pytest -q --python .venv
 ```
 
 官方建议：单条规则 **< 500 行**；按主题拆分；用 `@filename` 指向示例，避免大段过期代码。
@@ -134,7 +141,7 @@ uv run pytest -q
 | 机制 | 用途 | 本仓库 |
 | :--- | :--- | :--- |
 | **Rules** | 短约束（必须 / 禁止） | **主力** |
-| **Skills** | 多步骤工作流（`SKILL.md`） | Obsidian、Markdown 等；复杂流程再用 |
+| **Skills** | 多步骤工作流（`SKILL.md`） | Obsidian、Markdown、`pyside6-gui`（QML）等 |
 | **Commands** | 斜杠快捷入口 | 可选；验收不必重复建 Command |
 
 > [!TIP]
@@ -142,25 +149,26 @@ uv run pytest -q
 
 ## Python 验收命令
 
-在仓库根、已执行 `uv sync` 后，**按顺序**运行（详见 [AGENTS.md](../AGENTS.md)）：
+在仓库根、已执行 `uv sync` 且已 `uv tool install` ruff / ty / pytest 后，**按顺序**在终端运行（详见 [AGENTS.md](../AGENTS.md)）：
 
 ```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run ty check
-uv run pytest -q
+ruff check .
+ruff format --check .
+ty check
+uv tool run pytest -q --python .venv
 ```
 
 | 工具 | 作用 |
 | :--- | :--- |
-| **Ruff** | Lint + 格式（`[tool.ruff]`） |
-| **ty** | 类型检查（Astral） |
+| **Ruff check** | Lint（`[tool.ruff.lint]`） |
+| **Ruff format --check** | 排版检查 |
+| **ty** | IDE（`astral-sh.ty`）+ 终端 + CI；读 `[tool.ty]` |
 | **pytest** | 测试；用例在 `tests/` 或各工具目录 `tests/` |
 
 > [!WARNING]
 > 遗留脚本可能尚未全仓通过上述检查。规则要求：**本次改动不新增** ruff/ty 问题；全仓修绿可作为独立任务。新增功能应补充 pytest。
 
-运行环境：根目录 [`.python-version`](../.python-version) 固定 **3.13**，`uv sync` 安装 `dev` / `fault-recording` / `mcu-can-map` 依赖组（见 [AGENTS.md](../AGENTS.md)）。`requires-python >= 3.13,<3.14`。
+运行环境：根目录 [`.python-version`](../.python-version) 固定 **3.13**；`uv tool install` ruff / ty / pytest、`uv sync`（`fault-recording` / `can-dbc`）、`uv pip install openpyxl`（见 [AGENTS.md](../AGENTS.md)）。`requires-python >= 3.13,<3.14`。
 
 ## User Rules 与项目规则分工
 

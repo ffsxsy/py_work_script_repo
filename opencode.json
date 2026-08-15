@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    ".cursor/rules/zh-engineering-standards.mdc",
+    ".cursor/rules/codegen-python-standards.mdc",
+    ".cursor/rules/ai-codegen-verification.mdc",
+    ".cursor/rules/repo-monorepo.mdc",
+    ".cursor/rules/06-Python_PySide6上位机规范-python_pyside6.mdc"
+  ],
+  "formatter": {
+    "ruff": {
+      "command": ["ruff", "format", "$FILE"],
+      "extensions": [".py"]
+    }
+  },
+  "lsp": true,
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "git push": "ask",
+      "Stop-Process -Name rbms-sim*": "ask",
+      "*": "allow"
+    },
+    "webfetch": "allow",
+    "websearch": "allow"
+  },
+  "command": {
+    "verify": {
+      "template": "Run the full Python verification suite at repo root:\n1. ruff check .\n2. ruff format --check .\n3. ty check\n4. uv tool run pytest -q --python .venv\n\nShow any failures and suggest fixes.",
+      "description": "Python 四项验收（ruff → ty → pytest）"
+    },
+    "test": {
+      "template": "Run pytest for the relevant test directory. Use -q for quiet, -x to stop on first failure.\nIf no directory specified, run `uv tool run pytest -q --python .venv` at repo root.",
+      "description": "运行 pytest 测试"
+    }
+  }
+}

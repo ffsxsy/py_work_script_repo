@@ -9,8 +9,8 @@ alwaysApply: false
 ## 1) 版本锚点（MUST）
 
 - 生成前读取：根目录 `pyproject.toml`、`uv.lock`、`.python-version`；子项目 `requirements.txt`。
-- 环境：`uv sync`（含 `dev` + `fault-recording` + `mcu-can-map` 组）；Python 以 `.python-version` 为准。
-- 不得默认「最新版」库 API。`pywin32` 在 `fault-recording` 组，仅构建 xlsm 需要。
+- 环境：`uv tool install` ruff / ty / pytest + `uv sync` + `uv pip install openpyxl`；Python 以 `.python-version` 为准。
+- 不得默认「最新版」库 API。`openpyxl` 用 `uv pip install openpyxl` 装入 `.venv`；`pywin32` 在 `fault-recording` 组，仅构建 xlsm 需要。
 
 ## 2) 类型注解（MUST — 当前 Python 推荐写法）
 
@@ -20,7 +20,7 @@ alwaysApply: false
   - 泛型：`list[str]`、`dict[str, int]`，不用 `typing.List`、`typing.Dict`
   - 只读 / 可变：`typing.ReadOnly`、`TypeAlias`（按需）；复杂协议用 `Protocol`
   - 数据：`@dataclass`、`TypedDict`、`Enum`、`Final`
-- **禁止**（无充分理由）：`Any`、`# type: ignore`、`# pyright: ignore`；仅为「少写注解」而省略。
+- **禁止**（无充分理由）：`Any`、`# type: ignore`、`# pyright: ignore`；需抑制 ty 告警时方可用 `# ty: ignore`。
 - 第三方库类型：优先使用库自带或官方 stubs；调用签名须与**当前锁定版本**（`uv.lock`）一致。
 
 ## 3) 函数与 API 调用（MUST — 当前版本推荐用法）

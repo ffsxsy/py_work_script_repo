@@ -11,6 +11,7 @@
 | [CAN_dbc](./CAN_dbc/) | 用 cantools 从脚本或双 CSV 生成 CAN DBC | [README](./CAN_dbc/README.md)、[CSV 说明](./CAN_dbc/CSV_使用说明.md) |
 | [3.wireshark_plugin](./3.wireshark_plugin/) | BMS2.0 底软 TCP 的 Wireshark Lua 解析插件（V2 帧 + Payload 展开） | [README](./3.wireshark_plugin/README.md)、[使用说明](./3.wireshark_plugin/docs/BMS2.0-Wireshark插件使用说明.md) |
 | [4.rbms_tcp_sim](./4.rbms_tcp_sim/) | RBMS / BBMS TCP 协议模拟器（BMS 2.0 LAN Matrix） | [README](./4.rbms_tcp_sim/README.md) |
+| [6.pms_demo](./6.pms_demo/) | PMS CAN 通信 demo（内含 `can_zlg` + 官方 SDK 旁路） | [README](./6.pms_demo/README.md)、[PLAN](./6.pms_demo/PLAN.md) |
 
 进入对应目录查看运行环境与命令。
 

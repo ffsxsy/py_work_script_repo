@@ -497,9 +497,7 @@ def resolve_frame_ids(
         per_table_index[deploy.device_table] = index + 1
         frame_id: int = spec.frame_id_base + index * spec.frame_id_step
         if frame_id in seen_frame_ids:
-            raise ValueError(
-                f"帧 ID 重复: 0x{frame_id:X}（实例 {deploy.device_instance}）"
-            )
+            raise ValueError(f"帧 ID 重复: 0x{frame_id:X}（实例 {deploy.device_instance}）")
         seen_frame_ids.add(frame_id)
         resolved.append(ResolvedDeploy(deploy=deploy, frame_id=frame_id))
 
@@ -521,9 +519,7 @@ def print_deployment_summary(resolved: list[ResolvedDeploy]) -> None:
         print(f"  - {table_name}: {len(lines)} 台 → {', '.join(lines)}")
 
 
-def build_message_comment(
-    *, install_location: str | None, type_comment: str | None
-) -> str | None:
+def build_message_comment(*, install_location: str | None, type_comment: str | None) -> str | None:
     parts: list[str] = []
     if install_location:
         parts.append(install_location)

@@ -87,19 +87,24 @@ flowchart LR
 ```powershell
 cd <仓库根>
 uv python install 3.13
+uv tool install ruff
+uv tool install ty
+uv tool install pytest
 uv sync
+uv pip install openpyxl
 uv run python --version
 ```
 
 ### 依赖组（`[dependency-groups]` + `[tool.uv] default-groups`）
 
-一次 `uv sync` 会安装三组（无需记多个命令）：
+`uv sync` 安装 cantools / pywin32 等业务依赖组；**ruff / ty / pytest** 用 `uv tool install`；**openpyxl** 无 CLI，用 `uv pip install openpyxl` 装入 `.venv`：
 
-| 组名 | 安装包 | 服务目录 |
+| 来源 | 安装包 | 服务目录 |
 | :--- | :--- | :--- |
-| `dev` | `ruff`、`ty`、`pytest` | 全仓校验 |
-| `fault-recording` | `openpyxl`、`pywin32` | `fault_recording_parse_excel_template/` |
-| `mcu-can-map` | `openpyxl` | `McuCanMap_script/` |
+| `uv tool install` | `ruff`、`ty`、`pytest` | 全仓校验 |
+| `uv pip install` | `openpyxl` | `1.fault_recording_parse_excel_template/`、`2.McuCanMap_script/` |
+| `fault-recording` 组 | `pywin32` | `1.fault_recording_parse_excel_template/` |
+| `can-dbc` 组 | `cantools` | `CAN_dbc/` |
 
 拆仓或仅用 pip 时，各目录有独立 [requirements.txt](../fault_recording_parse_excel_template/requirements.txt)（内容与子组一致）。
 
@@ -107,9 +112,9 @@ uv run python --version
 
 | 工具 | 配置位置 | 说明 |
 | :--- | :--- | :--- |
-| Ruff | `[tool.ruff]` | `target-version = "py313"`，`src` 含两个工具目录与 `tests/` |
-| ty | 无额外 `[tool.ty]` | 默认检查仓库内 Python；全仓可能含遗留告警 |
-| pytest | `[tool.pytest.ini_options]` | 当前仅 `tests/test_repo_smoke.py` 冒烟 |
+| Ruff | `[tool.ruff]` | `target-version = "py313"`；`src` 含各工具目录与 `tests/` |
+| ty | `[tool.ty]` | IDE（`astral-sh.ty`）+ `ty check` + CI 共用；见 `src.include` |
+| pytest | `[tool.pytest.ini_options]` | 当前仅 `tests/` 下冒烟 |
 
 ## Cursor Project Rules 清单
 
@@ -127,7 +132,7 @@ uv run python --version
 | 文件 | glob | 实际写什么 |
 | :--- | :--- | :--- |
 | `codegen-python-standards.mdc` | `**/*.py` | **3.13 推荐**类型注解（如 `str | None`、`list[str]`）与 API 调用；读 `uv.lock`；验收见下一行 |
-| `ai-codegen-verification.mdc` | `**/*.py` | **四条** `uv run` 命令顺序；遗留代码策略 |
+| `ai-codegen-verification.mdc` | `**/*.py` | 四条验收命令顺序（见 `AGENTS.md`）；遗留代码策略 |
 | `codegen-powershell.mdc` | `**/*.ps1` | `$PSScriptRoot`、退出码、Excel 构建链提示 |
 | `codegen-vba-excel.mdc` | `**/*.{bas,vbs}` | Windows Excel、改 VBA 后重跑 build / repair |
 | `codegen-c-standards.mdc` | `**/*.{c,h,...}` | **优先改** `gen_*.py`，少改 `c_struct_*.c` |
@@ -149,7 +154,7 @@ uv run python --version
 
 ### 人（维护仓库）
 
-1. 克隆后执行上文 `uv sync`。
+1. 克隆后执行 `uv tool install`（ruff / ty / pytest 各一条）+ `uv sync`。
 2. 改 Python 后在根目录跑 AGENTS.md 四条命令。
 3. 新增顶层工具：新建目录 + `README` + `requirements.txt`（如有 Python）+ 视情况在 `pyproject.toml` 增加 `[dependency-groups]` 并在 `default-groups` 登记。
 4. 改 Cursor 规则：编辑 `.mdc` 后提交；重大原则变更同步 [cursor-3.5-ai-coding-rules.md](./cursor-3.5-ai-coding-rules.md) 与本文。
@@ -158,7 +163,8 @@ uv run python --version
 
 1. 读 `AGENTS.md` + 触发的 `.mdc`。
 2. 改代码后**在终端执行**验收命令（不要只写「应该通过」）。
-3. 声称完成前：至少保证**本次改动文件**无新增 ruff/ty 问题；全仓修绿可单列任务。
+3. 声称完成前：至少保证**本次改动文件**无新增 ruff / ty 问题；全仓修绿可单列任务。
+4. IDE：安装 **ty** 扩展（`astral-sh.ty`），**禁用** Cursor Pyright；解释器选 `.venv`。
 
 ### 对话中可加的一句（可选）
 
@@ -168,8 +174,8 @@ uv run python --version
 
 | 目录 | requirements.txt | uv 组 | 第三方包 |
 | :--- | :--- | :--- | :--- |
-| `fault_recording_parse_excel_template/` | 有 | `fault-recording` | openpyxl、pywin32 |
-| `McuCanMap_script/` | 有 | `mcu-can-map` | openpyxl |
+| `fault_recording_parse_excel_template/` | 有 | `uv pip` + `fault-recording` | openpyxl、pywin32 |
+| `McuCanMap_script/` | 有 | `uv pip` | openpyxl |
 
 运行示例（仓库根）：
 
@@ -185,7 +191,7 @@ uv run python fault_recording_parse_excel_template/build_can_fault_excel_templat
 | 全仓 `ruff` / `ty` | 部分历史脚本仍有告警（行宽、f-string 等）；规则允许分阶段清零 |
 | `ty` + `win32com` | 未单独配置 stub 时，仅改非 Excel 目录可忽略无关 unresolved |
 | Project Rules 作用域 | **不**保证约束 Tab / Ctrl+K；关键靠 Agent 跑命令或日后 CI |
-| CI | **尚未**配置 GitHub Actions；当前仅本地 `uv run` 验收 |
+| CI | GitHub Actions [python-check.yml](../.github/workflows/python-check.yml)：`uv tool install` + ruff / ty / pytest |
 
 ## 扩展：新工具 / 新规则
 
@@ -199,12 +205,12 @@ uv run python fault_recording_parse_excel_template/build_can_fault_excel_templat
 my-tool = ["依赖>=版本"]
 
 [tool.uv]
-default-groups = ["dev", "fault-recording", "mcu-can-map", "my-tool"]
+default-groups = ["fault-recording", "can-dbc", "my-tool"]
 ```
 
 3. 执行 `uv lock` && `uv sync`。
 4. 根 [README.md](../README.md) 工具表加一行。
-5. 若 AI 常改该目录代码，考虑新增 `codegen-*.mdc`（`globs` 指向该目录）。
+5. 若 AI 常改该目录代码，在 `[tool.ty.src] include` 与 `[tool.ruff] src` 中登记目录。
 
 ### 新 Cursor 规则
 
@@ -216,6 +222,6 @@ default-groups = ["dev", "fault-recording", "mcu-can-map", "my-tool"]
 
 | 日期 | 说明 |
 | :--- | :--- |
-| 2026-05-25 | 初版：记录 monorepo + uv 3.13 + Cursor Rules 落地现状 |
+| 2026-06-08 | 类型检查统一为 ty（IDE 扩展 + CLI + CI）；移除 `[tool.pyright]` |
 | 2026-05-25 | `McuCanMap.xlsx`、`can_fault_recording_template.xlsx` 纳入版本库 |
 | 2026-05-25 | Python 规则强调：类型注解与函数调用须用当前 3.13 推荐写法 |

@@ -191,9 +191,7 @@ def parse_byte_order(
         return "little_endian"
     if value == "big_endian":
         return "big_endian"
-    raise ValueError(
-        f"{file_label} 第 {row_number} 行{context}: 仅支持 little_endian/big_endian"
-    )
+    raise ValueError(f"{file_label} 第 {row_number} 行{context}: 仅支持 little_endian/big_endian")
 
 
 def ensure_required_columns(

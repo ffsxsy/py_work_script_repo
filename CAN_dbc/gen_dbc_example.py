@@ -14,29 +14,19 @@ db = Database()
 signals = []
 for i in range(5):
     sig = Signal(
-        name=f'Measurement_{i+1}',
-        start=i * 8,          # 起始位：0, 8, 16, 24, 32
-        length=8,             # 每个信号 8 位（1字节）
-        byte_order='little_endian', # Intel格式
-        is_signed=False,      # 无符号
+        name=f"Measurement_{i + 1}",
+        start=i * 8,  # 起始位：0, 8, 16, 24, 32
+        length=8,  # 每个信号 8 位（1字节）
+        byte_order="little_endian",  # Intel格式
+        is_signed=False,  # 无符号
         raw_initial=0,
-        conversion=LinearConversion(
-            scale=1,
-            offset=0,
-            is_float=False
-        ),                    # 物理值 = 原始值 * 1 + 0
-        unit='units'          # 单位
+        conversion=LinearConversion(scale=1, offset=0, is_float=False),  # 物理值 = 原始值 * 1 + 0
+        unit="units",  # 单位
     )
     signals.append(sig)
 
 # 3. 定义报文 (ID: 0x123, 长度: 8字节)
-msg = Message(
-    frame_id=0x123,
-    name='SensorData',
-    length=8,
-    signals=signals,
-    senders=['SensorNode']
-)
+msg = Message(frame_id=0x123, name="SensorData", length=8, signals=signals, senders=["SensorNode"])
 
 db.messages.append(msg)
 

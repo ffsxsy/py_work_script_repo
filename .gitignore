@@ -17,12 +17,11 @@ htmlcov/
 .coverage
 
 # IDE / OS
+*.opencode/
 .idea/
 .vscode/
-# Cursor：忽略本地会话/命令，但保留可共享的 rules
-.cursor/*
-!.cursor/rules/
-!.cursor/rules/**
+# Cursor：忽略本地会话/命令，但保留可共享的 rules / skills
+*.cursor/*
 *.swp
 *~
 .DS_Store
