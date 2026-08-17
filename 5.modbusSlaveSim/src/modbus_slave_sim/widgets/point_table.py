@@ -18,11 +18,17 @@ from PySide6.QtWidgets import (
 
 from modbus_slave_sim.point_csv import (
     Area,
+    DataEndian,
+    DataType,
     PointDef,
+    _int_raws_to_value,
     is_bit_area,
+    is_float_type,
     phys_to_raw,
+    phys_to_raws,
     raw_display,
     raw_to_phys,
+    raws_to_phys,
 )
 
 _AREA_LABEL: dict[Area, str] = {
@@ -43,6 +49,8 @@ _HEADERS = (
     "Area",
     "Name",
     "Addr",
+    "数据类型",
+    "字节序",
     "Ratio",
     "Offset",
     "Raw",
@@ -52,9 +60,11 @@ _HEADERS = (
 )
 _COL_NAME = 1
 _COL_ADDR = 2
-_COL_RAW = 5
-_COL_PHYS = 6
-_COL_ACCESS = 8
+_COL_DATA_TYPE = 3
+_COL_ENDIAN = 4
+_COL_RAW = 7
+_COL_PHYS = 8
+_COL_ACCESS = 10
 _NAME_WIDTH_MIN = 160
 _NAME_WIDTH_MAX = 280
 _NAME_WIDTH_DEFAULT = 220
@@ -69,8 +79,19 @@ def _fmt_scale(value: float) -> str:
     return f"{value:.6g}"
 
 
+def _fmt_raw_regs(raws: list[int]) -> str:
+    """Display multi-register values as hex (e.g. '43AA/4245')."""
+    return "/".join(f"{r:04X}" for r in raws)
+
+
+def _fmt_phys_float(value: float, precision: int) -> str:
+    """Format float Phys: use at least 4 decimal places even if CSV precision is 0."""
+    p = max(precision, 4)
+    return f"{value:.{p}f}"
+
+
 class PointTableWidget(QWidget):
-    value_edited = Signal(object, int, int)  # Area, address, raw
+    value_edited = Signal(object, object)  # Area, {address: raw} dict
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -126,24 +147,52 @@ class PointTableWidget(QWidget):
         count_fn = get_access_count or (lambda _a, _addr: 0)
         for row, p in enumerate(self._points):
             bit = is_bit_area(p.area)
-            raw = int(get_raw(p.area, p.address))
-            phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+            n_regs = DataType(p.data_type).register_count
+            is_multi = n_regs > 1
+            if is_multi:
+                # Multi-register: read all registers (float & int32/uint32/64)
+                raws = [int(get_raw(p.area, p.address + i)) for i in range(n_regs)]
+                phys = raws_to_phys(
+                    raws, p.ratio, p.offset, bit=False, data_type=p.data_type, endian=p.endian
+                )
+                if is_float_type(p.data_type):
+                    raw_display_text = _fmt_raw_regs(raws)
+                else:
+                    raw_display_text = str(_int_raws_to_value(raws, p.data_type))
+            else:
+                raw = int(get_raw(p.area, p.address))
+                phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+                raw_display_text = str(raw_display(raw, p.data_type, bit=bit))
             name = p.name or p.ename
             access = int(count_fn(p.area, p.address))
+            data_type_label = DataType(p.data_type).label
+            endian_label = DataEndian(p.endian).label
+            phys_text = (
+                _fmt_phys_float(phys, p.precision)
+                if is_float_type(p.data_type) and not bit
+                else f"{phys:.{max(p.precision, 0)}f}"
+                if not bit
+                else str(int(phys))
+            )
             vals = [
                 _AREA_LABEL.get(p.area, p.area.value),
                 name,
                 str(p.address),
+                data_type_label,
+                endian_label,
                 _fmt_scale(p.ratio),
                 _fmt_scale(p.offset),
-                str(raw_display(raw, p.data_type, bit=bit)),
-                f"{phys:.{max(p.precision, 0)}f}" if not bit else str(int(phys)),
+                raw_display_text,
+                phys_text,
                 p.unit,
                 str(access),
             ]
             for col, text in enumerate(vals):
                 item = QTableWidgetItem(text)
-                if col not in (_COL_RAW, _COL_PHYS):
+                # Multi-register types: Raw is read-only (float shows hex, int shows combined value)
+                if col == _COL_RAW and is_multi:
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                elif col not in (_COL_RAW, _COL_PHYS):
                     item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
                 self.table.setItem(row, col, item)
         self._fit_name_column()
@@ -177,14 +226,32 @@ class PointTableWidget(QWidget):
         self._updating = True
         for row, p in enumerate(self._points):
             bit = is_bit_area(p.area)
-            raw = int(get_raw(p.area, p.address))
-            phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+            n_regs = DataType(p.data_type).register_count
+            is_multi = n_regs > 1
+            if is_multi:
+                raws = [int(get_raw(p.area, p.address + i)) for i in range(n_regs)]
+                phys = raws_to_phys(
+                    raws, p.ratio, p.offset, bit=False, data_type=p.data_type, endian=p.endian
+                )
+                if is_float_type(p.data_type):
+                    raw_text = _fmt_raw_regs(raws)
+                else:
+                    raw_text = str(_int_raws_to_value(raws, p.data_type))
+            else:
+                raw = int(get_raw(p.area, p.address))
+                phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+                raw_text = str(raw_display(raw, p.data_type, bit=bit))
             raw_item = self.table.item(row, _COL_RAW)
             phys_item = self.table.item(row, _COL_PHYS)
             if raw_item is not None:
-                raw_item.setText(str(raw_display(raw, p.data_type, bit=bit)))
+                raw_item.setText(raw_text)
             if phys_item is not None:
-                phys_item.setText(f"{phys:.{max(p.precision, 0)}f}" if not bit else str(int(phys)))
+                if is_float_type(p.data_type) and not bit:
+                    phys_item.setText(_fmt_phys_float(phys, p.precision))
+                elif not bit:
+                    phys_item.setText(f"{phys:.{max(p.precision, 0)}f}")
+                else:
+                    phys_item.setText(str(int(phys)))
         self._updating = False
 
     def highlight_addresses(self, area: Area, addresses: set[int]) -> int:
@@ -231,26 +298,68 @@ class PointTableWidget(QWidget):
             return
         p = self._points[row]
         bit = is_bit_area(p.area)
+        n_regs = DataType(p.data_type).register_count
+        is_multi = n_regs > 1
         text = item.text().strip()
+
+        addr_raw_map: dict[int, int] = {}
         try:
             if col == _COL_RAW:
+                if is_multi:
+                    return  # Raw is read-only for multi-register types
                 raw = int(float(text))
                 if bit:
                     raw = 1 if raw else 0
                 else:
                     raw = raw & 0xFFFF
+                addr_raw_map[p.address] = raw
             else:
-                phys = float(text)
-                raw = phys_to_raw(phys, p.ratio, p.offset, bit=bit)
+                # Phys column edited
+                phys_val = float(text)
+                if is_multi:
+                    raws = phys_to_raws(
+                        phys_val,
+                        p.ratio,
+                        p.offset,
+                        data_type=p.data_type,
+                        endian=p.endian,
+                    )
+                    for i, r in enumerate(raws):
+                        addr_raw_map[p.address + i] = r & 0xFFFF
+                else:
+                    raw = phys_to_raw(phys_val, p.ratio, p.offset, bit=bit)
+                    addr_raw_map[p.address] = raw
         except ValueError:
             return
+
+        if not addr_raw_map:
+            return
+
         self._updating = True
-        phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+        # Recompute display values
+        if is_multi:
+            raws = [addr_raw_map.get(p.address + i, 0) for i in range(n_regs)]
+            phys = raws_to_phys(
+                raws, p.ratio, p.offset, bit=False, data_type=p.data_type, endian=p.endian
+            )
+            if is_float_type(p.data_type):
+                raw_text = _fmt_raw_regs(raws)
+            else:
+                raw_text = str(_int_raws_to_value(raws, p.data_type))
+        else:
+            raw = addr_raw_map[p.address]
+            phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+            raw_text = str(raw_display(raw, p.data_type, bit=bit))
         raw_item = self.table.item(row, _COL_RAW)
         phys_item = self.table.item(row, _COL_PHYS)
         if raw_item is not None:
-            raw_item.setText(str(raw_display(raw, p.data_type, bit=bit)))
+            raw_item.setText(raw_text)
         if phys_item is not None:
-            phys_item.setText(f"{phys:.{max(p.precision, 0)}f}" if not bit else str(int(phys)))
+            if is_float_type(p.data_type) and not bit:
+                phys_item.setText(_fmt_phys_float(phys, p.precision))
+            elif not bit:
+                phys_item.setText(f"{phys:.{max(p.precision, 0)}f}")
+            else:
+                phys_item.setText(str(int(phys)))
         self._updating = False
-        self.value_edited.emit(p.area, p.address, raw)
+        self.value_edited.emit(p.area, addr_raw_map)

@@ -259,6 +259,7 @@ class DevicePage(QWidget):
         self.controller.stop_selected()
         self.reload()
 
-    def _on_value_edited(self, area: Area, address: int, raw: int) -> None:
+    def _on_value_edited(self, area: Area, addr_raw_map: dict[int, int]) -> None:
         self._activate()
-        self.controller.set_register_value(area, address, raw)
+        for address, raw in addr_raw_map.items():
+            self.controller.set_register_value(area, address, raw)

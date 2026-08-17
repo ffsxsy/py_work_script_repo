@@ -24,7 +24,7 @@ def test_gui_register_table_and_project_roundtrip(qtbot, tmp_path):
 
     assert win.tabs.count() == 1
     table = win.point_table.table
-    assert table.columnCount() == 9
+    assert table.columnCount() == 11
     headers = [table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]
     assert headers[0] == "Area"
     assert headers[1] == "Name"
@@ -37,7 +37,7 @@ def test_gui_register_table_and_project_roundtrip(qtbot, tmp_path):
     assert "RW" not in headers
     assert not table.isSortingEnabled()
     assert _NAME_WIDTH_MIN <= table.columnWidth(1) <= _NAME_WIDTH_MAX
-    assert table.item(0, 8).text() == "0"
+    assert table.item(0, 10).text() == "0"
 
     path = tmp_path / "gui.mssproj.json"
     win.project_path = path
