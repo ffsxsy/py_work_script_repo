@@ -24,7 +24,7 @@ class LinkType(str, Enum):
 
 @dataclass
 class LinkConfig:
-    type: LinkType = LinkType.TCP
+    type: LinkType = LinkType.RTU
     # TCP
     host: str = "0.0.0.0"
     port: int = 5020

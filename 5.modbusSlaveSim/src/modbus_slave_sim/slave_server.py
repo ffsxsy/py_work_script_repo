@@ -42,6 +42,17 @@ _AREA_FC = {
     Area.HOLDING_REGISTER: 3,
 }
 
+_FC_AREA: dict[int, Area] = {
+    1: Area.COIL,
+    5: Area.COIL,
+    15: Area.COIL,
+    2: Area.DISCRETE_INPUT,
+    3: Area.HOLDING_REGISTER,
+    6: Area.HOLDING_REGISTER,
+    16: Area.HOLDING_REGISTER,
+    4: Area.INPUT_REGISTER,
+}
+
 
 class ZeroModeDeviceContext(ModbusDeviceContext):
     """Device context without the default address+1 offset (CSV addresses are zero-based)."""
@@ -59,6 +70,25 @@ class CountingDeviceContext(ZeroModeDeviceContext):
     def __init__(self, device: DeviceSession, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._device = device
+
+    def getValues(self, func_code: int, address: int, count: int = 1):
+        """Track read access (FC 1/2/3/4) and return values."""
+        area = _FC_AREA.get(func_code)
+        if area is not None:
+            for offset in range(count):
+                self._device.bump_access(area, address + offset)
+        return super().getValues(func_code, address, count)
+
+    def setValues(self, func_code: int, address: int, values: list[int] | list[bool]) -> None:
+        """Track write access (FC 5/6/15/16), sync values back into DeviceSession."""
+        super().setValues(func_code, address, values)
+        area = _FC_AREA.get(func_code)
+        if area is None:
+            return
+        device = self._device
+        for offset, raw in enumerate(values):
+            device.bump_access(area, address + offset)
+            device.set_raw(area, address + offset, int(raw))
 
 
 def _block_size(values: dict[str, int], points_addrs: list[int]) -> int:

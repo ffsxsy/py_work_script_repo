@@ -227,24 +227,18 @@ class AppController:
         return OpResult(ok=True)
 
     def add_blank_device(self, *, default_serial: str = "COM1") -> OpResult:
-        """Add an empty communication page with an independent default TCP listen port."""
+        """Add an empty communication page with an independent default RTU link."""
         unit = 1
         used_units = {d.unit_id for d in self.devices}
         while unit in used_units:
             unit += 1
-        used_ports = {int(d.link.port) for d in self.devices if d.link.type == LinkType.TCP}
-        port = 5020
-        while port in used_ports:
-            port += 1
         name = f"device-{len(self.devices) + 1}"
-        link = LinkConfig(type=LinkType.TCP, host="0.0.0.0", port=port)
-        # Keep serial default handy for switching to RTU in settings.
-        link.serial_port = default_serial
+        link = LinkConfig(type=LinkType.RTU, serial_port=default_serial, baudrate=9600)
         dev = DeviceSession.create(name=name, point_csv="", unit_id=unit, link=link)
         self.devices.append(dev)
         self.selected_id = dev.id
         self.mark_dirty()
-        self.log(f"Added blank device {dev.name} (TCP :{port}, unit {unit})")
+        self.log(f"Added blank device {dev.name} (RTU, unit {unit})")
         return OpResult(ok=True)
 
     def ensure_default_device(self, *, default_serial: str = "COM1") -> OpResult:

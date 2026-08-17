@@ -106,13 +106,26 @@ class MainWindow(QMainWindow):
         self.btn_remove = QPushButton("删除当前")
         self.btn_remove.setProperty("secondary", True)
         self.btn_remove.clicked.connect(self.remove_current)
+        self.btn_export = QPushButton("导出配置")
+        self.btn_export.setProperty("secondary", True)
+        self.btn_export.clicked.connect(self.export_project)
+        self.btn_import = QPushButton("导入配置")
+        self.btn_import.setProperty("secondary", True)
+        self.btn_import.clicked.connect(self.import_project)
         self.btn_start_all = QPushButton("全部启动")
         self.btn_start_all.setProperty("secondary", True)
         self.btn_start_all.clicked.connect(self.start_all)
         self.btn_stop_all = QPushButton("全部停止")
         self.btn_stop_all.setProperty("secondary", True)
         self.btn_stop_all.clicked.connect(self.stop_all)
-        for w in (self.btn_add, self.btn_remove, self.btn_start_all, self.btn_stop_all):
+        for w in (
+            self.btn_add,
+            self.btn_remove,
+            self.btn_export,
+            self.btn_import,
+            self.btn_start_all,
+            self.btn_stop_all,
+        ):
             bar.addWidget(w)
         bar.addStretch(1)
         layout.addLayout(bar)
@@ -301,6 +314,51 @@ class MainWindow(QMainWindow):
             self.controller.save_project(path)
             return
         self.controller.save_project()
+
+    def export_project(self) -> None:
+        """导出全部设备配置、点位配置和寄存器值到 JSON 文件。"""
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "导出配置",
+            "config_export.mssproj.json",
+            "Modbus Slave Project (*.mssproj.json)",
+        )
+        if not path:
+            return
+        result = self.controller.save_project(path)
+        if result.ok:
+            self.append_log(f"配置已导出: {path}")
+        else:
+            QMessageBox.warning(
+                self,
+                "导出失败",
+                result.message,
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
+
+    def import_project(self) -> None:
+        """导入全部设备配置、点位配置和寄存器值。"""
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "导入配置",
+            "",
+            "Modbus Slave Project (*.mssproj.json)",
+        )
+        if not path:
+            return
+        result = self.controller.open_project(path)
+        if not result.ok:
+            QMessageBox.warning(
+                self,
+                "导入失败",
+                result.message,
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
+            return
+        self._sync_tabs()
+        self.append_log(f"配置已导入: {path}")
 
     def closeEvent(self, event: QCloseEvent) -> None:
         for i in range(self.tabs.count()):

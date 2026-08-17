@@ -119,6 +119,43 @@ def test_tcp_logs_frames():
     assert any(line.startswith("TX ") for line in logs)
 
 
+def test_master_write_syncs_to_device_session():
+    """Master write should update DeviceSession.values (UI data source)."""
+    port = _free_port()
+    link = LinkConfig(type=LinkType.TCP, host="127.0.0.1", port=port)
+    d1 = DeviceSession.create("u1", str(MINI_CSV), unit_id=1, link=link)
+    d1.set_raw(Area.HOLDING_REGISTER, 200, 30)
+    d1.set_raw(Area.COIL, 10, 1)
+    d1.running = True
+    mgr = SlaveRuntimeManager()
+    try:
+        assert mgr.sync_running([d1]) == []
+        _wait_port("127.0.0.1", port)
+        client = ModbusTcpClient("127.0.0.1", port=port)
+        assert client.connect()
+
+        # Write holding register via FC6
+        wr = client.write_register(200, 88, device_id=1)
+        assert not wr.isError()
+        assert d1.get_raw(Area.HOLDING_REGISTER, 200) == 88
+
+        # Write coil via FC5
+        wc = client.write_coil(10, False, device_id=1)
+        assert not wc.isError()
+        assert d1.get_raw(Area.COIL, 10) == 0
+
+        # Write multiple registers via FC16
+        wr2 = client.write_registers(200, values=[100, 200], device_id=1)
+        assert not wr2.isError()
+        assert d1.get_raw(Area.HOLDING_REGISTER, 200) == 100
+        assert d1.get_raw(Area.HOLDING_REGISTER, 201) == 200
+
+        client.close()
+    finally:
+        d1.running = False
+        mgr.stop_all()
+
+
 def test_conflict_blocks_start():
     port = _free_port()
     link = LinkConfig(type=LinkType.TCP, host="127.0.0.1", port=port)

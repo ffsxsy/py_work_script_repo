@@ -170,6 +170,23 @@ class PointTableWidget(QWidget):
         self._updating = False
         self.table.viewport().update()
 
+    def update_values(self, get_raw: Callable[[Area, int], int]) -> None:
+        """Refresh Raw and Phys columns from the data source (e.g. after master write)."""
+        if not self._points:
+            return
+        self._updating = True
+        for row, p in enumerate(self._points):
+            bit = is_bit_area(p.area)
+            raw = int(get_raw(p.area, p.address))
+            phys = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
+            raw_item = self.table.item(row, _COL_RAW)
+            phys_item = self.table.item(row, _COL_PHYS)
+            if raw_item is not None:
+                raw_item.setText(str(raw_display(raw, p.data_type, bit=bit)))
+            if phys_item is not None:
+                phys_item.setText(f"{phys:.{max(p.precision, 0)}f}" if not bit else str(int(phys)))
+        self._updating = False
+
     def highlight_addresses(self, area: Area, addresses: set[int]) -> int:
         """Highlight rows whose address was just accessed. Returns matched row count."""
         matched = 0
@@ -178,14 +195,6 @@ class PointTableWidget(QWidget):
                 continue
             matched += 1
             self._style_row(row, hit=True)
-            # ensure the first hit is visible
-            if matched == 1:
-                item = self.table.item(row, _COL_ADDR)
-                if item is not None:
-                    self.table.scrollToItem(
-                        item,
-                        QAbstractItemView.ScrollHint.PositionAtCenter,
-                    )
         self.table.viewport().update()
         return matched
 

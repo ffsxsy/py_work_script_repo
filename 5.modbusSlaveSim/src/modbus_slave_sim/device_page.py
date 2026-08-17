@@ -89,40 +89,19 @@ class DevicePage(QWidget):
             return
         if message.startswith("RX "):
             ranges = request_access_ranges_from_rx_line(message)
-            matched_rows = 0
-            addrs_note: list[str] = []
             for area, addr, count in ranges:
                 touched = {int(addr) + offset for offset in range(int(count))}
-                addrs_note.append(f"{addr}" if count == 1 else f"{addr}..{addr + count - 1}")
-                for offset in range(int(count)):
-                    d.bump_access(area, int(addr) + offset)
-                matched_rows += self.point_table.highlight_addresses(area, touched)
+                self.point_table.highlight_addresses(area, touched)
             self.point_table.update_access_counts(d.get_access_count)
-            if ranges:
-                joined = ", ".join(addrs_note)
-                if matched_rows:
-                    self._set_access_hint(
-                        f"最近 RX 地址 {joined} → 已匹配点表 {matched_rows} 行", idle=False
-                    )
-                else:
-                    self._set_access_hint(
-                        f"最近 RX 地址 {joined} → 点表无对应行（通信次数不会增加）",
-                        idle=False,
-                    )
             return
         if message.startswith("TX "):
+            self.point_table.update_values(d.get_raw)
             self.point_table.update_access_counts(d.get_access_count)
-
-    def _set_access_hint(self, text: str, *, idle: bool) -> None:
-        self.access_hint.setText(text)
-        self.access_hint.setProperty("idle", idle)
-        self.access_hint.style().unpolish(self.access_hint)
-        self.access_hint.style().polish(self.access_hint)
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(10)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(4)
 
         toolbar = QHBoxLayout()
         self.btn_settings = QPushButton("设置…")
@@ -156,21 +135,15 @@ class DevicePage(QWidget):
         self.link_badge.setToolTip(
             "本页从站身份：Unit ID 与链路。报文 RX/TX 首字节需与 Unit 一致。"
         )
-        header_row = QHBoxLayout()
-        header_row.setSpacing(10)
-        header_row.addWidget(self.name_label)
-        header_row.addWidget(self.link_badge)
-        header_row.addStretch(1)
-        layout.addLayout(header_row)
         self.csv_label = QLabel("点表: -")
         self.csv_label.setObjectName("stepHint")
-        self.csv_label.setWordWrap(True)
-        layout.addWidget(self.csv_label)
-        self.access_hint = QLabel("")
-        self.access_hint.setObjectName("accessHint")
-        self.access_hint.setProperty("idle", True)
-        self.access_hint.setWordWrap(True)
-        layout.addWidget(self.access_hint)
+        header_row = QHBoxLayout()
+        header_row.setSpacing(8)
+        header_row.addWidget(self.name_label)
+        header_row.addWidget(self.link_badge)
+        header_row.addWidget(self.csv_label)
+        header_row.addStretch(1)
+        layout.addLayout(header_row)
 
         layout.addWidget(self.point_table, stretch=1)
 
@@ -187,8 +160,8 @@ class DevicePage(QWidget):
         self.log_view = QTextEdit()
         self.log_view.setObjectName("logView")
         self.log_view.setReadOnly(True)
-        self.log_view.setMinimumHeight(160)
-        self.log_view.setMaximumHeight(240)
+        self.log_view.setMinimumHeight(80)
+        self.log_view.setMaximumHeight(180)
         layout.addWidget(self.log_view)
 
     def reload(self) -> None:
@@ -206,7 +179,6 @@ class DevicePage(QWidget):
             self.name_label.setText("设备已删除")
             self.link_badge.setText("-")
             self.csv_label.setText("点表: -")
-            self._set_access_hint("", idle=True)
             return
         running = "Running" if d.running else "Stopped"
         obj = "statusRunning" if d.running else "statusStopped"
