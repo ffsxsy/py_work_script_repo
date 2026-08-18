@@ -62,11 +62,18 @@ RTU link 示例：`{"type":"rtu","serial_port":"COM3","baudrate":9600,"bytesize"
 ## 多设备与接口
 
 - 同串口 / 同 TCP `host:port` → 一个 server 多 Unit；否则多 server。
+- **同链路动态注入**：同链路新增设备时不停止已有 runtime，通过 `ModbusServerContext.__setitem__` 动态注入新 Unit（仅参数变更或设备移除时才 stop→restart）。
 - 冲突：Unit 重复、同串口参数不一致、端口占用 → 拒绝并提示。
 
 ## CSV 使用列
 
-`Ename`/`Name`/`Code`/`Data Type`/`Attribute`/`Function Code`/`Register Address`/`Endian`/`Precision`/`Ratio`/`Offset`/`Min Value`/`Max Value`/`Unit`；可选 `Default Value`。
+**必填**（大小写不敏感，缺失任一列 → `ValueError` 并弹窗）：`Name` / `Data Type` / `Function Code` / `Register Address` / `Ratio` / `Offset` / `Endian` / `Unit`
+
+**可选**：`Ename` / `Code` / `Attribute` / `Precision` / `Min Value` / `Max Value` / `Default Value`
+
+**编码自动嗅探**：UTF-8 BOM → UTF-16（LE/BE）→ UTF-8 → GBK → GB18030（全部失败时 UTF-8 replacement 回退）。
+
+**地址基准**：`Register Address` 为 **0-based**，直接作为 Modbus 协议 PDU 地址（无需 ±1）。
 
 ## 分层（界面 / 逻辑分离）
 
@@ -167,13 +174,16 @@ ruff check .
 
 ## GUI 功能清单（当前）
 
-1. 主窗口：多页签，每页一路通信（设置/点表/启停/寄存器表/报文 Log）  
-2. 列：Area/Name/Addr/Ratio/Offset/Raw/Phys/Unit/通信次数（无表头排序）  
-3. 工程文件多设备并行；同链路多 Unit / 多链路多 server  
-
-2. 设置对话框：TCP/RTU、串口或网口、通信参数  
-3. 选择点表 / 启动 / 停止  
-4. Log：实时 Modbus RX/TX 报文（PDU + HEX）  
+1. 主窗口：多页签，每页一路通信（设置/点表/启停/寄存器表/报文 Log）
+2. 列：Area / Name / Addr / DataType / Ratio / Offset / Raw / Phys / Unit / Access Count（无表头排序）
+3. 工程文件多设备并行；同链路多 Unit / 多链路多 server
+4. 设置对话框：TCP/RTU、串口或网口、通信参数
+5. 选择点表 / 启动 / 停止
+6. Log：实时 Modbus RX/TX 报文（PDU + HEX）
+7. 页签运行状态：运行中显示绿色圆点图标（Q8）
+8. Min/Max 校验：编辑值超范围时弹窗警告，确认后仍可写入（Q2）
+9. CSV 编码自动嗅探：UTF-8 BOM → UTF-16 → UTF-8 → GBK → GB18030（Q3）
+10. 鲁棒性（FR-010）：单页崩溃不影响其他页（Qt 全局异常钩子 + 页内 `_guard()` + server 线程隔离）
 
 ## 迁移到 Windows 时注意
 
@@ -185,6 +195,7 @@ ruff check .
 ## 不做
 
 - 不回写点表 CSV；不并入 OdinBmsHil；无 DBC/CAN；无跨进程口仲裁；无设备业务逻辑仿真。
+- V1.0 明确不做：报文日志人类可读解码（Q4）、日志持久化（Q5）、表格排序/筛选/搜索（Q6）、批量写入对话框（Q7）。
 
 ## 任务状态
 
@@ -196,3 +207,11 @@ ruff check .
 | gui | 现代化主窗 | 完成 |
 | tests | 单元+集成+GUI | 完成 |
 | verify | pytest 全绿 + ruff | 完成 |
+| requirements | 需求说明书 V1.0（GFM） | 完成 |
+| endian-unit | Endian/Unit 必填列校验 | 完成 |
+| green-dot | 页签运行绿色圆点（Q8） | 完成 |
+| robustness | 单页崩溃隔离（FR-010） | 完成 |
+| dynamic-inject | 同链路动态注入新 Unit | 完成 |
+| csv-encoding | CSV 编码自动嗅探（GBK 等） | 完成 |
+| min-max | Min/Max 写入弹窗校验（Q2） | 完成 |
+| atomic-write | 多寄存器原子写入 | 完成 |
