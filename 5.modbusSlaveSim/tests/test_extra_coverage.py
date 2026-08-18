@@ -6,6 +6,7 @@ from tests.test_slave_tcp import _free_port, _wait_port
 
 from modbus_slave_sim.device_session import DeviceSession, LinkConfig, LinkType
 from modbus_slave_sim.point_csv import (
+    REQUIRED_COLUMNS,
     Area,
     load_points,
     phys_to_raw,
@@ -34,9 +35,10 @@ def test_rtu_link_roundtrip():
 
 
 def test_reload_points_keep_and_drop(tmp_path):
+    header = ",".join(REQUIRED_COLUMNS) + ",Default Value"
     csv1 = tmp_path / "a.csv"
     csv1.write_text(
-        "Ename,Function Code,Register Address,Default Value\nA,3,1,5\nB,3,2,6\n",
+        f"{header}\nA,2,3,1,1.0,0.0,AB,,5\nB,2,3,2,1.0,0.0,AB,,6\n",
         encoding="utf-8",
     )
     d = DeviceSession.create("x", str(csv1), unit_id=1)
@@ -44,7 +46,7 @@ def test_reload_points_keep_and_drop(tmp_path):
     d.set_raw(Area.HOLDING_REGISTER, 1, 99)
     csv2 = tmp_path / "a.csv"
     csv2.write_text(
-        "Ename,Function Code,Register Address,Default Value\nA,3,1,5\nC,3,3,7\n",
+        f"{header}\nA,2,3,1,1.0,0.0,AB,,5\nC,2,3,3,1.0,0.0,AB,,7\n",
         encoding="utf-8",
     )
     d.reload_points()

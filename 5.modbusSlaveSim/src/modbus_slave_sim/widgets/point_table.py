@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QHeaderView,
     QLabel,
+    QMessageBox,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -302,7 +303,14 @@ class PointTableWidget(QWidget):
         is_multi = n_regs > 1
         text = item.text().strip()
 
+        # Snapshot original display so we can restore if user cancels the range warning
+        raw_item_ref = self.table.item(row, _COL_RAW)
+        phys_item_ref = self.table.item(row, _COL_PHYS)
+        orig_raw_text = raw_item_ref.text() if raw_item_ref is not None else ""
+        orig_phys_text = phys_item_ref.text() if phys_item_ref is not None else ""
+
         addr_raw_map: dict[int, int] = {}
+        phys_val_calc: float | None = None
         try:
             if col == _COL_RAW:
                 if is_multi:
@@ -313,12 +321,13 @@ class PointTableWidget(QWidget):
                 else:
                     raw = raw & 0xFFFF
                 addr_raw_map[p.address] = raw
+                phys_val_calc = raw_to_phys(raw, p.ratio, p.offset, bit=bit, data_type=p.data_type)
             else:
                 # Phys column edited
-                phys_val = float(text)
+                phys_val_calc = float(text)
                 if is_multi:
                     raws = phys_to_raws(
-                        phys_val,
+                        phys_val_calc,
                         p.ratio,
                         p.offset,
                         data_type=p.data_type,
@@ -327,13 +336,25 @@ class PointTableWidget(QWidget):
                     for i, r in enumerate(raws):
                         addr_raw_map[p.address + i] = r & 0xFFFF
                 else:
-                    raw = phys_to_raw(phys_val, p.ratio, p.offset, bit=bit)
+                    raw = phys_to_raw(phys_val_calc, p.ratio, p.offset, bit=bit)
                     addr_raw_map[p.address] = raw
         except ValueError:
             return
 
-        if not addr_raw_map:
+        if not addr_raw_map or phys_val_calc is None:
             return
+
+        # Min/Max range check: warn user, allow confirm or cancel
+        if p.min_value is not None and phys_val_calc < p.min_value:
+            confirmed = self._confirm_out_of_range(p, phys_val_calc, f"低于最小值 {p.min_value}")
+            if not confirmed:
+                self._restore_row_display(row, orig_raw_text, orig_phys_text)
+                return
+        if p.max_value is not None and phys_val_calc > p.max_value:
+            confirmed = self._confirm_out_of_range(p, phys_val_calc, f"高于最大值 {p.max_value}")
+            if not confirmed:
+                self._restore_row_display(row, orig_raw_text, orig_phys_text)
+                return
 
         self._updating = True
         # Recompute display values
@@ -363,3 +384,33 @@ class PointTableWidget(QWidget):
                 phys_item.setText(str(int(phys)))
         self._updating = False
         self.value_edited.emit(p.area, addr_raw_map)
+
+    def _restore_row_display(self, row: int, raw_text: str, phys_text: str) -> None:
+        """Restore Raw/Phys cell texts after a cancelled edit."""
+        self._updating = True
+        raw_item = self.table.item(row, _COL_RAW)
+        phys_item = self.table.item(row, _COL_PHYS)
+        if raw_item is not None:
+            raw_item.setText(raw_text)
+        if phys_item is not None:
+            phys_item.setText(phys_text)
+        self._updating = False
+
+    def _confirm_out_of_range(self, p: PointDef, phys_val: float, reason: str) -> bool:
+        """Pop up a warning dialog; return True if user confirms writing anyway."""
+        label = p.name or p.ename or f"地址 {p.address}"
+        unit = f" {p.unit}" if p.unit else ""
+        msg = (
+            f"点「{label}」物理值 {phys_val}{unit} {reason}。\n"
+            f"范围：[{p.min_value if p.min_value is not None else '-∞'}, "
+            f"{p.max_value if p.max_value is not None else '+∞'}]{unit}\n\n"
+            f"是否仍要写入？"
+        )
+        btn = QMessageBox.warning(
+            self,
+            "数值超出范围",
+            msg,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.Cancel,
+        )
+        return btn == QMessageBox.StandardButton.Yes

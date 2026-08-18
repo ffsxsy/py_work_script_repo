@@ -188,6 +188,7 @@ class MainWindow(QMainWindow):
             idx = self.tabs.indexOf(page)
             self.tabs.setTabText(idx, page.tab_title())
             self.tabs.setTabToolTip(idx, page.tab_tooltip())
+            self.tabs.setTabIcon(idx, page.tab_icon())
 
         self._syncing_tabs = False
         self._select_tab(self.controller.selected_id)
@@ -208,6 +209,7 @@ class MainWindow(QMainWindow):
             if isinstance(w, DevicePage):
                 self.tabs.setTabText(i, w.tab_title())
                 self.tabs.setTabToolTip(i, w.tab_tooltip())
+                self.tabs.setTabIcon(i, w.tab_icon())
 
     def _on_tab_changed(self, index: int) -> None:
         if self._syncing_tabs or index < 0:

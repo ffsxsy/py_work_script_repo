@@ -163,6 +163,32 @@ class AppController:
         self.log(f"{d.name}: {area.value}[{address}] = {raw}")
         return OpResult(ok=True)
 
+    def set_register_values(self, area: Area, addr_raw_map: dict[int, int]) -> OpResult:
+        """Batch update multiple register values atomically.
+
+        Ensures multi-register types (Int32/Int64/Float32/Float64) are applied
+        together so Modbus masters never observe partial writes.
+        """
+        if not addr_raw_map:
+            return OpResult(ok=True)
+        d = self.selected()
+        if d is None:
+            return OpResult(ok=False, message="No device selected")
+        for address, raw in addr_raw_map.items():
+            d.set_raw(area, int(address), raw)
+        self.runtime.update_values(d, area, addr_raw_map)
+        self.mark_dirty()
+        # Compact log: show first and last address span
+        addrs = sorted(int(a) for a in addr_raw_map.keys())
+        if len(addrs) == 1:
+            self.log(f"{d.name}: {area.value}[{addrs[0]}] = {addr_raw_map[addrs[0]]}")
+        else:
+            self.log(
+                f"{d.name}: {area.value}[{addrs[0]}..{addrs[-1]}] "
+                f"批量写入 {len(addr_raw_map)} 个寄存器"
+            )
+        return OpResult(ok=True)
+
     def reload_csv(self) -> OpResult:
         d = self.selected()
         if d is None:
@@ -226,6 +252,14 @@ class AppController:
         self.log(f"Added device {dev.name} ({len(dev.points)} points) — 从步骤1开始")
         return OpResult(ok=True)
 
+    def _next_tcp_port(self) -> int:
+        """Allocate a unique TCP port (starting from 5020) across all existing devices."""
+        used = {d.link.port for d in self.devices}
+        port = 5020
+        while port in used:
+            port += 1
+        return port
+
     def add_blank_device(self, *, default_serial: str = "COM1") -> OpResult:
         """Add an empty communication page with an independent default RTU link."""
         unit = 1
@@ -233,7 +267,8 @@ class AppController:
         while unit in used_units:
             unit += 1
         name = f"device-{len(self.devices) + 1}"
-        link = LinkConfig(type=LinkType.RTU, serial_port=default_serial, baudrate=9600)
+        port = self._next_tcp_port()
+        link = LinkConfig(type=LinkType.RTU, serial_port=default_serial, baudrate=9600, port=port)
         dev = DeviceSession.create(name=name, point_csv="", unit_id=unit, link=link)
         self.devices.append(dev)
         self.selected_id = dev.id
@@ -247,7 +282,7 @@ class AppController:
             if self.selected_id is None:
                 self.selected_id = self.devices[0].id
             return OpResult(ok=True)
-        link = LinkConfig(type=LinkType.RTU, serial_port=default_serial, baudrate=9600)
+        link = LinkConfig(type=LinkType.RTU, serial_port=default_serial, baudrate=9600, port=5020)
         dev = DeviceSession.create(name="device-1", point_csv="", unit_id=1, link=link)
         self.devices.append(dev)
         self.selected_id = dev.id

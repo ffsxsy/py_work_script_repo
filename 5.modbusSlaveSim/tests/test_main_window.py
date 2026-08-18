@@ -96,4 +96,5 @@ def test_rx_log_increments_access_count(qtbot):
     # Find the row for holding addr 200 from mini csv may not include 1;
     # assert via model API already covered; also ensure column refresh doesn't crash.
     page.point_table.update_access_counts(dev.get_access_count)
-    assert table.columnCount() == 9
+    # Matches _HEADERS length in point_table.py (same as test_gui_register_table_… asserts 11)
+    assert table.columnCount() == 11

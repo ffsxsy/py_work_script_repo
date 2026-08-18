@@ -8,18 +8,7 @@ from pymodbus.framer.rtu import FramerRTU
 from pymodbus.framer.socket import FramerSocket
 from pymodbus.pdu import DecodePDU
 
-from modbus_slave_sim.point_csv import Area
-
-_FC_AREA: dict[int, Area] = {
-    1: Area.COIL,
-    5: Area.COIL,
-    15: Area.COIL,
-    2: Area.DISCRETE_INPUT,
-    3: Area.HOLDING_REGISTER,
-    6: Area.HOLDING_REGISTER,
-    16: Area.HOLDING_REGISTER,
-    4: Area.INPUT_REGISTER,
-}
+from modbus_slave_sim.point_csv import FC_AREA, Area
 
 
 def format_adu(is_sending: bool, data: bytes) -> str:
@@ -97,7 +86,7 @@ def request_access_ranges_from_rx_line(
     if len(pdu) < 5:
         return []
     fc = int(pdu[0])
-    area = _FC_AREA.get(fc)
+    area = FC_AREA.get(fc)
     if area is None:
         return []
     addr = (int(pdu[1]) << 8) | int(pdu[2])

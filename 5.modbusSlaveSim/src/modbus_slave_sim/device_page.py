@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import traceback
+from collections.abc import Callable
 from datetime import datetime
 
-from PySide6.QtCore import QTimer, Signal
+from PySide6.QtCore import QRect, Qt, QTimer, Signal
+from PySide6.QtGui import QBrush, QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -29,6 +32,47 @@ from modbus_slave_sim.widgets.point_table import PointTableWidget
 _ACCESS_POLL_MS = 300
 
 
+def _make_dot_icon(color_hex: str, size: int = 10) -> QIcon:
+    """Render a solid coloured circle onto a transparent square pixmap."""
+    pm = QPixmap(size + 4, size + 4)
+    pm.fill(QColor(0, 0, 0, 0))  # fully-transparent background
+    painter = QPainter(pm)
+    try:
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QBrush(QColor(color_hex)))
+        painter.drawEllipse(QRect(2, 2, size, size))
+    finally:
+        painter.end()
+    return QIcon(pm)
+
+
+_GREEN_DOT: QIcon | None = None
+_NO_ICON: QIcon | None = None
+
+
+def _green_dot() -> QIcon:
+    """Lazily build the green-dot tab icon after QApplication exists.
+
+    QPixmap / QIcon cannot safely be constructed at module import time before
+    QApplication is created — doing so triggers
+    ``QPixmap: Must construct a QGuiApplication before a QPixmap`` on Windows /
+    PySide6 6.8 and may crash the process during pytest collection.
+    """
+    global _GREEN_DOT
+    if _GREEN_DOT is None:
+        _GREEN_DOT = _make_dot_icon("#22bb55")
+    return _GREEN_DOT
+
+
+def _empty_icon() -> QIcon:
+    """Lazily return an empty QIcon (for non-running tabs)."""
+    global _NO_ICON
+    if _NO_ICON is None:
+        _NO_ICON = QIcon()
+    return _NO_ICON
+
+
 class DevicePage(QWidget):
     """Sub-page for a single DeviceSession: toolbar + register table + frame log."""
 
@@ -47,6 +91,27 @@ class DevicePage(QWidget):
         self.point_table.value_edited.connect(self._on_value_edited)
         self.reload()
 
+    # --- Page crash isolation ---------------------------------------------------
+    def _guard(self, fn: Callable[[], object], *, context: str) -> None:
+        """Run ``fn`` inside a try/except; errors go to this page's log, never bubble.
+
+        This guarantees that a single page's bug cannot crash the whole application
+        or affect sibling tabs (FR-010).
+        """
+        try:
+            fn()
+        except Exception:  # noqa: BLE001 - we deliberately catch everything here
+            tb = traceback.format_exc(limit=6)
+            try:
+                self.append_log_ui(f"[ERROR][{context}] 本页操作异常，已隔离：\n{tb}")
+            except Exception:  # noqa: BLE001 - last-resort safety
+                print(f"[DevicePage {self.device_id}][{context}] 异常:\n{tb}")
+
+    def _log_exception(self, exc: Exception, context: str) -> None:
+        tb = traceback.format_exception(type(exc), exc, exc.__traceback__, limit=6)
+        self.append_log_ui(f"[ERROR][{context}] {exc}\n{''.join(tb)}")
+
+    # --- Tab shell integration --------------------------------------------------
     def device(self) -> DeviceSession | None:
         for d in self.controller.devices:
             if d.id == self.device_id:
@@ -54,11 +119,16 @@ class DevicePage(QWidget):
         return None
 
     def tab_title(self) -> str:
+        """Plain tab title; running state is rendered via ``tab_icon`` (green dot)."""
         d = self.device()
         if d is None:
             return "?"
-        status = "●" if d.running else "○"
-        return f"{status} {d.name} · U{d.unit_id}"
+        return f"{d.name} · U{d.unit_id}"
+
+    def tab_icon(self) -> QIcon:
+        """Render a green circle on the tab when the slave is running (Q8)."""
+        d = self.device()
+        return _green_dot() if (d is not None and d.running) else _empty_icon()
 
     def tab_tooltip(self) -> str:
         d = self.device()
@@ -83,14 +153,21 @@ class DevicePage(QWidget):
 
     def append_log_ui(self, message: str) -> None:
         ts = datetime.now().strftime("%H:%M:%S.%f")[:-3]
-        self.log_view.append(f"[{ts}] {message}")
+        try:
+            self.log_view.append(f"[{ts}] {message}")
+        except Exception:  # noqa: BLE001
+            return
         d = self.device()
         if d is None:
             return
         if message.startswith("RX "):
             ranges = request_access_ranges_from_rx_line(message)
             for area, addr, count in ranges:
-                touched = {int(addr) + offset for offset in range(int(count))}
+                base_addr = int(addr)
+                n = int(count)
+                for offset in range(n):
+                    d.bump_access(area, base_addr + offset)
+                touched = {base_addr + offset for offset in range(n)}
                 self.point_table.highlight_addresses(area, touched)
             self.point_table.update_access_counts(d.get_access_count)
             return
@@ -213,53 +290,80 @@ class DevicePage(QWidget):
         else:
             self._access_timer.stop()
 
+    # --- GUI slots (page-level isolated by _guard) ------------------------------
     def open_settings(self) -> None:
-        self._activate()
-        dlg = SettingsDialog(self.controller, self)
-        if dlg.exec():
-            self.reload()
-            self.append_log_ui("设置已应用")
+        def _work() -> None:
+            self._activate()
+            dlg = SettingsDialog(self.controller, self)
+            if dlg.exec():
+                self.reload()
+                self.append_log_ui("设置已应用")
+
+        self._guard(_work, context="open_settings")
 
     def choose_csv(self) -> None:
-        self._activate()
-        path, _ = QFileDialog.getOpenFileName(self, "选择点表 CSV", "", "CSV (*.csv)")
-        if not path:
-            return
-        result = self.controller.set_point_csv(path)
-        if not result.ok:
-            QMessageBox.warning(
-                self,
-                "Busy",
-                result.message,
-                QMessageBox.StandardButton.Ok,
-                QMessageBox.StandardButton.Ok,
-            )
-            return
-        self.reload()
+        def _work() -> None:
+            self._activate()
+            path, _ = QFileDialog.getOpenFileName(self, "选择点表 CSV", "", "CSV (*.csv)")
+            if not path:
+                return
+            try:
+                result = self.controller.set_point_csv(path)
+            except ValueError as exc:  # load_points 报必填列缺失等
+                self._log_exception(exc, context="choose_csv")
+                QMessageBox.warning(
+                    self,
+                    "CSV 解析失败",
+                    str(exc),
+                    QMessageBox.StandardButton.Ok,
+                    QMessageBox.StandardButton.Ok,
+                )
+                return
+            if not result.ok:
+                QMessageBox.warning(
+                    self,
+                    "Busy",
+                    result.message,
+                    QMessageBox.StandardButton.Ok,
+                    QMessageBox.StandardButton.Ok,
+                )
+                return
+            self.reload()
+
+        self._guard(_work, context="choose_csv")
 
     def start_slave(self) -> None:
-        self._activate()
-        result = self.controller.start_selected()
-        if not result.ok and result.errors:
-            self.status_label.setText("Conflict")
-            self.status_label.setObjectName("statusError")
-            self.status_label.style().unpolish(self.status_label)
-            self.status_label.style().polish(self.status_label)
-            QMessageBox.warning(
-                self,
-                result.message or "Cannot start",
-                "\n".join(result.errors),
-                QMessageBox.StandardButton.Ok,
-                QMessageBox.StandardButton.Ok,
-            )
-        self.reload()
+        def _work() -> None:
+            self._activate()
+            result = self.controller.start_selected()
+            if not result.ok and result.errors:
+                self.status_label.setText("Conflict")
+                self.status_label.setObjectName("statusError")
+                self.status_label.style().unpolish(self.status_label)
+                self.status_label.style().polish(self.status_label)
+                QMessageBox.warning(
+                    self,
+                    result.message or "Cannot start",
+                    "\n".join(result.errors),
+                    QMessageBox.StandardButton.Ok,
+                    QMessageBox.StandardButton.Ok,
+                )
+            self.reload()
+
+        self._guard(_work, context="start_slave")
 
     def stop_slave(self) -> None:
-        self._activate()
-        self.controller.stop_selected()
-        self.reload()
+        def _work() -> None:
+            self._activate()
+            self.controller.stop_selected()
+            self.reload()
+
+        self._guard(_work, context="stop_slave")
 
     def _on_value_edited(self, area: Area, addr_raw_map: dict[int, int]) -> None:
-        self._activate()
-        for address, raw in addr_raw_map.items():
-            self.controller.set_register_value(area, address, raw)
+        def _work() -> None:
+            self._activate()
+            # Batch update: guarantees multi-register values are written atomically
+            self.controller.set_register_values(area, addr_raw_map)
+
+        self._guard(_work, context="value_edited")

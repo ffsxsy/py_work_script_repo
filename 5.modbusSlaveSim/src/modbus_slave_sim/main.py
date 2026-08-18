@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import signal
 import sys
+import traceback
 from pathlib import Path
+from typing import cast
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox, QWidget
 
 from modbus_slave_sim.main_window import MainWindow
 
@@ -18,10 +20,45 @@ def load_theme(app: QApplication) -> None:
         app.setStyleSheet(qss.read_text(encoding="utf-8"))
 
 
+def _install_global_exception_hook(app: QApplication) -> None:
+    """Install ``sys.excepthook`` so any unhandled error shows a dialog instead of crashing.
+
+    FR-010: one page's unexpected exception must not take down the entire process or
+    other device pages.  This is the last-resort safety net; each DevicePage also has
+    its own ``_guard()`` wrapper for user-triggered callbacks.
+    """
+    _original_excepthook = sys.excepthook
+
+    def _handler(exc_type, exc, tb) -> None:  # noqa: ANN001 - hook signature
+        # Always dump to stderr so it's visible in CI / terminal.
+        traceback.print_exception(exc_type, exc, tb)
+        try:
+            text = "".join(traceback.format_exception(exc_type, exc, tb, limit=10))
+            parent = app.activeWindow()
+            QMessageBox.critical(
+                cast(QWidget, parent),
+                "Unexpected Error",
+                f"发生未预期错误（已自动隔离，不影响其他页签运行）：\n\n{text[:2000]}",
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok,
+            )
+        except Exception:  # noqa: BLE001
+            pass
+        # Do NOT re-raise or call QApplication.exit — keep the UI alive.
+        if _original_excepthook is not sys.__excepthook__:
+            try:
+                _original_excepthook(exc_type, exc, tb)
+            except Exception:  # noqa: BLE001
+                pass
+
+    sys.excepthook = _handler
+
+
 def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("Modbus Slave Sim")
     load_theme(app)
+    _install_global_exception_hook(app)
     win = MainWindow()
     win.show()
 
