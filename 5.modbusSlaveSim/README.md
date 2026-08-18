@@ -4,7 +4,7 @@
 
 设备配置：主窗口用**页签**管理多路通信；每个页签是独立子页面（设置 / 点表 / 启动停止 / 寄存器表 / 报文 Log）。可并行配置多个 TCP/RTU 从站。
 
-运行：`uv run modbus-slave-sim`（`Ctrl+C` 退出）。
+运行：`uv run main.py`（`Ctrl+C` 退出）。
 
 分层：`ui_spec`（声明）→ `ui_builder`（构建）→ `main_window`（多页签壳）→ `device_page`（单路子页）→ `app_controller`（业务，无 Qt）→ `device_session` / `slave_server` / `project_file`。
 
@@ -18,12 +18,12 @@
 
 ```bash
 uv sync --extra dev
-uv run modbus-slave-sim
+uv run main.py
 ```
 
 命令行按 `Ctrl+C` 可退出（会停止从站并关闭窗口）。
 
-也可：`uv run python -m modbus_slave_sim`。
+也可：`uv run python -m modbus_slave_sim` 或 `uv run modbus-slave-sim`。
 
 ## 测试与检查
 
