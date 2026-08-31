@@ -96,7 +96,7 @@ Info 列示例：`V2 [BBMS:5002] BBMS_SumInfo frameId=49 len=135`（RBMS 簇 1 �
     └── …                               ← 本说明等
 ```
 
-LAN Matrix：**优先生效** `docs/references/BMS2.0 LAN Matrix V1.0.50.xlsx`（本工具本地备份）；若缺失则回退 `4.rbms_tcp_sim/docs/` 同名文件。
+LAN Matrix：使用 `docs/references/BMS2.0 LAN Matrix V1.0.50.xlsx`（本工具本地备份）。
 
 ### 3.2 确认插件目录
 

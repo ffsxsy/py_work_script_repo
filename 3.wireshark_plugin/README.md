@@ -137,8 +137,7 @@ Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\
 
 协议锚点：**LAN Matrix V1.0.50**。生成脚本查找顺序：
 
-1. **`docs/references/BMS2.0 LAN Matrix V1.0.50.xlsx`**（本工具本地备份，优先）
-2. `4.rbms_tcp_sim/docs/BMS2.0 LAN Matrix V1.0.50.xlsx`（`docs/references/` 缺失时回退）
+1. **`docs/references/BMS2.0 LAN Matrix V1.0.50.xlsx`**（本工具本地备份）
 
 在仓库根目录（已 `uv sync`）：
 

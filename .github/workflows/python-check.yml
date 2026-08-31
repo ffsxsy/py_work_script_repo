@@ -49,7 +49,6 @@ jobs:
       fail-fast: false
       matrix:
         dir:
-          - 4.rbms_tcp_sim
           - 5.modbusSlaveSim
     steps:
       - name: Checkout

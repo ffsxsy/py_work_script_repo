@@ -10,7 +10,7 @@ permission:
 
 ## 规则
 
-- 顶层目录（`1.fault_recording_*`、`2.McuCanMap_script`、`3.wireshark_plugin`、`4.rbms_tcp_sim`、`5.matrix_transfer`、`CAN_dbc`）互不相关
+- 顶层目录（`1.fault_recording_*`、`2.McuCanMap_script`、`3.wireshark_plugin`、`5.modbusSlaveSim`、`CAN_dbc`）互不相关
 - 禁止 `import` 或通过 `../` 读取兄弟项目文件
 - 各子项目依赖优先使用自有 `requirements.txt`
 - 根 `pyproject.toml` 仅 dev 工具（ruff / ty / pytest），不代表统一应用

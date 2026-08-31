@@ -28,13 +28,12 @@
 flowchart LR
     root["py_work_script_repo/"] --> base["根 pyproject.toml（仅 dev 工具）"]
     root --> scripts["脚本类：1.fault_recording / 2.McuCanMap / 3.wireshark_plugin / CAN_dbc"]
-    root --> proj4["4.rbms_tcp_sim（独立项目）"]
     root --> proj5["5.modbusSlaveSim（独立项目）"]
     root --> dev["AGENTS.md · .github/ · docs/ · opencode.json"]
 ```
 
 - **脚本类目录**（1/2/3/CAN_dbc）：无独立 pyproject，由根 `pyproject.toml` 的 ruff/ty/依赖组覆盖，无 pytest。
-- **独立项目目录**（4/5）：自带 `pyproject.toml` + `uv.lock` + `src/` + `tests/`，各自跑 ruff/ty/pytest，CI 走 matrix job。
+- **独立项目目录**（5）：自带 `pyproject.toml` + `uv.lock` + `src/` + `tests/`，各自跑 ruff/ty/pytest，CI 走 matrix job。
 - 一个顶层目录只能有一个身份（脚本类或独立项目），**不允许混用**。
 
 ### 2.2 推荐标准结构
@@ -64,7 +63,7 @@ N.project_name/                 # 顶层目录名 = 编号 + 蛇形名（如 5.m
 | 残留空目录 | 根存在小写 `modbusSlaveSim/`（仅 `.venv`，py=0），与 `5.modbusSlaveSim/` 并存 | 删除空目录；命名必须唯一、与包名一致 |
 | 入口不统一 | 4 用 CLI scripts、5/6 根有 `main.py` 也留 `[project.scripts]` | 新项目二选一：根 `main.py`（`uv run main.py`）或 `[project.scripts]` 入口，不要双轨 |
 | 配置缺失连锁 | 5 缺 `[tool.ty]`、4 缺 dev extra、4 忽略 `uv.lock`，导致 CI 逐个爆红 | 见第 3、4 节模板，建立即补齐 |
-| 根检查越界 | 根 `pyproject.toml` 曾 include `4.rbms_tcp_sim`，其 tools 脚本 import 兄弟项目依赖（pymodbus）导致根 ty 报错 | 独立项目不进根检查范围，只进 CI matrix |
+| 根检查越界 | 独立子项目若被纳入根 `pyproject.toml` include，其 tools 脚本 import 兄弟项目依赖会导致根 ty 报错 | 独立项目不进根检查范围，只进 CI matrix |
 
 ## 3. pyproject.toml 必备配置
 
@@ -150,7 +149,6 @@ subprojects:
     fail-fast: false
     matrix:
       dir:
-        - 4.rbms_tcp_sim
         - 5.modbusSlaveSim
         # - 7.<new_project>   # ← 新项目在此追加
   steps:
