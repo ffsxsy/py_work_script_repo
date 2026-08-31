@@ -30,18 +30,17 @@ flowchart LR
     root --> scripts["脚本类：1.fault_recording / 2.McuCanMap / 3.wireshark_plugin / CAN_dbc"]
     root --> proj4["4.rbms_tcp_sim（独立项目）"]
     root --> proj5["5.modbusSlaveSim（独立项目）"]
-    root --> proj6["6.pms_demo（独立项目）"]
     root --> dev["AGENTS.md · .github/ · docs/ · opencode.json"]
 ```
 
 - **脚本类目录**（1/2/3/CAN_dbc）：无独立 pyproject，由根 `pyproject.toml` 的 ruff/ty/依赖组覆盖，无 pytest。
-- **独立项目目录**（4/5/6）：自带 `pyproject.toml` + `uv.lock` + `src/` + `tests/`，各自跑 ruff/ty/pytest，CI 走 matrix job。
+- **独立项目目录**（4/5）：自带 `pyproject.toml` + `uv.lock` + `src/` + `tests/`，各自跑 ruff/ty/pytest，CI 走 matrix job。
 - 一个顶层目录只能有一个身份（脚本类或独立项目），**不允许混用**。
 
 ### 2.2 推荐标准结构
 
 ```text
-N.project_name/                 # 顶层目录名 = 编号 + 蛇形名（如 6.pms_demo）
+N.project_name/                 # 顶层目录名 = 编号 + 蛇形名（如 5.modbusSlaveSim）
 ├── src/
 │   └── pkg_name/               # 包名 = 目录名（蛇形），禁止 `../` 读兄弟目录
 │       ├── __init__.py
@@ -153,7 +152,6 @@ subprojects:
       dir:
         - 4.rbms_tcp_sim
         - 5.modbusSlaveSim
-        - 6.pms_demo
         # - 7.<new_project>   # ← 新项目在此追加
   steps:
     - uses: actions/checkout@v4

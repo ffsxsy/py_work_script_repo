@@ -51,7 +51,6 @@ jobs:
         dir:
           - 4.rbms_tcp_sim
           - 5.modbusSlaveSim
-          - 6.pms_demo
     steps:
       - name: Checkout
         uses: actions/checkout@v4

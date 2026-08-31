@@ -1,6 +1,6 @@
 ---
 name: pyside6-standards
-description: PySide6/QML hard constraints for GUI subprojects (3.13 typing, zero bare print, resource cleanup, serial/net/CAN, QML↔Python boundary, Worker/Signal, unit tests). Use when building or refactoring PySide6 GUIs (e.g. 5.modbusSlaveSim, 6.pms_demo). Pairs with the pyside6-gui skill (workflow/templates).
+description: PySide6/QML hard constraints for GUI subprojects (3.13 typing, zero bare print, resource cleanup, serial/net/CAN, QML↔Python boundary, Worker/Signal, unit tests). Use when building or refactoring PySide6 GUIs (e.g. 5.modbusSlaveSim). Pairs with the pyside6-gui skill (workflow/templates).
 ---
 > **本 Skill 为硬约束规范**；工作流/模板见 `.opencode/skills/pyside6-gui/SKILL.md`（写/改 PySide6·QML 时两者都加载）。
 
@@ -192,7 +192,7 @@ class SensorWorker(QObject):
 - **令牌**：集中 `Theme` singleton（色板 / 圆角 / 间距 / 字号）；禁止页面散落魔法色。
 - **层次**：顶栏 / 内容卡片 / 状态条分区；主按钮 `highlighted`，危险操作用醒目色；表格等宽数字字体。
 - 资源用 `.qrc` / SVG；布局用 Layouts，禁止绝对坐标堆复杂界面。
-- 详例见 `.opencode/skills/pyside6-gui/SKILL.md` 与 `6.pms_demo/src/pms_can_demo/qml/PmsUi/Theme.qml`。
+- 详例见 `.opencode/skills/pyside6-gui/SKILL.md` 与 `5.modbusSlaveSim/src/modbus_slave_sim/resources/theme.qss`。
 
 ### 4.4 生命周期与资源安全清理
 
