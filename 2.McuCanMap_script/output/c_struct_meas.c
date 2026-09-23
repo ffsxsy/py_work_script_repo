@@ -1,5 +1,5 @@
 /*
- * 由 McuCanMap.xlsx「TX CAN-A」自动生成（CAN ID 0x1A80–0x1AA2，Node 形如 0x####ssdd）。
+ * 由 McuCanMap923.xlsx「TX CAN-A」自动生成（CAN ID 0x1A80–0x1AA3，Node 形如 0x####ssdd）。
  * 数组元素按报文 CAN ID 升序排列；同 ID 重复项保持表中顺序。
  * 枚举占位符为 kDSP_<CANID>_param1 … paramN，请在头文件中定义或映射为实际枚举。
  * 参数名 / factor / 类型优先取自测量明细区（与帧布局 byte 列不一致时以明细为准）；
@@ -127,7 +127,7 @@ meas_resp_value_t dsp_meas_resp_content_array[] = {
      {{kDSP_1A93_param1, "PCSState"            , "int16_t" , 0, 2, 1.0F},
       {kDSP_1A93_param2, "DiscreteInputs S0"   , "int16_t" , 2, 2, 1.0F},
       {kDSP_1A93_param3, "C2State (raw uint16)", "uint16_t", 4, 2, 1.0F},
-      {kDSP_1A93_param4, "(unused)"            , "uint16_t", 6, 2, 1.0F}}},
+      {kDSP_1A93_param4, "StatusLatch"         , "uint16_t", 6, 2, 1.0F}}},
     {0x1A94,
      4,
      {{kDSP_1A94_param1, "PmaxPU (p.u.)", "int16_t", 0, 2, 0.001F},
@@ -140,6 +140,12 @@ meas_resp_value_t dsp_meas_resp_content_array[] = {
       {kDSP_1A95_param2, "VdcBotMax (V)", "int16_t", 2, 2, 0.1F},
       {kDSP_1A95_param3, "IinvMaxA (A)" , "int16_t", 4, 2, 0.1F},
       {kDSP_1A95_param4, "IinvMaxB (A)" , "int16_t", 6, 2, 0.1F}}},
+    {0x1A9C,
+     4,
+     {{kDSP_1A9C_param1, "log10(freq)", "int16_t" , 0, 2, 0.001F},
+      {kDSP_1A9C_param2, "gain_dB"    , "int16_t" , 2, 2,   0.1F},
+      {kDSP_1A9C_param3, "phase_deg"  , "int16_t" , 4, 2,   0.1F},
+      {kDSP_1A9C_param4, "pointIndex" , "uint16_t", 6, 2,   1.0F}}},
     {0x1A9D,
      4,
      {{kDSP_1A9D_param1, "IinvMaxC (A)", "int16_t", 0, 2, 0.1F},
@@ -172,9 +178,15 @@ meas_resp_value_t dsp_meas_resp_content_array[] = {
       {kDSP_1AA1_param4, "Rinsul (kOhm)"        , "int16_t", 6, 2,  1.0F}}},
     {0x1AA2,
      4,
-     {{kDSP_1AA2_param1, "IcmdDcMagMax (A)" , "int16_t" , 0, 2, 0.01F},
-      {kDSP_1AA2_param2, "VmidRefOffset (V)", "int16_t" , 2, 2, 0.01F},
-      {kDSP_1AA2_param3, "IcmSumMean (A)"   , "int16_t" , 4, 2, 0.01F},
-      {kDSP_1AA2_param4, "(unused)"         , "uint16_t", 6, 2,  1.0F}}},
+     {{kDSP_1AA2_param1, "IcmdDcMagMax (A)" , "int16_t", 0, 2, 0.01F},
+      {kDSP_1AA2_param2, "VmidRefOffset (V)", "int16_t", 2, 2, 0.01F},
+      {kDSP_1AA2_param3, "IcmSumMean (A)"   , "int16_t", 4, 2, 0.01F},
+      {kDSP_1AA2_param4, "IcmSumOffset (A)" , "int16_t", 6, 2, 0.01F}}},
+    {0x1AA3,
+     4,
+     {{kDSP_1AA3_param1, "TxErrCnt (TEC)", "uint16_t", 0, 2, 1.0F},
+      {kDSP_1AA3_param2, "RxErrCnt (REC)", "uint16_t", 2, 2, 1.0F},
+      {kDSP_1AA3_param3, "BusOffCount"   , "uint16_t", 4, 2, 1.0F},
+      {kDSP_1AA3_param4, "MeasTxOverrun" , "uint16_t", 6, 2, 1.0F}}},
 };
 // clang-format on

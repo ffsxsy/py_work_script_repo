@@ -1,6 +1,6 @@
 # McuCanMap 脚本
 
-本目录为仓库内**独立工具**；从 `McuCanMap.xlsx` 生成 PCS 配置 CSV 与 C 结构体。拆仓说明见仓库根 [README.md](../README.md)。
+本目录为仓库内**独立工具**；从 **`latest.xlsx.lnk`** 所指向的 McuCanMap 表生成 PCS 配置 CSV 与 C 结构体。拆仓说明见仓库根 [README.md](../README.md)。
 
 ## 脚本
 
@@ -16,7 +16,7 @@
 | 项 | 要求 |
 | :--- | :--- |
 | Python | **3.13**（仓库根 `.python-version`） |
-| 输入 | `McuCanMap.xlsx`（已纳入本仓库，位于本目录） |
+| 输入 | **`latest.xlsx.lnk`**（本目录快捷方式；脚本默认解析其 TargetPath） |
 | 映射表 | `py_gen_pcs_id_point_name_ename_map.csv`（随仓库） |
 
 ## 依赖

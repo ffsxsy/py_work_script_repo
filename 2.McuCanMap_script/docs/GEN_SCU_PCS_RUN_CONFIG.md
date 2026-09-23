@@ -1,6 +1,6 @@
 # PCS 配置 CSV / C 结构体生成规则
 
-本文档约定 `gen_scu_pcs_run_config.py` 从 `McuCanMap.xlsx` 生成 `system.csv`、`protection.csv`、`run.csv` 及 `c_struct_param.c` 时的**点位编号与 CAN 帧布局**规则。脚本实现须与本文件保持一致。
+本文档约定 `gen_scu_pcs_run_config.py` 从 `McuCanMap923.xlsx` 生成 `system.csv`、`protection.csv`、`run.csv` 及 `c_struct_param.c` 时的**点位编号与 CAN 帧布局**规则。脚本实现须与本文件保持一致。
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@
 
 | 类型 | 路径 | 说明 |
 | :--- | :--- | :--- |
-| 输入 | `McuCanMap.xlsx` | CAN 映射与配置变量默认值/量程 |
+| 输入 | `McuCanMap923.xlsx` | CAN 映射与配置变量默认值/量程 |
 | 输入 | `py_gen_pcs_id_point_name_ename_map.csv` | `param_ename` → 中文 `param_name` |
 | 输出 | `output/system.csv` | 系统参数 |
 | 输出 | `output/protection.csv` | 保护参数 |
@@ -38,19 +38,24 @@
 
 | 输出文件 | CAN 基址范围（hex） | 首点 `point_id` | 帧数 × 4 槽 | `point_id` 编号上界（含） |
 | :--- | :--- | :--- | :--- | :--- |
-| `system.csv` | `0x1832`～`0x1835` | **360** | 4 × 4 = 16 | 375 |
+| `system.csv` | `0x1830`～`0x1835` | **360** | 6 × 4 = 24 | 383 |
 | `protection.csv` | `0x1836`～`0x183C` | **450** | 7 × 4 = 28 | 477 |
 | `run.csv` | `0x183D`～`0x1848` | **580** | 12 × 4 = 48 | 627 |
 
 示例（系统参数编号，非 CSV 行数）：
 
 ```text
-0x1832dd00 → point_id 360（1 个参数）；361～363 编号预留，CSV 不写
-0x1833dd00 → point_id 364～367（4 个参数，CSV 连续 4 行）
-0x1835dd00 → point_id 372～373 有参数；374～375 编号预留，CSV 不写
+0x1830dd00 → point_id 360～363（4 个参数）
+0x1831dd00 → point_id 364～367（4 个参数）
+0x1832dd00 → point_id 368～371（4 个参数）
+0x1833dd00 → point_id 372～375（4 个参数）
+0x1835dd00 → point_id 380～381 有参数；382～383 编号预留，CSV 不写
 ```
 
 ## 预留槽位与 CSV
+
+> [!NOTE]
+> ``created_at`` / ``updated_at`` 由脚本写入固定值 ``2026/8/11 10:29``（常量 ``FIXED_CSV_TIMESTAMP``），避免每次生成改动时间列。
 
 > [!IMPORTANT]
 > **CSV 只包含 xlsx 中存在的有效参数行。** 某帧不足 4 个参数时，空槽**不生成 CSV 行**；下一行直接为下一 CAN 报文的首个参数。
@@ -69,4 +74,4 @@ python gen_scu_pcs_run_config.py
 
 依赖：`openpyxl`（读取 xlsx）。
 
-同时会生成测量响应 `output/c_struct_meas.c`（规则见 [GEN_DSP_MEAS_RESP.md](GEN_DSP_MEAS_RESP.md)，CAN ID `0x1A80`～`0x1AA2`）。
+同时会生成测量响应 `output/c_struct_meas.c`（规则见 [GEN_DSP_MEAS_RESP.md](GEN_DSP_MEAS_RESP.md)，CAN ID `0x1A80`～`0x1AA3`）。

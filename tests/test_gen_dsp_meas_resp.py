@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 MCU_DIR = Path(__file__).resolve().parents[1] / "2.McuCanMap_script"
-XLSX_PATH = MCU_DIR / "McuCanMap.xlsx"
+XLSX_PATH = MCU_DIR / "McuCanMap923.xlsx"
 
 
 def _load_gen() -> Any:
@@ -24,10 +24,10 @@ def _load_gen() -> Any:
     return module
 
 
-def test_can_id_max_includes_1aa2() -> None:
+def test_can_id_max_includes_1aa3() -> None:
     gen = _load_gen()
     assert gen.CAN_ID_MIN == 0x1A80
-    assert gen.CAN_ID_MAX == 0x1AA2
+    assert gen.CAN_ID_MAX == 0x1AA3
 
 
 def test_build_packets_includes_1aa2_common_mode_diagnostics() -> None:
@@ -42,7 +42,39 @@ def test_build_packets_includes_1aa2_common_mode_diagnostics() -> None:
     assert labels[0].startswith("IcmdDcMagMax")
     assert labels[1].startswith("VmidRefOffset")
     assert labels[2].startswith("IcmSumMean")
-    assert "(unused)" in labels[3] or labels[3] == "0"
+    assert labels[3].startswith("IcmSumOffset")
+
+
+def test_build_packets_includes_1aa3_can_link_diagnostics() -> None:
+    gen = _load_gen()
+    packets = gen.build_packets(XLSX_PATH)
+    by_id = {p.can_id: p for p in packets}
+    assert 0x1AA3 in by_id
+    labels = [f.label for f in gen.resolve_fields(by_id[0x1AA3])]
+    assert labels[0].startswith("TxErrCnt")
+    assert labels[1].startswith("RxErrCnt")
+    assert labels[2].startswith("BusOffCount")
+    assert labels[3].startswith("MeasTxOverrun")
+
+
+def test_build_packets_1a93_status_latch() -> None:
+    gen = _load_gen()
+    packets = gen.build_packets(XLSX_PATH)
+    by_id = {p.can_id: p for p in packets}
+    labels = [f.label for f in gen.resolve_fields(by_id[0x1A93])]
+    assert labels[3].startswith("StatusLatch")
+
+
+def test_build_packets_includes_1a9c_bode_sweep_point_only() -> None:
+    gen = _load_gen()
+    packets = gen.build_packets(XLSX_PATH)
+    ids_1a9c = [p for p in packets if p.can_id == 0x1A9C]
+    assert len(ids_1a9c) == 1
+    labels = [f.label for f in gen.resolve_fields(ids_1a9c[0])]
+    assert any("log10(freq)" in lb for lb in labels)
+    assert any("gain_dB" in lb for lb in labels)
+    assert any("pointIndex" in lb for lb in labels)
+    assert not any("B0DE" in lb or "magic" in lb.lower() for lb in labels)
 
 
 def test_generate_lines_wraps_clang_format_pragma() -> None:

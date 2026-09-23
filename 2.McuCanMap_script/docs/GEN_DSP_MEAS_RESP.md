@@ -1,6 +1,6 @@
 # DSP 测量响应 C 结构体生成规则
 
-本文档约定 `gen_dsp_meas_resp_from_xlsx.py` 从 `McuCanMap.xlsx` 工作表 **TX CAN-A** 生成 `c_struct_meas.c`（`dsp_meas_resp_content_array[]`）的规则。
+本文档约定 `gen_dsp_meas_resp_from_xlsx.py` 从 `McuCanMap923.xlsx` 工作表 **TX CAN-A** 生成 `c_struct_meas.c`（`dsp_meas_resp_content_array[]`）的规则。
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@
 
 | 类型 | 路径 | 说明 |
 | :--- | :--- | :--- |
-| 输入 | `McuCanMap.xlsx` → `TX CAN-A` | 帧布局（`0x####ssdd`）+ 测量明细区 |
+| 输入 | `McuCanMap923.xlsx` → `TX CAN-A` | 帧布局（`0x####ssdd`）+ 测量明细区 |
 | 输出 | `output/c_struct_meas.c` | `meas_resp_value_t dsp_meas_resp_content_array[]` |
 
 主流程脚本 `gen_scu_pcs_run_config.py` 在生成配置 CSV / `c_struct_param.c` 后会自动调用本脚本。
@@ -24,10 +24,10 @@
 | 常量 | 值 | 说明 |
 | :--- | :--- | :--- |
 | `CAN_ID_MIN` | `0x1A80` | 纳入生成的最小测量 CAN ID |
-| `CAN_ID_MAX` | `0x1AA2` | 纳入生成的最大测量 CAN ID（含 **0x1AA2**，共模诊断帧） |
+| `CAN_ID_MAX` | `0x1AA3` | 纳入生成的最大测量 CAN ID（含 **0x1AA2** 共模诊断、**0x1AA3** CAN-A 链路健康） |
 
 > [!IMPORTANT]
-> 仅当某 CAN ID 在 **帧布局区** 与 **测量明细区** 均存在时才会写入 C 数组；超出 `0x1A80`～`0x1AA2` 的 Node（如 `0x1AFD`、`0x1AFF`）不生成。
+> 仅当某 CAN ID 在 **帧布局区** 与 **测量明细区** 均存在时才会写入 C 数组；超出 `0x1A80`～`0x1AA3` 的 Node（如 `0x1AFD`、`0x1AFF`）不生成。
 
 生成结果按 CAN ID **升序**排列；同一 ID 在表中出现多次时保持 xlsx 顺序。
 
@@ -46,6 +46,9 @@
 | CAN ID | 处理 |
 | :--- | :--- |
 | `0x1A92` | 整帧以 C 注释块输出（与 `meas_example.c` 一致，便于对照 xlsx） |
+| `0x1A9C` | 帧布局区与 Bode 明细区各出现两次（header / point）；生成时**仅保留后者**（Bode sweep point） |
+
+测量明细区为多段表：主表 → Debug trace 段（**不生成**）→ Bode sweep 段（含 `0x1A9C` 明细）。同 CAN ID 在帧布局区重复出现时，亦只保留最后一行定义。
 
 ## 生成命令
 

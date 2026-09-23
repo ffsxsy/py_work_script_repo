@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""从 McuCanMap.xlsx 生成 system/protection/run 三个配置 CSV 及 C 结构体。
+"""从 McuCanMap923.xlsx 生成 system/protection/run 三个配置 CSV 及 C 结构体。
 
 布局与 ``point_id`` 分区见 ``docs/GEN_SCU_PCS_RUN_CONFIG.md``（每 CAN 帧 4 槽、预留点位、
-系统 360 / 保护 450 / 运行 580）。
+系统参数 CAN `0x1830`～`0x1835`，首点 point_id **360**；保护 450 / 运行 580）。
 
 输出主表字段 default_value / current_value / value_config / ui_type / point_id / param_name
-与 mod_pcs_run_config.csv 一致；created_at / updated_at 仍由脚本写入当前时间。
+与 mod_pcs_run_config.csv 一致；``created_at`` / ``updated_at`` 为固定占位时间
+（``FIXED_CSV_TIMESTAMP``），便于 git diff。
 
 同时生成:
 - ``output/c_struct_param.c``：配置写点（point_value_t，来自 CSV）
@@ -28,7 +29,6 @@ import os
 import re
 import warnings
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Final
 
 try:
@@ -42,7 +42,48 @@ from gen_dsp_meas_resp_from_xlsx import write_meas_struct
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
-XLSX_PATH = os.path.join(SCRIPT_DIR, "McuCanMap.xlsx")
+
+
+DEFAULT_XLSX = os.path.join(SCRIPT_DIR, "McuCanMap923.xlsx")
+
+
+def _resolve_shortcut_target(lnk: str) -> str | None:
+    try:
+        import subprocess
+
+        target = subprocess.run(
+            [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                (
+                    f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{lnk}'); "
+                    "Write-Output $s.TargetPath"
+                ),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=20,
+        ).stdout.strip()
+        if target and os.path.exists(target):
+            return target
+    except Exception:
+        pass
+    return None
+
+
+def resolve_xlsx_path() -> str:
+    """优先解析 ``latest.xlsx.lnk``；否则使用 ``McuCanMap923.xlsx``。"""
+    lnk = os.path.join(SCRIPT_DIR, "latest.xlsx.lnk")
+    if os.path.exists(lnk):
+        target = _resolve_shortcut_target(lnk)
+        if target is not None:
+            return target
+    return DEFAULT_XLSX
+
+
+XLSX_PATH = resolve_xlsx_path()
 # 输入：英文名 → 中文名映射（非生成物）
 OUTPUT_POINT_MAP = os.path.join(SCRIPT_DIR, "py_gen_pcs_id_point_name_ename_map.csv")
 OUTPUT_C_STRUCT_PARAM = os.path.join(OUTPUT_DIR, "c_struct_param.c")
@@ -143,10 +184,13 @@ class GeneratedRow:
 
 
 OUTPUTS: Final[tuple[tuple[str, str, str, int], ...]] = (
-    ("system.csv", "1832", "1835", 360),
+    ("system.csv", "1830", "1835", 360),
     ("protection.csv", "1836", "183C", 450),
     ("run.csv", "183D", "1848", 580),
 )
+
+# 写入 CSV 的 created_at / updated_at；固定值避免每次生成污染 git diff
+FIXED_CSV_TIMESTAMP: Final[str] = "2026/8/11 10:29"
 
 
 # --- Excel / CSV 加载 -------------------------------------------------------------------------
@@ -508,10 +552,6 @@ def _build_row_fields_impl(ename: str, cfg: CfgRow | None) -> tuple[str, str, st
 # --- 主流程 -----------------------------------------------------------------------------------
 
 
-def _format_run_timestamp(now: datetime) -> str:
-    return f"{now.year}/{now.month}/{now.day} {now.hour:02d}:{now.minute:02d}"
-
-
 def _select_variables_by_range(
     variables: list[tuple[str, str]],
     start_base: str,
@@ -723,7 +763,7 @@ def main() -> None:
             "对应 param_name 将留空:\n  " + "\n  ".join(missing)
         )
 
-    ts = _format_run_timestamp(datetime.now())
+    ts = FIXED_CSV_TIMESTAMP
     csv_paths: list[str] = []
     point_count = 0
     for filename, start_base, end_base, point_id_start in OUTPUTS:

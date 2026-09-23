@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""从 McuCanMap.xlsx「TX CAN-A」生成测量响应 C 数组（格式同 meas_example.c）。
+"""从 McuCanMap923.xlsx「TX CAN-A」生成测量响应 C 数组（格式同 meas_example.c）。
 
-CAN ID 范围与解析规则见 ``docs/GEN_DSP_MEAS_RESP.md``（当前 0x1A80–0x1AA2）。
+CAN ID 范围与解析规则见 ``docs/GEN_DSP_MEAS_RESP.md``（当前 0x1A80–0x1AA3）。
 
 用法:
     python gen_dsp_meas_resp_from_xlsx.py
@@ -21,12 +21,55 @@ import openpyxl
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = SCRIPT_DIR / "output"
-XLSX_PATH = SCRIPT_DIR / "McuCanMap.xlsx"
+
+
+DEFAULT_XLSX = SCRIPT_DIR / "McuCanMap923.xlsx"
+
+
+def _resolve_shortcut_target(lnk: Path) -> Path | None:
+    try:
+        import subprocess
+
+        target = subprocess.run(
+            [
+                "powershell",
+                "-NoProfile",
+                "-Command",
+                (
+                    f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{lnk}'); "
+                    "Write-Output $s.TargetPath"
+                ),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=20,
+        ).stdout.strip()
+        if target:
+            resolved = Path(target)
+            if resolved.exists():
+                return resolved
+    except Exception:
+        pass
+    return None
+
+
+def resolve_xlsx_path() -> Path:
+    """优先解析 ``latest.xlsx.lnk``；否则使用 ``McuCanMap923.xlsx``。"""
+    lnk = SCRIPT_DIR / "latest.xlsx.lnk"
+    if lnk.exists():
+        target = _resolve_shortcut_target(lnk)
+        if target is not None:
+            return target
+    return DEFAULT_XLSX
+
+
+XLSX_PATH = resolve_xlsx_path()
 OUT_PATH = OUTPUT_DIR / "c_struct_meas.c"
 SHEET = "TX CAN-A"
 ID_RE = re.compile(r"0x([0-9A-Fa-f]+)ssdd", re.IGNORECASE)
 CAN_ID_MIN = 0x1A80
-CAN_ID_MAX = 0x1AA2
+CAN_ID_MAX = 0x1AA3
 # 输出为 C 注释块（与 meas_example.c 一致，仍保留在表中便于对照 xlsx）
 COMMENTED_CAN_IDS: Final[frozenset[int]] = frozenset({0x1A92})
 
@@ -107,6 +150,10 @@ def is_debug_trace_marker_row(row: list[object]) -> bool:
     return isinstance(row[0], str) and "Debug trace variable default, factor and range" in row[0]
 
 
+def is_bode_sweep_marker_row(row: list[object]) -> bool:
+    return isinstance(row[0], str) and "Bode sweep variable default, factor and range" in row[0]
+
+
 def _object_to_float(value: object) -> float | None:
     if isinstance(value, (int, float)):
         return float(value)
@@ -139,6 +186,17 @@ def format_scale(f: float) -> str:
     return f"{f}F"
 
 
+def _dedupe_frames_keep_last(frames: list[tuple[int, list[str]]]) -> list[tuple[int, list[str]]]:
+    """同 CAN ID 在帧布局区多次出现时，仅保留表中最后一行定义。"""
+    last_names: dict[int, list[str]] = {}
+    order: list[int] = []
+    for nid, names in frames:
+        if nid not in last_names:
+            order.append(nid)
+        last_names[nid] = names
+    return [(nid, last_names[nid]) for nid in order]
+
+
 def collect_frames(ws: Any) -> list[tuple[int, list[str]]]:
     frames: list[tuple[int, list[str]]] = []
     for row in ws.iter_rows(min_row=2, max_col=10, values_only=True):
@@ -150,7 +208,7 @@ def collect_frames(ws: Any) -> list[tuple[int, list[str]]]:
             continue
         names = [str(r[2 + j]) for j in range(0, 8, 2)]
         frames.append((nid, names))
-    return frames
+    return _dedupe_frames_keep_last(frames)
 
 
 def collect_detail_groups_by_id(ws: Any) -> dict[int, list[list[list[object]]]]:
@@ -159,6 +217,7 @@ def collect_detail_groups_by_id(ws: Any) -> dict[int, list[list[list[object]]]]:
     current_detail_id: int | None = None
     current_group: list[list[object]] | None = None
     in_measure_section = False
+    skip_debug_block = False
 
     def flush_group() -> None:
         nonlocal current_group, current_detail_id
@@ -176,7 +235,13 @@ def collect_detail_groups_by_id(ws: Any) -> dict[int, list[list[list[object]]]]:
             continue
         if is_debug_trace_marker_row(r):
             flush_group()
-            break
+            current_detail_id = None
+            skip_debug_block = True
+            continue
+        if skip_debug_block:
+            if is_bode_sweep_marker_row(r):
+                skip_debug_block = False
+            continue
 
         nid = parse_can_id(r[0])
         if nid is not None:
@@ -197,6 +262,10 @@ def collect_detail_groups_by_id(ws: Any) -> dict[int, list[list[list[object]]]]:
             current_group.append(r)
 
     flush_group()
+    bode_id = 0x1A9C
+    bode_groups = groups_by_id.get(bode_id)
+    if bode_groups and len(bode_groups) > 1:
+        groups_by_id[bode_id] = [bode_groups[-1]]
     return groups_by_id
 
 
@@ -345,7 +414,8 @@ def generate_lines(packets: list[FramePacket]) -> list[str]:
     lines: list[str] = []
     lines.append(
         "/*\n"
-        f" * 由 McuCanMap.xlsx「TX CAN-A」自动生成（CAN ID 0x{CAN_ID_MIN:04X}–0x{CAN_ID_MAX:04X}，"
+        f" * 由 McuCanMap923.xlsx「TX CAN-A」自动生成"
+        f"（CAN ID 0x{CAN_ID_MIN:04X}–0x{CAN_ID_MAX:04X}，"
         "Node 形如 0x####ssdd）。\n"
         " * 数组元素按报文 CAN ID 升序排列；同 ID 重复项保持表中顺序。\n"
         " * 枚举占位符为 kDSP_<CANID>_param1 … paramN，请在头文件中定义或映射为实际枚举。\n"
@@ -403,7 +473,7 @@ def write_meas_struct(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="从 McuCanMap.xlsx TX CAN-A 生成 dsp_meas_resp_content_array"
+        description="从 McuCanMap923.xlsx TX CAN-A 生成 dsp_meas_resp_content_array"
     )
     parser.add_argument("--check-only", action="store_true", help="只输出一致性统计，不写文件")
     parser.add_argument("--fallback-limit", type=int, default=20, help="回退项展示条数")
