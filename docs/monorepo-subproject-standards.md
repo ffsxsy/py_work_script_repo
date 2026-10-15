@@ -51,7 +51,7 @@ N.project_name/                 # 顶层目录名 = 编号 + 蛇形名（如 5.m
 ├── main.py                     # 可选：仅当需要 `uv run main.py` 根入口
 ├── pyproject.toml              # 完整配置（见第 3 节）
 ├── uv.lock                     # MUST 提交（--locked 依赖它）
-├── .python-version             # 与仓库一致（3.13）
+├── .python-version             # 与仓库一致（3.15）
 ├── .gitignore                  # MUST NOT 忽略 uv.lock
 └── README.md
 ```
@@ -75,7 +75,7 @@ name = "pkg-name"
 version = "0.1.0"
 description = "一句话描述"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.15,<3.16"
 dependencies = [
     # 业务依赖；GUI 用 PySide6 时固定版本，如 "PySide6==6.8.1.1"
 ]
@@ -100,7 +100,7 @@ pythonpath = ["src", "."]      # "." 使 `from tests.conftest import ...` 可导
 qt_api = "pyside6"             # GUI 项目才需要
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py315"
 line-length = 100
 src = ["src", "tests"]
 exclude = [".venv", "__pycache__", "build", "dist"]
@@ -112,7 +112,7 @@ select = ["E", "F", "I", "UP", "B"]
 quote-style = "double"
 
 [tool.ty.environment]
-python-version = "3.13"
+python-version = "3.15"
 python = ".venv"
 extra-paths = ["src"]
 
@@ -206,5 +206,5 @@ QT_QPA_PLATFORM=offscreen uv run pytest -q   # GUI 项目加 offscreen
 
 - [[repo-monorepo]]（`docs/rules/repo-monorepo.md`）— 顶层目录边界（常驻规则）
 - [[AGENTS.md]]（`../AGENTS.md`）— 验收命令与 Python 规范
-- [[codegen-python-standards]]（`docs/rules/codegen-python-standards.md`）— 3.13 类型规范
+- [[codegen-python-standards]]（`docs/rules/codegen-python-standards.md`）— 3.15 类型规范
 - [[opencode-config-guide.md]]（`docs/opencode-config-guide.md`）— opencode 配置实践

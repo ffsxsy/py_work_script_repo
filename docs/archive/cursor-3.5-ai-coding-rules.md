@@ -67,7 +67,7 @@ flowchart TB
 | :--- | :--- | :--- |
 | `.cursor/rules/zh-engineering-standards.mdc` | Always Apply | 全局中文、版本、安全、DoD（无语言命令重复） |
 | `.cursor/rules/repo-monorepo.mdc` | Always Apply | 多工具 monorepo 目录边界、拆仓约定 |
-| `.cursor/rules/codegen-python-standards.mdc` | `globs: **/*.py` | Python：**类型注解与 API 调用必须用 3.13 推荐写法** |
+| `.cursor/rules/codegen-python-standards.mdc` | `globs: **/*.py` | Python：**类型注解与 API 调用必须用 3.15 推荐写法** |
 | `.cursor/rules/ai-codegen-verification.mdc` | `globs: **/*.py` | 改 Python 后四条验收命令 |
 | `.cursor/rules/06-Python_PySide6上位机规范-python_pyside6.mdc` | `globs: **/*.{py,qml}` | 上位机：CLI + **PySide6/QML 优先**、通信卡点、测试契约 |
 | `.cursor/rules/01-通用基础规范.mdc` | Always（若已启用） | 跨栈纪律、三件套、自检清单 |
@@ -168,7 +168,7 @@ uv tool run pytest -q --python .venv
 > [!WARNING]
 > 遗留脚本可能尚未全仓通过上述检查。规则要求：**本次改动不新增** ruff/ty 问题；全仓修绿可作为独立任务。新增功能应补充 pytest。
 
-运行环境：根目录 [`.python-version`](../.python-version) 固定 **3.13**；`uv tool install` ruff / ty / pytest、`uv sync`（`fault-recording` / `can-dbc`）、`uv pip install openpyxl`（见 [AGENTS.md](../AGENTS.md)）。`requires-python >= 3.13,<3.14`。
+运行环境：根目录 [`.python-version`](../.python-version) 固定 **3.15**；`uv tool install` ruff / ty / pytest、`uv sync`（`fault-recording` / `can-dbc`）、`uv pip install openpyxl`（见 [AGENTS.md](../AGENTS.md)）。`requires-python >= 3.15,<3.16`。
 
 ## User Rules 与项目规则分工
 

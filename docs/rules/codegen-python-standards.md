@@ -3,13 +3,13 @@
 ## 1) 版本锚点（MUST）
 
 - 生成前读取：根目录 `pyproject.toml`、`uv.lock`、`.python-version`；子项目 `requirements.txt`。
-- 环境：`uv tool install` ruff / ty / pytest + `uv sync` + `uv pip install openpyxl`；Python 以 `.python-version` 为准。
-- 不得默认「最新版」库 API。`openpyxl` 用 `uv pip install openpyxl` 装入 `.venv`；`pywin32` 在 `fault-recording` 组，仅构建 xlsm 需要。
+- 环境：`uv tool install` ruff / ty + `uv sync`（含 `dev` 组的 openpyxl / pytest）；Python 以 `.python-version` 为准。
+- 不得默认「最新版」库 API。`pywin32` 在 `fault-recording` 组，仅构建 xlsm 需要。
 
 ## 2) 类型注解（MUST — 当前 Python 推荐写法）
 
-- **必须**为参数、返回值、模块变量、类属性注解；依据 `.python-version` / `requires-python`（本仓库 **3.13**）选用**该版本推荐**语法，禁止沿用旧版惯用法。
-- **推荐**（3.10+ / 3.13）：
+- **必须**为参数、返回值、模块变量、类属性注解；依据 `.python-version` / `requires-python`（本仓库 **3.15**）选用**该版本推荐**语法，禁止沿用旧版惯用法。
+- **推荐**（3.10+ / 3.15）：
   - 联合：`str | None`，不用 `Optional[str]`、`Union[str, None]`
   - 泛型：`list[str]`、`dict[str, int]`，不用 `typing.List`、`typing.Dict`
   - 只读 / 可变：`typing.ReadOnly`、`TypeAlias`（按需）；复杂协议用 `Protocol`
@@ -20,11 +20,11 @@
 ## 3) 函数与 API 调用（MUST — 当前版本推荐用法）
 
 - **标准库与依赖**：只使用**当前 Python / 当前包版本**文档中的推荐 API；**禁止**已废弃（deprecated）或文档标明将移除的接口。
-- 新增代码不得引入仅为兼容更老 Python 的写法（本仓库 `requires-python >=3.13,<3.14`）。
+- 新增代码不得引入仅为兼容更老 Python 的写法（本仓库 `requires-python >=3.15,<3.16`）。
 - 示例（原则，非穷举）：
 
 ```python
-# ✅ 3.13 推荐
+# ✅ 3.15 推荐
 def load_ids(path: Path) -> list[int]: ...
 value: str | None = row.get("id")
 items = dict.fromkeys(keys, 0)
@@ -53,7 +53,7 @@ value: Optional[str] = row.get("id")
 ## 7) DoD
 
 - [ ] Python 版本依据已说明
-- [ ] 类型注解与 API 调用符合**当前 3.13 推荐写法**（非旧版 `typing` 堆叠）
+- [ ] 类型注解与 API 调用符合**当前 3.15 推荐写法**（非旧版 `typing` 堆叠）
 - [ ] 已通过 `ai-codegen-verification` 所列命令或说明遗留豁免范围
 
 ## 8) 变更日志

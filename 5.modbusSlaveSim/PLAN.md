@@ -1,7 +1,7 @@
 # Modbus Slave Sim — 项目计划
 
 > 本文件随子项目一起维护，便于整目录迁移到 Windows 独立仓库/目录。  
-> 实现状态：首版已落地（Python **3.13**）。
+> 实现状态：首版已落地（Python **3.15**）。
 
 ## 概述
 
@@ -11,7 +11,7 @@
 
 - **命名通用**：目录本项目根（原 `bmsSim/modbusSlaveSim/`），窗口名 **Modbus Slave Sim**；设备身份由点表 CSV 决定。
 - **独立程序**：不接入 OdinBmsHil；可整包移到 Windows 目录单独维护。
-- **Python**：`>=3.13`（见 `.python-version` / `pyproject.toml`）。
+- **Python**：`>=3.15,<3.16`（见 `.python-version` / `pyproject.toml`）。
 - **工具**：`ruff` / `ty` / `pytest` 使用本机 **uv tool**；项目 `dev` 仅含 `pytest-qt` / `pytest-cov` / `pytest-asyncio`。
 - **多设备并行**：按串口/TCP 链路聚合多 Unit；口够则并行。
 - **工程文件**：`.mssproj.json` 一次保存设备列表 + 链路参数 + Unit + 四区当前值。

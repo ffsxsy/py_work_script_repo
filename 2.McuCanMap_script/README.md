@@ -15,7 +15,7 @@
 
 | 项 | 要求 |
 | :--- | :--- |
-| Python | **3.13**（仓库根 `.python-version`） |
+| Python | **3.15**（仓库根 `.python-version`） |
 | 输入 | **`latest.xlsx.lnk`**（本目录快捷方式；脚本默认解析其 TargetPath） |
 | 映射表 | `py_gen_pcs_id_point_name_ename_map.csv`（随仓库） |
 

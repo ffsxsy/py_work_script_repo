@@ -160,7 +160,7 @@ frontmatter：`description`（subagent 目录展示，必填）、`mode`（`prim
 
 ```markdown
 ---
-description: 审查 Python 代码的 ruff/ty/3.13 规范
+description: 审查 Python 代码的 ruff/ty/3.15 规范
 mode: subagent
 permission:
   edit: deny

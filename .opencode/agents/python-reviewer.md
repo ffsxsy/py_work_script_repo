@@ -1,5 +1,5 @@
 ---
-description: 审查 Python 代码是否符合 ruff/ty/3.13 规范
+description: 审查 Python 代码是否符合 ruff/ty/3.15 规范
 mode: subagent
 permission:
   edit: deny
@@ -14,7 +14,7 @@ permission:
 ## 审查要点
 
 1. **ruff lint**：检查是否有违反 `[tool.ruff.lint]` 的规则
-2. **类型注解**：必须使用 Python 3.13 推荐写法
+2. **类型注解**：必须使用 Python 3.15 推荐写法
    - `str | None` 而非 `Optional[str]`
    - `list[str]` 而非 `typing.List[str]`
    - `dict[str, int]` 而非 `typing.Dict[str, int]`

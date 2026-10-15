@@ -25,9 +25,6 @@ jobs:
       - name: Sync project dependencies
         run: uv sync --locked
 
-      - name: Install openpyxl and pytest into venv
-        run: uv pip install openpyxl pytest
-
       - name: Ruff check
         run: ruff check .
 

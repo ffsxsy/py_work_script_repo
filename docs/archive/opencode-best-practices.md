@@ -1,18 +1,18 @@
 # opencode AI 代码生成最佳配置
 
-基于 py_work_script_repo（Python 3.13 monorepo）的实战配置方案。
+基于 py_work_script_repo（Python 3.15 monorepo）的实战配置方案。
 
 ## 1. AGENTS.md（核心规则）
 
 opencode 通过 `AGENTS.md` 注入项目级指令。当前项目已配置完善，核心要点：
 
 - **ruff check / ruff format --check / ty check / pytest** 四条验收命令
-- **Python 3.13 类型注解**规范——见下方对照表
+- **Python 3.15 类型注解**规范——见下方对照表
 - **子项目边界**：monorepo 各目录独立，禁止跨目录 import
 
 关键：`AGENTS.md` 是 opencode 读取规则的唯一入口，**必须提交到 Git** 供团队共享。
 
-### Python 3.13 类型注解规范
+### Python 3.15 类型注解规范
 
 ```python
 # ✅ 正确
@@ -26,7 +26,7 @@ from typing import Optional, List, Dict, Tuple, Set, Union, Callable, Iterable, 
 def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 ```
 
-| 旧写法（禁止） | 3.13 写法 |
+| 旧写法（禁止） | 3.15 写法 |
 |---|---|
 | `Optional[str]` | `str \| None` |
 | `List[int]` | `list[int]` |
@@ -38,7 +38,7 @@ def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 | `typing.Iterable` | `collections.abc.Iterable` |
 | `typing.Sequence` | `collections.abc.Sequence` |
 
-> `typing.TYPE_CHECKING`、`typing.Final`、`typing.Literal`、`typing.TypedDict`、`typing.Protocol`、`typing.cast` 在 3.13 中继续可用，不需要改。
+> `typing.TYPE_CHECKING`、`typing.Final`、`typing.Literal`、`typing.TypedDict`、`typing.Protocol`、`typing.cast` 在 3.15 中继续可用，不需要改。
 
 ## 2. opencode.json（项目配置）
 
@@ -83,7 +83,7 @@ def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 
 ```markdown
 ---
-description: 审查 Python 代码的 ruff/ty/3.13 兼容性
+description: 审查 Python 代码的 ruff/ty/3.15 兼容性
 mode: subagent
 permission:
   edit: deny
@@ -95,7 +95,7 @@ permission:
 
 你是 Python 代码审查员。检查：
 - ruff lint 规则是否通过
-- 类型注解是否符合 Python 3.13 推荐写法（str | None、list[str] 等）
+- 类型注解是否符合 Python 3.15 推荐写法（str | None、list[str] 等）
 - 是否使用了已废弃的 typing API
 - pytest 测试是否覆盖边界和异常路径
 ```
@@ -261,7 +261,7 @@ opencode 内建 Python LSP 支持，自动检测并启用 `ty`（基于 Pyright�
 ```markdown
 ---
 name: python-standards
-description: Python 3.13 代码规范与验收标准
+description: Python 3.15 代码规范与验收标准
 ---
 
 ## Python 代码要求

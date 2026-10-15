@@ -3,7 +3,7 @@ name = "modbus-slave-sim"
 version = "0.1.0"
 description = "Generic Modbus slave simulator GUI (multi-device, project file, four register areas)"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.15,<3.16"
 dependencies = [
     "PySide6==6.8.1.1",
     "pymodbus[serial]>=3.11.0,<3.12",
@@ -37,7 +37,7 @@ qt_api = "pyside6"
 pythonpath = ["src", "."]
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py315"
 line-length = 100
 src = ["src", "tests"]
 exclude = [".venv", "__pycache__", "build", "dist"]
@@ -50,7 +50,7 @@ source = ["modbus_slave_sim"]
 omit = ["*/tests/*", "*/main.py", "*/main_window.py", "*/widgets/*"]
 
 [tool.ty.environment]
-python-version = "3.13"
+python-version = "3.15"
 python = ".venv"
 extra-paths = ["src"]
 

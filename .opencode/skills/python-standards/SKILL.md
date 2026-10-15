@@ -1,11 +1,11 @@
 ---
 name: python-standards
-description: Python 3.13 代码规范与验收标准（ruff/ty/pytest）
+description: Python 3.15 代码规范与验收标准（ruff/ty/pytest）
 ---
 
 ## 环境
 
-- Python 3.13（`.python-version`）
+- Python 3.15（`.python-version`）
 - 依赖管理：uv（`uv sync` + `uv.lock`）
 - 全局 CLI：ruff、ty（`uv tool install`）；pytest 另全局装一份，但跑项目测试需在 `.venv`（见下）
 

@@ -17,7 +17,7 @@
 - **`[tool.pytest.ini_options]` 的 `pythonpath = ["src", "."]`**：`"."` 使 `from tests.conftest import ...` 可导入。
 - **dev extra 包含 `pytest>=8`**（或由 pytest-qt 等带入 pytest）。**pytest 例外于 ruff/ty**：ruff/ty 是纯静态工具，全局 `uv tool` 即可；pytest 须在项目 `.venv`（全局 tool 隔离环境 import 不到项目依赖，实测 `ModuleNotFoundError`）。缺失时 `uv run pytest` 与 ty 解析 `import pytest` 均失败。
 - GUI 项目（PySide6）dev 加 `pytest-qt>=4.4`；pyproject 加 `qt_api = "pyside6"`。
-- 类型注解遵循 `codegen-python-standards.md`（3.13 现代写法）。
+- 类型注解遵循 `codegen-python-standards.md`（3.15 现代写法）。
 
 ## 3. 版本锚定（MUST）
 

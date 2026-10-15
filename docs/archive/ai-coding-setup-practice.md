@@ -75,8 +75,8 @@ flowchart LR
 
 | 文件 | 当前内容 |
 | :--- | :--- |
-| [.python-version](../.python-version) | `3.13`（由 uv 解析为当前最新 3.13 补丁，如 3.13.13） |
-| [pyproject.toml](../pyproject.toml) | `requires-python = ">=3.13,<3.14"` |
+| [.python-version](../.python-version) | `3.15`（由 uv 解析为当前最新 3.15 补丁，如 3.15.0） |
+| [pyproject.toml](../pyproject.toml) | `requires-python = ">=3.15,<3.16"` |
 | [uv.lock](../uv.lock) | 锁定 dev 与子项目依赖版本 |
 
 ### 虚拟环境
@@ -86,7 +86,7 @@ flowchart LR
 
 ```powershell
 cd <仓库根>
-uv python install 3.13
+uv python install 3.15
 uv tool install ruff
 uv tool install ty
 uv tool install pytest
@@ -112,7 +112,7 @@ uv run python --version
 
 | 工具 | 配置位置 | 说明 |
 | :--- | :--- | :--- |
-| Ruff | `[tool.ruff]` | `target-version = "py313"`；`src` 含各工具目录与 `tests/` |
+| Ruff | `[tool.ruff]` | `target-version = "py315"`；`src` 含各工具目录与 `tests/` |
 | ty | `[tool.ty]` | IDE（`astral-sh.ty`）+ `ty check` + CI 共用；见 `src.include` |
 | pytest | `[tool.pytest.ini_options]` | 当前仅 `tests/` 下冒烟 |
 
@@ -131,7 +131,7 @@ uv run python --version
 
 | 文件 | glob | 实际写什么 |
 | :--- | :--- | :--- |
-| `codegen-python-standards.mdc` | `**/*.py` | **3.13 推荐**类型注解（如 `str | None`、`list[str]`）与 API 调用；读 `uv.lock`；验收见下一行 |
+| `codegen-python-standards.mdc` | `**/*.py` | **3.15 推荐**类型注解（如 `str | None`、`list[str]`）与 API 调用；读 `uv.lock`；验收见下一行 |
 | `ai-codegen-verification.mdc` | `**/*.py` | 四条验收命令顺序（见 `AGENTS.md`）；遗留代码策略 |
 | `codegen-powershell.mdc` | `**/*.ps1` | `$PSScriptRoot`、退出码、Excel 构建链提示 |
 | `codegen-vba-excel.mdc` | `**/*.{bas,vbs}` | Windows Excel、改 VBA 后重跑 build / repair |
@@ -224,4 +224,4 @@ default-groups = ["fault-recording", "can-dbc", "my-tool"]
 | :--- | :--- |
 | 2026-06-08 | 类型检查统一为 ty（IDE 扩展 + CLI + CI）；移除 `[tool.pyright]` |
 | 2026-05-25 | `McuCanMap.xlsx`、`can_fault_recording_template.xlsx` 纳入版本库 |
-| 2026-05-25 | Python 规则强调：类型注解与函数调用须用当前 3.13 推荐写法 |
+| 2026-05-25 | Python 规则强调：类型注解与函数调用须用当前 3.15 推荐写法 |

@@ -21,7 +21,7 @@ description: >-
 1. **GUI = QML** + **Material Light 浅色护眼**（柔和灰蓝底，非纯黑暗色、非系统灰窗）
 2. 启动前：`QQuickStyle.setStyle("Material")`；窗口：`Material.theme: Material.Light`
 3. 设计令牌：`Theme` singleton（参考 `5.modbusSlaveSim/src/modbus_slave_sim/resources/theme.qss（Widgets）；新 QML 见下文模板`）
-4. **Python 3.13** + `ruff` / `ty` / `pytest`（见 `AGENTS.md`）
+4. **Python 3.15** + `ruff` / `ty` / `pytest`（见 `AGENTS.md`）
 5. **通信在 Worker**：`moveToThread` + 类级 `Signal`；QML 只绑 Backend
 6. **monorepo**：禁止跨顶层目录 import；优先 **PySide6**
 

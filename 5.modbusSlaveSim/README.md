@@ -10,7 +10,7 @@
 
 包布局：`src/modbus_slave_sim/`（标准 src layout）。
 
-要求 **Python 3.13+**。设计说明见同目录 [`PLAN.md`](PLAN.md)；需求规格见 [`docs/需求-ModbusSlaveSim-V1.0.md`](docs/需求-ModbusSlaveSim-V1.0.md)。
+要求 **Python 3.15+**。设计说明见同目录 [`PLAN.md`](PLAN.md)；需求规格见 [`docs/需求-ModbusSlaveSim-V1.0.md`](docs/需求-ModbusSlaveSim-V1.0.md)。
 
 ## 运行
 

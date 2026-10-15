@@ -7,28 +7,23 @@
 在仓库根目录（需已安装 [uv](https://docs.astral.sh/uv/)）：
 
 ```powershell
-uv python install 3.13    # 与 .python-version 一致（3.13 最新补丁）
+uv python install 3.15    # 与 .python-version 一致（3.15 最新补丁）
 uv tool install ruff    # 全局 CLI，本机一次；ty / pytest 同理各装一条
 uv tool install ty
 uv tool install pytest
-uv sync                   # 创建 .venv，安装 cantools / pywin32 等依赖组
-uv pip install openpyxl pytest  # openpyxl 无 CLI 不能用 uv tool；pytest 需在 .venv 才能 import 项目依赖（全局 tool 隔离环境不行）；均装入 .venv，本机一次
-uv run python --version   # 应显示 3.13.x
+uv sync                   # 创建 .venv，安装 fault-recording + dev（pywin32 / openpyxl / pytest）
+uv run python --version   # 应显示 3.15.x
 ```
 
 
 | 来源                        | 子项目                                                             | 包                    |
 | ------------------------- | --------------------------------------------------------------- | -------------------- |
 | `uv tool install`         | 全仓                                                              | `ruff`、`ty`、`pytest` |
-| `uv pip install`（`.venv`） | 仓库根                                                            | `openpyxl`、`pytest` |
-| `uv pip install`（`.venv`） | `1.fault_recording_parse_excel_template/`、`2.McuCanMap_script/` | `openpyxl`           |
+| `dev` 组                   | 仓库根 `tests/`、各 Excel 脚本子目录                               | `openpyxl`、`pytest` |
 | `fault-recording` 组       | `1.fault_recording_parse_excel_template/`                       | `pywin32`            |
-| `can-dbc` 组               | `CAN_dbc/`                                                      | `cantools`           |
-
-
 各子目录另有 `requirements.txt` 便于 pip 或拆仓后单独安装。
 
-> **openpyxl 为何不用** `uv tool install`**？** `uv tool` 只安装带 CLI 入口的包（如 `ruff`）；openpyxl 是 `import` 库，用 `uv pip install openpyxl` 装入项目 `.venv`。
+> **openpyxl 为何不用** `uv tool install`**？** `uv tool` 只安装带 CLI 入口的包（如 `ruff`）；openpyxl 在 `dev` 组，由 `uv sync` 装入 `.venv`。
 
 
 
@@ -70,7 +65,7 @@ uv run python --version   # 应显示 3.13.x
 
 ## Python 代码要求（MUST）
 
-- **类型注解**、**函数与库调用**须符合 **Python 3.13** 与 `uv.lock` 中依赖的**当前推荐用法**，不用已废弃 API。细则见 `docs/rules/codegen-python-standards.md`。
+- **类型注解**、**函数与库调用**须符合 **Python 3.15** 与 `uv.lock` 中依赖的**当前推荐用法**，不用已废弃 API。细则见 `docs/rules/codegen-python-standards.md`。
 
 
 
@@ -89,7 +84,7 @@ def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 ```
 
 
-| 旧写法（禁止）           | 3.13 写法                    |
+| 旧写法（禁止）           | 3.15 写法                    |
 | ----------------- | -------------------------- |
 | `Optional[str]`   | `str | None`               |
 | `List[int]`       | `list[int]`                |
@@ -102,7 +97,7 @@ def load(path: Optional[str]) -> List[Dict[str, int]]: ...
 | `typing.Sequence` | `collections.abc.Sequence` |
 
 
-> `typing.TYPE_CHECKING`、`typing.Final`、`typing.Literal`、`typing.TypedDict`、`typing.Protocol`、`typing.cast` 在 3.13 中继续可用，不需要改。
+> `typing.TYPE_CHECKING`、`typing.Final`、`typing.Literal`、`typing.TypedDict`、`typing.Protocol`、`typing.cast` 在 3.15 中继续可用，不需要改。
 
 
 

@@ -65,7 +65,7 @@ flowchart LR
 
 | 项 | 要求 |
 | :--- | :--- |
-| Python | **3.13**（仓库根 [`.python-version`](../.python-version)，由 uv 管理） |
+| Python | **3.15**（仓库根 [`.python-version`](../.python-version)，由 uv 管理） |
 | 依赖 | `openpyxl`、`pywin32`（仅构建 xlsm 阶段） |
 | Excel | Windows 桌面版 2016 / 2019 / 2021 / Microsoft 365 |
 | 安全 | 构建前需 **AccessVBOM=1**（`setup_and_build_excel_template.ps1` 会写注册表） |

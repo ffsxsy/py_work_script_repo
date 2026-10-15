@@ -347,7 +347,7 @@ RTU link 示例：
 
 | 项 | 要求 |
 | :--- | :--- |
-| Python 版本 | **3.13**（与 `.python-version` 一致） |
+| Python 版本 | **3.15**（与 `.python-version` 一致） |
 | GUI 框架 | PySide6（Qt for Python） |
 | Modbus 协议栈 | pymodbus 3.x |
 | 依赖管理 | uv + pyproject.toml + uv.lock |

@@ -17,7 +17,7 @@
 
 ## 仓库约定
 
-- **环境与依赖**：仓库根用 **uv** + `.python-version`（当前 Python **3.13**）；`uv tool install` ruff / ty / pytest（全局 CLI）+ `uv sync`（`fault-recording`、`can-dbc` 组）+ `uv pip install openpyxl`（装入 `.venv`）。各工具目录另有 `requirements.txt`。
+- **环境与依赖**：仓库根用 **uv** + `.python-version`（当前 Python **3.15**）；`uv tool install` ruff / ty / pytest（全局 CLI）+ `uv sync`（`fault-recording` 组）+ `uv pip install openpyxl`（装入 `.venv`）。各工具目录另有 `requirements.txt`。
 - **AI 生成代码**：规范 [docs/cursor-3.5-ai-coding-rules.md](./docs/cursor-3.5-ai-coding-rules.md)；**当前做法** [docs/ai-coding-setup-practice.md](./docs/ai-coding-setup-practice.md)；验收 [AGENTS.md](./AGENTS.md)。修改 Python 后须通过 `ruff` + `ty` + `pytest`。
 - **提交物**：以各目录 `README` 为准（源脚本、文档；生成物是否入库由该工具说明）。
 - **新增工具**：在根目录新建**平级文件夹**，在本表增加一行链接，并在该文件夹内写完整 `README.md`。

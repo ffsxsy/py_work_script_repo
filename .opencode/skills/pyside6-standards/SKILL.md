@@ -1,29 +1,29 @@
 ---
 name: pyside6-standards
-description: PySide6/QML hard constraints for GUI subprojects (3.13 typing, zero bare print, resource cleanup, serial/net/CAN, QML↔Python boundary, Worker/Signal, unit tests). Use when building or refactoring PySide6 GUIs (e.g. 5.modbusSlaveSim). Pairs with the pyside6-gui skill (workflow/templates).
+description: PySide6/QML hard constraints for GUI subprojects (3.15 typing, zero bare print, resource cleanup, serial/net/CAN, QML↔Python boundary, Worker/Signal, unit tests). Use when building or refactoring PySide6 GUIs (e.g. 5.modbusSlaveSim). Pairs with the pyside6-gui skill (workflow/templates).
 ---
 > **本 Skill 为硬约束规范**；工作流/模板见 `.opencode/skills/pyside6-gui/SKILL.md`（写/改 PySide6·QML 时两者都加载）。
 
 > ⚠️ 通用约束见 `docs/rules/01-通用基础规范.md`。
 
-# Python 3.13+ (CLI + PySide6 / QML) Agent 规范
+# Python 3.15+ (CLI + PySide6 / QML) Agent 规范
 
 > 此处保留仅与 Python / Qt 相关的特有约束。
-> **技术栈**：Python 3.13+, PySide6 (Qt 6.x), **QML / Qt Quick Controls 2**, PySerial, python-can, asyncio  
+> **技术栈**：Python 3.15+, PySide6 (Qt 6.x), **QML / Qt Quick Controls 2**, PySerial, python-can, asyncio  
 > **适用场景**：工业上位机控制台、嵌入式通信调试工具、自动化测试工具链  
 > **GUI 默认**：新界面与改版优先 **QML**；Qt Widgets 仅用于遗留页或极简单窗调试壳。
 
 ## 1. 核心防御性编程基线（CLI 与 GUI 共同遵循）
 
-### 1.1 强制类型注解与 Python 3.13+ 现代范式
-代码必须采用 Python 3.13+ 现代类型标注范式（使用 `|` 替代 `Optional`，优先使用原生 `list`/`dict` 泛型）：
+### 1.1 强制类型注解与 Python 3.15+ 现代范式
+代码必须采用 Python 3.15+ 现代类型标注范式（使用 `|` 替代 `Optional`，优先使用原生 `list`/`dict` 泛型）：
 ```python
 import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# GOOD: Python 3.13+ 现代类型标注与空校验
+# GOOD: Python 3.15+ 现代类型标注与空校验
 def parse_can_frame(can_id: int, payload: bytes) -> dict[str, Any] | None:
     if len(payload) < 8:
         logger.warning(f"Invalid payload size: {len(payload)}")
@@ -265,7 +265,7 @@ pytest -q --cov=<包名> --cov-report=term-missing
 
 AI 在生成/重构任何 Python / QML 代码时，必须勾选：
 
-- [ ] **[通用]** 是否使用了 Python 3.13+ 现代类型标注（如 `X | Y` 代替 `Optional`）？
+- [ ] **[通用]** 是否使用了 Python 3.15+ 现代类型标注（如 `X | Y` 代替 `Optional`）？
 - [ ] **[通用]** 是否彻底清除了裸 `print()`，全量使用 `logging.getLogger(__name__)`？（CLI 结构化 stdout 除外）
 - [ ] **[通信/硬件]** 串口/网口/CAN 是否设置显式 Timeout？CAN 解包是否显式端序？
 - [ ] **[通信/硬件]** 是否接口化 + Fake；真路径是否有 Mock 原生层单测？
