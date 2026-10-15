@@ -31,7 +31,6 @@ src = [
     "1.fault_recording_parse_excel_template",
     "2.McuCanMap_script",
     "3.wireshark_plugin",
-    "CAN_dbc",
     "tests",
 ]
 
@@ -57,6 +56,5 @@ include = [
     "1.fault_recording_parse_excel_template",
     "2.McuCanMap_script",
     "3.wireshark_plugin",
-    "CAN_dbc",
     "tests",
 ]

@@ -31,8 +31,9 @@ uv run python --version   # 应显示 3.15.x
 
 类型检查 **IDE / 终端 / CI 统一使用 [ty](https://docs.astral.sh/ty/)**（配置见 `[tool.ty]`）。
 
-1. 安装 VS Code 扩展：**ty**（`astral-sh.ty`）
-2. 解释器选仓库 `.venv`（`uv sync` 后）；工作区已含 `[.vscode/settings.json](.vscode/settings.json)` 指向 `.venv`
+1. 安装 VS Code 扩展：**ty**（`astral-sh.ty`）、**Ruff**（`charliermarsh.ruff`）
+2. 解释器选仓库 `.venv`（`uv sync` 后）
+3. `target-version = "py315"` 需 **Ruff ≥ 0.17**（`uv tool install ruff`）；工作区 `[.vscode/settings.json](.vscode/settings.json)` 已把 `ruff.path` 指到 uv 的 ruff，避免扩展内置旧版解析 `pyproject.toml` 失败
 
 
 
