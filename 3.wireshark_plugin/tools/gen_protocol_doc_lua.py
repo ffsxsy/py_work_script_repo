@@ -10,8 +10,8 @@ from pathlib import Path
 
 TOOLS_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = TOOLS_ROOT.parent
-PLUGIN_DIR = PROJECT_ROOT / "plugin"
-OUT = PLUGIN_DIR / "bms20_protocol_doc.lua"
+OUTPUT_DIR = PROJECT_ROOT / "output"
+OUT = OUTPUT_DIR / "bms20_protocol_doc.lua"
 SOURCE_PDF = "docs/references/BMS2.0 协议文档.pdf"
 
 

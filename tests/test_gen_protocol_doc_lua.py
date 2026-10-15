@@ -9,8 +9,8 @@ from pathlib import Path
 
 WIRESHARK_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
 TOOLS_DIR = WIRESHARK_DIR / "tools"
-PROTO_LUA = WIRESHARK_DIR / "plugin" / "bms20_protocol_doc.lua"
-MSG_MAP = WIRESHARK_DIR / "plugin" / "bms20_msg_map.lua"
+PROTO_LUA = WIRESHARK_DIR / "output" / "bms20_protocol_doc.lua"
+MSG_MAP = WIRESHARK_DIR / "output" / "matrix_v1_0_57" / "bms20_msg_map.lua"
 
 
 def _load_gen():
@@ -50,6 +50,6 @@ def test_generated_lua_exports_and_v2_integration() -> None:
     assert "BBMS_A_WriteParam" in text
     assert "AB_CheckResult" in text
 
-    v2 = (WIRESHARK_DIR / "plugin" / "bms20_v2.lua").read_text(encoding="utf-8")
+    v2 = (WIRESHARK_DIR / "output" / "bms20_v2.lua").read_text(encoding="utf-8")
     assert "bms20_lookup_protocol_msg_name" in v2
     assert "bms20_dissect_protocol_doc" in v2

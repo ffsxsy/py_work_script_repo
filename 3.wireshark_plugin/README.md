@@ -1,15 +1,14 @@
-# BMS2.0 Wireshark 解析插件
+﻿# BMS2.0 Wireshark 解析插件
 
-在 Wireshark 中解析 BMS2.0 底软 **TCP** 通信（**数据包格式 V2**），展开帧头 / CRC / **Message Name**，并按 LAN Matrix **V1.0.50** 展开 Comm Matrix Payload 与故障位图。
+在 Wireshark 中解析 BMS2.0 底软 **TCP** 通信（**数据包格式 V2**），展开帧头 / CRC / **Message Name**，并按 LAN Matrix 展开 Comm Matrix Payload 与故障位图。**默认 Matrix V1.0.57**；首选项可切 **V1.0.50**（与旧版单矩阵插件行为一致）。
 
 > **使用者：** [docs/BMS2.0-Wireshark插件使用说明.md](./docs/BMS2.0-Wireshark插件使用说明.md)  
-> **Windows 速查：** [docs/WINDOWS安装说明.txt](./docs/WINDOWS安装说明.txt)
 
 ## 目录结构
 
 ```text
 3.wireshark_plugin/
-├── plugin/          ← 整夹 .lua 复制到 Wireshark Personal Lua Plugins
+├── output/          ← 整夹 .lua 复制到 Wireshark Personal Lua Plugins
 ├── tools/           ← 生成脚本（维护者）
 └── docs/
     ├── references/  ← 插件制作参考文档（PDF + LAN Matrix + FaultList）
@@ -18,14 +17,17 @@
 
 ## 快速安装
 
-1. 将 **`plugin/` 内全部 `.lua` 文件**复制到 Wireshark **Personal Lua Plugins**（帮助 → 关于 → 文件夹；目录需自建 `plugins`）
+1. 将 **`output/` 整个目录**（含 `matrix_v1_0_50/`、`matrix_v1_0_57/` 子目录及根目录 `.lua`）复制到 Wireshark **Personal Lua Plugins**（帮助 → 关于 → 文件夹；目录需自建 `plugins`）
 2. **Analyze → Reload Lua Plugins**
 3. 显示过滤器：`tcp.port >= 5001 && tcp.port <= 5014` 或 `bms20`
 
-也可将整个 `plugin` 文件夹复制为 `plugins/bms20/`（Wireshark 3.x+ 支持子目录）。**仅复制 `plugin/` 下的 `.lua`**。
+也可将整个 `output` 文件夹复制为 `plugins/bms20/`（Wireshark 3.x+ 支持子目录）。**须保留 `matrix_v1_0_*` 子目录**。
 
 ```powershell
-Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\" -Force
+$src = "...\3.wireshark_plugin\output"
+$dst = "$env:APPDATA\Wireshark\plugins\bms20"
+New-Item -ItemType Directory -Force -Path $dst | Out-Null
+Copy-Item "$src\*" $dst -Recurse -Force
 ```
 
 ## 通信端口
@@ -40,7 +42,7 @@ Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\
 
 ## 深度解析配置
 
-帧头、CRC、`Message Name` 始终解析。Payload 字段树与 **Active Faults** 由 **`plugin/bms20_parse_config.lua`** 白名单控制（**不按 TCP 端口限制**；重新 `--default-set` 会覆盖该文件）。
+帧头、CRC、`Message Name` 始终解析。Payload 字段树与 **Active Faults** 由当前 Matrix 版本目录下的 **`bms20_parse_config.lua`** 白名单控制（**不按 TCP 端口限制**）。**Preferences → BMS2.0 V2 → LAN Matrix version** 切换后需 **Reload Lua Plugins**。
 
 | 段 key | 说明（仅分组，不拦截端口） |
 | :--- | :--- |
@@ -59,9 +61,9 @@ Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\
 
 详情树展开 **Active Faults**（仅置位项）及 M 核 **BBMSNo**。
 
-## Payload 深度解析（V1.0.50）
+## Payload 深度解析（V1.0.50 对照；默认运行时为 V1.0.57）
 
-当前 **Message ID 表非故障消息**均已生成字段表（34 条）；下表为 Comm Matrix **载荷字节数**。
+下表为 **V1.0.50** Comm Matrix 载荷字节数（便于对照旧抓包）。运行时默认加载 **V1.0.57** 包（字段/长度可能不同，如 BBMS_SumInfo 146 B）。
 
 | Message Name | 载荷 | Message Name | 载荷 |
 | :--- | ---: | :--- | ---: |
@@ -89,7 +91,7 @@ Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\
 
 ## 通用命令（cmdGroup = 0x00）
 
-依据 [docs/references/通用命令协议文档.pdf](./docs/references/通用命令协议文档.pdf)（ycprotocol），**cmdGroup = 0x00**、**cmdId = 0x01..0x10** 共 16 条通用命令；传输类型为 **NEED_ACK (0x02)** 请求 / **Response (0x03)** 应答。由手维护 **`plugin/bms20_generic_cmd.lua`** 解析，**不依赖** LAN Matrix 生成器；开启 **Parse Payload** 时自动展开字段树。
+依据 [docs/references/通用命令协议文档.pdf](./docs/references/通用命令协议文档.pdf)（ycprotocol），**cmdGroup = 0x00**、**cmdId = 0x01..0x10** 共 16 条通用命令；传输类型为 **NEED_ACK (0x02)** 请求 / **Response (0x03)** 应答。由手维护 **`output/bms20_generic_cmd.lua`** 解析，**不依赖** LAN Matrix 生成器；开启 **Parse Payload** 时自动展开字段树。
 
 | cmdId | Message Name | 请求 payload | 响应 payload |
 | :---: | :--- | :--- | :--- |
@@ -114,30 +116,28 @@ Copy-Item "...\3.wireshark_plugin\plugin\*.lua" "$env:APPDATA\Wireshark\plugins\
 
 ## 协议文档报文（Matrix 未收录）
 
-依据 [docs/references/BMS2.0 协议文档.pdf](./docs/references/BMS2.0%20协议文档.pdf)，**LAN Matrix V1.0.50 未收录**的 **63** 条业务命令由 **`plugin/bms20_protocol_doc.lua`** 提供 **Message Name** 与 Payload 字段展开（如 BBMS_A 参数读写、EMS/NTP 配置、DIDO、外设数据、主动均衡等）。已收录的 Matrix 报文仍走 `bms20_msg_map` + Comm Matrix 字段表。
+依据 [docs/references/BMS2.0 协议文档.pdf](./docs/references/BMS2.0%20协议文档.pdf)，**LAN Matrix V1.0.50 未收录**的 **63** 条业务命令由 **`output/bms20_protocol_doc.lua`** 提供 **Message Name** 与 Payload 字段展开（如 BBMS_A 参数读写、EMS/NTP 配置、DIDO、外设数据、主动均衡等）。已收录的 Matrix 报文仍走 `bms20_msg_map` + Comm Matrix 字段表。
 
 重新生成：`uv run python 3.wireshark_plugin/tools/gen_protocol_doc_lua.py`
 
-## `plugin/` 文件说明
+## `output/` 文件说明
 
 | 文件 | 说明 |
 | :--- | :--- |
 | `bms20_v2.lua` | 主解析器（Proto / Dissector） |
 | `bms20_generic_cmd.lua` | cmdGroup 0x00 通用命令 Payload（手维护） |
 | `bms20_protocol_doc.lua` | BMS2.0 协议文档中、Matrix 未覆盖的报文（自动生成） |
-| `bms20_msg_map.lua` | cmdGroup/cmdId → Message Name（自动生成） |
+| `bms20_matrix.lua` / `bms20_matrix_registry.lua` | 多版本 Matrix 加载与注册表 |
+| `matrix_v1_0_*/bms20_msg_map.lua` | cmdGroup/cmdId → Message Name（每版本自动生成） |
 | `bms20_payload.lua` | Payload 运行时（位域、段判定） |
-| `bms20_payload_manifest.lua` | 字段表加载清单（自动生成） |
-| `bms20_payload_*.lua` | 各消息 Comm Matrix 字段表（自动生成） |
-| `bms20_parse_config.lua` | 段开关与深度解析白名单（`--default-set` 生成） |
+| `matrix_v1_0_*/bms20_payload_*.lua` | 各消息 Comm Matrix 字段表（每版本自动生成） |
+| `matrix_v1_0_*/bms20_parse_config.lua` | 段开关与深度解析白名单 |
 | `bms20_fault.lua` | 故障位图运行时（手维护） |
 | `bms20_fault_defs.lua` | 故障名 / 路由表（自动生成） |
 
 ## 维护（生成器）
 
-协议锚点：**LAN Matrix V1.0.50**。生成脚本查找顺序：
-
-1. **`docs/references/BMS2.0 LAN Matrix V1.0.50.xlsx`**（本工具本地备份）
+协议锚点：在 [`tools/matrix_registry.py`](tools/matrix_registry.py) 登记版本（当前 **V1.0.50**、**V1.0.57**，默认 **V1.0.57**）。xlsx 放在 `docs/references/`。
 
 在仓库根目录（已 `uv sync`）：
 
@@ -154,14 +154,14 @@ uv run python gen_payload_defs.py --default-set
 uv run python gen_fault_defs.py
 ```
 
-输出写入 **`plugin/`**；故障位图用 `gen_fault_defs.py` → `bms20_fault_defs.lua`。
+输出写入 **`output/`**；故障位图用 `gen_fault_defs.py` → `bms20_fault_defs.lua`。
 
 | 脚本 | 输出 |
 | :--- | :--- |
-| `gen_msg_map.py` | `plugin/bms20_msg_map.lua` |
-| `gen_payload_defs.py --default-set` | `plugin/bms20_payload_*.lua`、`bms20_parse_config.lua`、manifest |
-| `gen_fault_defs.py` | `plugin/bms20_fault_defs.lua` |
-| `gen_protocol_doc_lua.py` | `plugin/bms20_protocol_doc.lua`（依据 `BMS2.0 协议文档.pdf`，补 Matrix 未收录报文） |
+| `gen_msg_map.py --matrix-version …` | `output/matrix_v1_0_*/bms20_msg_map.lua` |
+| `gen_payload_defs.py --default-set --matrix-version …` | `output/matrix_v1_0_*/` 下 payload、manifest、parse_config |
+| `gen_fault_defs.py` | `output/bms20_fault_defs.lua` |
+| `gen_protocol_doc_lua.py` | `output/bms20_protocol_doc.lua`（依据 `BMS2.0 协议文档.pdf`，补 Matrix 未收录报文） |
 
 ## 协议依据（`docs/references/`）
 
@@ -171,7 +171,7 @@ uv run python gen_fault_defs.py
 | :--- | :--- |
 | [BMS2.0底软通信协议.pdf](./docs/references/BMS2.0底软通信协议.pdf) | V2 帧格式 |
 | [通用命令协议文档.pdf](./docs/references/通用命令协议文档.pdf) | cmdGroup 0x00 通用命令 |
-| **`BMS2.0 LAN Matrix V1.0.50.xlsx`** | Message ID / Comm Matrix（生成器输入） |
+| **`BMS2.0 LAN Matrix V1.0.50.xlsx`** / **`V1.0.57.xlsx`** | Message ID / Comm Matrix（生成器输入） |
 | **`SystemConfiguration_*.xlsm`** | 故障位图（生成器输入） |
 
 详情见 [docs/BMS2.0-Wireshark解析方案.md](./docs/BMS2.0-Wireshark解析方案.md)。

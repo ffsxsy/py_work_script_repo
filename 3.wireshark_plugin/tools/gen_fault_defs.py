@@ -11,9 +11,9 @@ from pathlib import Path
 
 TOOLS_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = TOOLS_ROOT.parent
-PLUGIN_DIR = PROJECT_ROOT / "plugin"
+OUTPUT_DIR = PROJECT_ROOT / "output"
 REFERENCES_DIR = PROJECT_ROOT / "docs" / "references"
-OUT = PLUGIN_DIR / "bms20_fault_defs.lua"
+OUT = OUTPUT_DIR / "bms20_fault_defs.lua"
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
 FAULT_PAYLOAD_BYTES = 25

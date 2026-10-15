@@ -9,7 +9,7 @@ from pathlib import Path
 
 WIRESHARK_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
 TOOLS_DIR = WIRESHARK_DIR / "tools"
-PLUGIN_DIR = WIRESHARK_DIR / "plugin"
+OUTPUT_DIR = WIRESHARK_DIR / "output"
 REFERENCES_DIR = WIRESHARK_DIR / "docs" / "references"
 
 
@@ -75,17 +75,19 @@ def test_render_lua_contains_route_table() -> None:
 
 
 def test_fault_runtime_lua_files_exist() -> None:
-    fault_lua = PLUGIN_DIR / "bms20_fault.lua"
-    config_lua = PLUGIN_DIR / "bms20_parse_config.lua"
+    fault_lua = OUTPUT_DIR / "bms20_fault.lua"
+    config_lua_50 = OUTPUT_DIR / "matrix_v1_0_50" / "bms20_parse_config.lua"
+    config_lua_57 = OUTPUT_DIR / "matrix_v1_0_57" / "bms20_parse_config.lua"
     assert fault_lua.is_file(), "bms20_fault.lua must be committed (fault dissect runtime)"
-    assert config_lua.is_file(), "bms20_parse_config.lua must be committed (parse config)"
+    assert config_lua_50.is_file(), "matrix_v1_0_50/bms20_parse_config.lua must exist"
+    assert config_lua_57.is_file(), "matrix_v1_0_57/bms20_parse_config.lua must exist"
     fault_text = fault_lua.read_text(encoding="utf-8")
-    enabled_text = config_lua.read_text(encoding="utf-8")
+    enabled_text = config_lua_57.read_text(encoding="utf-8")
     assert "function bms20_dissect_fault_payload" in fault_text
     assert "bms20_parse_segments" in enabled_text
     assert "bms20_fault_profile_enabled" not in enabled_text
     assert "RBMS_Fault" in enabled_text
-    assert "bms20_ensure_parse_index" in (PLUGIN_DIR / "bms20_payload.lua").read_text(
+    assert "bms20_ensure_parse_index" in (OUTPUT_DIR / "bms20_payload.lua").read_text(
         encoding="utf-8"
     )
     assert "tail_fields" in fault_text

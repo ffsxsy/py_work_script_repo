@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
 """Generate bms20_msg_map.lua from BMS2.0 LAN Matrix xlsx Message ID sheet."""
 
-from __future__ import annotations
-
 import argparse
 import re
+import sys
 import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Final
 
-TOOLS_ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = TOOLS_ROOT.parent
-PLUGIN_DIR = PROJECT_ROOT / "plugin"
-REFERENCES_DIR = PROJECT_ROOT / "docs" / "references"
-MATRIX_VERSION = "V1.0.50"
-MATRIX_XLSX_NAME = f"BMS2.0 LAN Matrix {MATRIX_VERSION}.xlsx"
-MATRIX_CANDIDATES = (
-    REFERENCES_DIR / MATRIX_XLSX_NAME,  # 本工具本地备份（优先）
-    PROJECT_ROOT.parent / "4.rbms_tcp_sim" / "docs" / MATRIX_XLSX_NAME,
+TOOLS_ROOT: Final[Path] = Path(__file__).resolve().parent
+if str(TOOLS_ROOT) not in sys.path:
+    sys.path.insert(0, str(TOOLS_ROOT))
+
+from matrix_registry import (  # noqa: E402, I001
+    DEFAULT_MATRIX_VERSION,
+    MatrixVersion,
+    plugin_matrix_dir,
+    resolve_matrix_xlsx as registry_resolve_matrix_xlsx,
 )
-XLSX = next((path for path in MATRIX_CANDIDATES if path.is_file()), None)
-OUT = PLUGIN_DIR / "bms20_msg_map.lua"
+
+PROJECT_ROOT: Final[Path] = TOOLS_ROOT.parent
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class MessageIdRow:
     name: str
     description: str
@@ -33,10 +33,10 @@ class MessageIdRow:
 
 
 def col_row(cell_ref: str) -> tuple[str, int]:
-    match = re.match(r"([A-Z]+)(\d+)", cell_ref)
-    if match is None:
+    matched = re.fullmatch(r"([A-Z]+)(\d+)", cell_ref)
+    if matched is None:
         raise ValueError(f"invalid cell ref: {cell_ref}")
-    return match.group(1), int(match.group(2))
+    return matched.group(1), int(matched.group(2))
 
 
 def col_to_idx(col: str) -> int:
@@ -48,20 +48,25 @@ def col_to_idx(col: str) -> int:
 
 def parse_hex(value: object) -> int:
     text = str(value).strip()
-    if text.startswith(("0x", "0X")):
-        return int(text, 16)
-    return int(float(text))
+    match text[:2].lower():
+        case "0x":
+            return int(text, 16)
+        case _:
+            return int(float(text))
 
 
 def display_label(name: str, description: str) -> str:
     desc = description.strip()
-    if name == "BBMS_CtlWord" and "所有Rack" in desc.replace(" ", ""):
-        return "BBMS_CtlWordAllRack"
-    if desc.startswith("读取") or desc.startswith("读取-"):
-        return f"{name} (Read)"
-    if desc.startswith("写入") or desc.startswith("写入-"):
-        return f"{name} (Write)"
-    return name
+    compact = desc.replace(" ", "")
+    match name:
+        case "BBMS_CtlWord" if "所有Rack" in compact:
+            return "BBMS_CtlWordAllRack"
+        case _ if desc.startswith("读取"):
+            return f"{name} (Read)"
+        case _ if desc.startswith("写入"):
+            return f"{name} (Write)"
+        case _:
+            return name
 
 
 def load_message_id_rows(xlsx_path: Path) -> list[MessageIdRow]:
@@ -153,33 +158,49 @@ def render_msg_map_lua(entries: list[MessageIdRow], matrix_name: str) -> str:
     return "\n".join(lines)
 
 
-def resolve_matrix_xlsx(explicit: Path | None = None) -> Path:
+def resolve_matrix_xlsx_path(
+    explicit: Path | None = None,
+    matrix_version: MatrixVersion | None = None,
+) -> Path:
     if explicit is not None:
         if not explicit.is_file():
             raise FileNotFoundError(f"LAN Matrix not found: {explicit}")
         return explicit
-    if XLSX is None or not XLSX.is_file():
-        raise FileNotFoundError(
-            f"LAN Matrix {MATRIX_XLSX_NAME} not found; expected one of: "
-            + ", ".join(str(path) for path in MATRIX_CANDIDATES)
-        )
-    return XLSX
+    return registry_resolve_matrix_xlsx(matrix_version or DEFAULT_MATRIX_VERSION)
+
+
+def resolve_matrix_xlsx(
+    explicit: Path | None = None,
+    matrix_version: MatrixVersion | None = None,
+) -> Path:
+    return resolve_matrix_xlsx_path(explicit, matrix_version)
+
+
+def output_path_for_version(matrix_version: MatrixVersion) -> Path:
+    return plugin_matrix_dir(matrix_version) / "bms20_msg_map.lua"
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate bms20_msg_map.lua from LAN Matrix")
     parser.add_argument(
+        "--matrix-version",
+        default=DEFAULT_MATRIX_VERSION,
+        help=f"LAN Matrix label (default: {DEFAULT_MATRIX_VERSION})",
+    )
+    parser.add_argument(
         "--xlsx",
         type=Path,
         default=None,
-        help=f"LAN Matrix xlsx path (default: {MATRIX_XLSX_NAME} only)",
+        help="LAN Matrix xlsx path (overrides --matrix-version)",
     )
     args = parser.parse_args()
 
-    matrix_xlsx = resolve_matrix_xlsx(args.xlsx)
+    matrix_xlsx = resolve_matrix_xlsx_path(args.xlsx, args.matrix_version)
+    out = output_path_for_version(args.matrix_version)
+    out.parent.mkdir(parents=True, exist_ok=True)
     entries = load_message_id_rows(matrix_xlsx)
-    OUT.write_text(render_msg_map_lua(entries, matrix_xlsx.name), encoding="utf-8")
-    print(f"Generated {len(entries)} entries -> {OUT} (from {matrix_xlsx.name})")
+    out.write_text(render_msg_map_lua(entries, matrix_xlsx.name), encoding="utf-8")
+    print(f"Generated {len(entries)} entries -> {out} (from {matrix_xlsx.name})")
 
 
 if __name__ == "__main__":

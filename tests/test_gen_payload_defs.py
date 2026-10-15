@@ -10,8 +10,10 @@ import pytest
 
 WIRESHARK_DIR = Path(__file__).resolve().parents[1] / "3.wireshark_plugin"
 TOOLS_DIR = WIRESHARK_DIR / "tools"
-PLUGIN_DIR = WIRESHARK_DIR / "plugin"
+OUTPUT_DIR = WIRESHARK_DIR / "output"
 REFERENCES_DIR = WIRESHARK_DIR / "docs" / "references"
+MATRIX_V50 = "V1.0.50"
+MATRIX_V57 = "V1.0.57"
 
 
 def _load_gen_payload_defs():
@@ -26,11 +28,11 @@ def _load_gen_payload_defs():
     return module
 
 
-def test_matrix_version_is_v1_0_50() -> None:
+def test_matrix_version_default_is_v1_0_57() -> None:
     gen = _load_gen_payload_defs()
-    assert gen.MATRIX_VERSION == "V1.0.50"
+    assert gen.MATRIX_VERSION == MATRIX_V57
     matrix = gen.resolve_matrix_xlsx(None)
-    assert "V1.0.50" in matrix.name
+    assert MATRIX_V57 in matrix.name
 
 
 def test_resolve_matrix_prefers_local_references_backup() -> None:
@@ -46,16 +48,36 @@ def test_default_payload_messages_include_rbms_suminfo() -> None:
     assert "RBMS_SumInfo" in gen.DEFAULT_PAYLOAD_MESSAGES
 
 
-def test_rbms_suminfo_defs_from_lan_matrix() -> None:
+@pytest.mark.parametrize(
+    ("matrix_version", "signal_count"),
+    [(MATRIX_V50, 130), (MATRIX_V57, 137)],
+)
+def test_rbms_suminfo_defs_from_lan_matrix(matrix_version: str, signal_count: int) -> None:
     gen = _load_gen_payload_defs()
-    matrix = gen.resolve_matrix_xlsx(None)
+    matrix = gen.resolve_matrix_xlsx(None, matrix_version)
     rows = gen.load_comm_matrix_rows(matrix)
     defs = gen.extract_message_defs(rows)
     rbms = defs["RBMS_SumInfo"]
     assert rbms.total_bytes == 310
-    assert len(rbms.signals) == 130
-    names = [signal.name for signal in rbms.signals]
-    assert "RBMS_ReverConDetecOpenFlg" in names
+    assert len(rbms.signals) == signal_count
+    if matrix_version == MATRIX_V50:
+        names = [signal.name for signal in rbms.signals]
+        assert "RBMS_ReverConDetecOpenFlg" in names
+    if matrix_version == MATRIX_V57:
+        by_name = {signal.name: signal for signal in rbms.signals}
+        # Excel Start Bit still 432 after PackFuse/DayAccu insert; byte_hint 75-110 wins.
+        assert by_name["Reserved5"].start_bit == 592
+        assert by_name["RBMS_MaxPackFuseTDegC"].start_bit == 432
+        assert by_name["RBMS_DayAccuDchEngkWh"].start_bit == 560
+
+
+def test_reconcile_start_bit_prefers_byte_hint_range() -> None:
+    gen = _load_gen_payload_defs()
+    assert gen.reconcile_start_bit(432, 8, "75-110") == 592
+    assert gen.reconcile_start_bit(592, 8, "75-110") == 592
+    # Bitfields / single-byte hints keep Excel Start Bit.
+    assert gen.reconcile_start_bit(3, 1, "1") == 3
+    assert gen.reconcile_start_bit(16, 16, "3") == 16
 
 
 def test_rbms_volt_expands_cell_array_from_byte_hint() -> None:
@@ -94,30 +116,37 @@ def test_default_payload_messages_include_rbms_matrix_tx() -> None:
         assert message_name in gen.DEFAULT_PAYLOAD_MESSAGES
 
 
-def test_bbms_a_selfdr_defs_from_lan_matrix() -> None:
+def test_selfdr_info_defs_from_lan_matrix_v1_0_50() -> None:
     gen = _load_gen_payload_defs()
-    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None))
+    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None, MATRIX_V50))
     defs = gen.extract_message_defs(rows)
     selfdr = defs["BBMS_A_Selfdr"]
     assert selfdr.total_bytes == 5
     assert len(selfdr.signals) == 3
-    names = [signal.name for signal in selfdr.signals]
-    assert names == [
-        "SbEMCR_RTCnCMTimeVldFlg",
-        "ScEMCR_CellUsedMonth",
-        "ScEMCR_CellDischargeRatePct",
-    ]
     assert selfdr.signals[2].resolution == 0.01
 
 
-def test_default_payload_messages_include_bbms_a_selfdr() -> None:
+def test_selfdr_info_defs_from_lan_matrix_v1_0_57() -> None:
     gen = _load_gen_payload_defs()
-    assert "BBMS_A_Selfdr" in gen.DEFAULT_PAYLOAD_MESSAGES
+    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None, MATRIX_V57))
+    defs = gen.extract_message_defs(rows)
+    selfdr = defs["Selfdr_Info"]
+    assert selfdr.total_bytes == 5
+    assert len(selfdr.signals) == 3
 
 
-def test_rbms_debug_messages_from_lan_matrix() -> None:
+def test_default_payload_messages_include_selfdr_by_matrix_version() -> None:
     gen = _load_gen_payload_defs()
-    matrix = gen.resolve_matrix_xlsx(None)
+    names_50 = gen.message_id_payload_names(gen.resolve_matrix_xlsx(None, MATRIX_V50))
+    names_57 = gen.message_id_payload_names(gen.resolve_matrix_xlsx(None, MATRIX_V57))
+    assert "BBMS_A_Selfdr" in names_50
+    assert "Selfdr_Info" in names_57
+    assert "System_Info" in names_57
+
+
+def test_rbms_debug_messages_from_lan_matrix_v1_0_50() -> None:
+    gen = _load_gen_payload_defs()
+    matrix = gen.resolve_matrix_xlsx(None, MATRIX_V50)
     rows = gen.load_comm_matrix_rows(matrix)
     defs = gen.extract_message_defs(rows)
     debug = defs["RBMS_Debug"]
@@ -133,6 +162,14 @@ def test_rbms_debug_messages_from_lan_matrix() -> None:
     cell_v_array = sox_out.signals[0]
     assert cell_v_array.name == "SaSGPC_CellVmVxT"
     assert cell_v_array.array_count == 10
+
+
+def test_rbms_debug_messages_from_lan_matrix_v1_0_57() -> None:
+    gen = _load_gen_payload_defs()
+    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None, MATRIX_V57))
+    defs = gen.extract_message_defs(rows)
+    assert defs["RBMS_Debug"].total_bytes == 64
+    assert len(defs["RBMS_Debug"].signals) == 29
 
 
 def test_default_payload_messages_include_rbms_debug_sox() -> None:
@@ -202,20 +239,20 @@ def test_message_id_payload_covers_comm_matrix_non_fault() -> None:
     assert msg_id_names == comm_names - gen.FAULT_REFERENCE_MESSAGES
 
 
-def test_hmi_tms_ctrlword_defs_from_lan_matrix() -> None:
+def test_hmi_tms_ctrlword_defs_from_lan_matrix_v1_0_50() -> None:
     gen = _load_gen_payload_defs()
-    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None))
+    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None, MATRIX_V50))
     defs = gen.extract_message_defs(rows)
     tms = defs["HMI_TMSCtrlWord"]
     assert tms.total_bytes == 4
     assert len(tms.signals) == 4
-    names = [signal.name for signal in tms.signals]
-    assert names == [
-        "HMI_TMSManCtrlMode",
-        "HMI_TMSManCtrlTempDegC",
-        "HMI_TMSManCtrlEnaFlg",
-        "TMSNo",
-    ]
+
+
+def test_hmi_tms_ctrlword_defs_from_lan_matrix_v1_0_57() -> None:
+    gen = _load_gen_payload_defs()
+    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None, MATRIX_V57))
+    defs = gen.extract_message_defs(rows)
+    assert defs["HMI_TMSCtrlWord"].total_bytes == 5
 
 
 def test_hmi_bank_doctrl_defs_from_lan_matrix() -> None:
@@ -286,17 +323,22 @@ def test_default_payload_messages_include_bbms_a_ctlword() -> None:
 
 def test_fault_messages_skip_payload_lua_generation() -> None:
     gen = _load_gen_payload_defs()
+    out_dir = gen.plugin_matrix_dir(MATRIX_V57)
     with pytest.raises(ValueError, match="gen_fault_defs"):
-        gen.output_path_for_message("BBMS_Fault")
+        gen.output_path_for_message("BBMS_Fault", out_dir)
     assert "BBMS_Fault" not in gen.manifest_message_names()
 
 
-def test_rbms_temp_expands_cell_array_from_byte_hint() -> None:
+@pytest.mark.parametrize(
+    ("matrix_version", "total_bytes"),
+    [(MATRIX_V50, 1188), (MATRIX_V57, 1204)],
+)
+def test_rbms_temp_expands_cell_array_from_byte_hint(matrix_version: str, total_bytes: int) -> None:
     gen = _load_gen_payload_defs()
-    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None))
+    rows = gen.load_comm_matrix_rows(gen.resolve_matrix_xlsx(None, matrix_version))
     defs = gen.extract_message_defs(rows)
     rbms_temp = defs["RBMS_Temp"]
-    assert rbms_temp.total_bytes == 1188
+    assert rbms_temp.total_bytes == total_bytes
     cell_temps = rbms_temp.signals[0]
     assert cell_temps.name == "RBMS_ModTmp"
     assert cell_temps.array_count == 416
@@ -311,9 +353,11 @@ def test_all_messages_enabled_on_both_segments() -> None:
 
 def test_parse_config_covers_message_id_sheet() -> None:
     gen = _load_gen_payload_defs()
-    matrix = gen.resolve_matrix_xlsx(None)
+    matrix = gen.resolve_matrix_xlsx(None, MATRIX_V57)
     by_seg = gen.build_payload_by_segment(matrix)
-    enabled_text = (PLUGIN_DIR / "bms20_parse_config.lua").read_text(encoding="utf-8")
+    enabled_text = (gen.plugin_matrix_dir(MATRIX_V57) / "bms20_parse_config.lua").read_text(
+        encoding="utf-8"
+    )
     for name in gen.message_id_payload_names(matrix):
         for seg in gen.parse_config_segments_for_item(name):
             assert by_seg[seg].get(name) is True

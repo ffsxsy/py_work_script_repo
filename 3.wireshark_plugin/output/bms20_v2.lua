@@ -37,14 +37,44 @@ local f_payload = ProtoField.bytes("bms20.payload", "Payload")
 local f_service_port = ProtoField.uint16("bms20.service_port", "Service Port", base.DEC)
 local f_rack_id = ProtoField.uint8("bms20.rack_id", "Rack ID", base.DEC)
 
-bms20_proto.fields = {
+-- Collect ProtoFields first; assign once before tcp.port registration (Wireshark requirement).
+local bms20_all_fields = {
     f_head, f_ver_len, f_version, f_len, f_crc, f_crc_valid,
     f_src, f_src_sub, f_dest, f_dest_sub,
     f_transport_type, f_frame_id, f_cmd_group, f_cmd_id, f_msg_name, f_payload,
     f_service_port, f_rack_id,
 }
 
+local function load_matrix_registry_for_prefs()
+    if type(bms20_matrix_versions) == "table" then
+        return
+    end
+    local src = debug.getinfo(1, "S").source
+    if src:sub(1, 1) == "@" then
+        src = src:sub(2)
+    end
+    local dir = src:match("^(.*[/\\])") or ""
+    pcall(dofile, dir .. "bms20_matrix_registry.lua")
+end
+
+load_matrix_registry_for_prefs()
+
+-- Wireshark 4.6 Pref.enum(label, default_value, description, enum_table, radio)
+-- enum_table entry: { display_index, display_name, value }; pref returns `value` (number)
+local matrix_pref_versions = bms20_matrix_versions or { "V1.0.50", "V1.0.57" }
+local matrix_pref_enum = {}
+for i, ver in ipairs(matrix_pref_versions) do
+    matrix_pref_enum[i] = { i, ver, i - 1 }
+end
+local matrix_pref_default_value = bms20_matrix_default_index or (#matrix_pref_versions - 1)
+
 bms20_proto.prefs.port = Pref.uint("TCP Port (BBMS)", BBMS_PORT, "Reference BBMS service port")
+bms20_proto.prefs.matrix_version = Pref.enum(
+    "LAN Matrix version",
+    matrix_pref_default_value,
+    "Comm Matrix package; reload Lua Plugins after change",
+    matrix_pref_enum,
+    false)
 bms20_proto.prefs.parse_payload = Pref.bool(
     "Parse Payload", true, "Expand Comm Matrix payload for enabled messages")
 bms20_proto.prefs.heuristic = Pref.bool(
@@ -150,7 +180,25 @@ local function resolve_display_msg_name(service_port, cmd_group, cmd_id, msg_nam
     return msg_name
 end
 
+local matrix_warn_shown = false
+
+local function ensure_matrix_or_warn(tree)
+    if type(bms20_ensure_matrix_package) ~= "function" then
+        return
+    end
+    local ok, detail = bms20_ensure_matrix_package(bms20_proto)
+    if ok or matrix_warn_shown or tree == nil then
+        return
+    end
+    matrix_warn_shown = true
+    local why = bms20_matrix_last_error or detail or "matrix package missing"
+    tree:add_expert_info(PI_PROTOCOL, PI_WARN,
+        "BMS2.0: Matrix package not loaded — " .. tostring(why)
+            .. "; copy matrix_v1_0_* dirs beside plugin Lua and Reload")
+end
+
 local function dissect_one_frame(tvb, pinfo, tree, frame_index, service_port)
+    ensure_matrix_or_warn(tree)
     if tvb:len() < LINK_HEADER_LEN then
         return false, "Need more data for link header", LINK_HEADER_LEN - tvb:len()
     end
@@ -300,6 +348,24 @@ local function dissect_one_frame(tvb, pinfo, tree, frame_index, service_port)
     return true, nil, total_frame_len
 end
 
+local function request_tcp_desegment(pinfo, tree, offset, need_len, why)
+    -- Both offset and len are required; omitting desegment_offset breaks multi-PDU TCP segments.
+    if pinfo.can_desegment ~= nil and pinfo.can_desegment > 0 then
+        pinfo.desegment_offset = offset
+        pinfo.desegment_len = need_len
+        return true
+    end
+    if tree ~= nil then
+        tree:add_expert_info(PI_REASSEMBLE, PI_WARN,
+            string.format(
+                "BMS2.0: %s at offset %d (need %s more B); enable TCP Allow subdissector to reassemble streams",
+                why or "truncated frame",
+                offset,
+                need_len == DESEGMENT_ONE_MORE_SEGMENT and ">=1" or tostring(need_len)))
+    end
+    return false
+end
+
 local function dissect_buffer(tvb, pinfo, tree)
     local service_port = resolve_service_port(pinfo)
     local offset = 0
@@ -308,7 +374,8 @@ local function dissect_buffer(tvb, pinfo, tree)
     while offset < tvb:len() do
         local remaining = tvb:len() - offset
         if remaining < LINK_HEADER_LEN then
-            pinfo.desegment_len = DESEGMENT_ONE_MORE_SEGMENT
+            request_tcp_desegment(
+                pinfo, tree, offset, DESEGMENT_ONE_MORE_SEGMENT, "incomplete link header")
             return
         end
         if tvb(offset, 1):uint() ~= HEAD_MAGIC then
@@ -318,7 +385,8 @@ local function dissect_buffer(tvb, pinfo, tree)
             break
         end
         if remaining < 3 then
-            pinfo.desegment_len = DESEGMENT_ONE_MORE_SEGMENT
+            request_tcp_desegment(
+                pinfo, tree, offset, DESEGMENT_ONE_MORE_SEGMENT, "incomplete ver/len")
             return
         end
 
@@ -336,7 +404,9 @@ local function dissect_buffer(tvb, pinfo, tree)
 
         local frame_len = LINK_HEADER_LEN + datalen
         if remaining < frame_len then
-            pinfo.desegment_len = frame_len - remaining
+            request_tcp_desegment(
+                pinfo, tree, offset, frame_len - remaining,
+                string.format("truncated PDU (have %u / need %u)", remaining, frame_len))
             return
         end
 
@@ -345,7 +415,7 @@ local function dissect_buffer(tvb, pinfo, tree)
             tvb(offset, frame_len), pinfo, tree, frame_index, service_port)
         if not ok then
             if need then
-                pinfo.desegment_len = need
+                request_tcp_desegment(pinfo, tree, offset, need, err or "need more data")
             else
                 tree:add_expert_info(PI_MALFORMED, PI_ERROR,
                     string.format("BMS2.0: %s at offset %d", err or "parse error", offset))
@@ -358,6 +428,7 @@ local function dissect_buffer(tvb, pinfo, tree)
 end
 
 function bms20_proto.dissector(tvb, pinfo, tree)
+    ensure_matrix_or_warn(tree)
     dissect_buffer(tvb, pinfo, tree)
 end
 
@@ -376,6 +447,15 @@ local function heuristic_checker(tvb, pinfo, tree)
     return true
 end
 
+-- Payload shared fields + matrix load must run before proto.fields assignment / port bind.
+if type(bms20_payload_append_fields) == "function" then
+    bms20_payload_append_fields(bms20_all_fields)
+end
+if type(bms20_payload_init) == "function" then
+    bms20_payload_init(bms20_proto)
+end
+bms20_proto.fields = bms20_all_fields
+
 local tcp_port_table = DissectorTable.get("tcp.port")
 tcp_port_table:add(HMI_PORT, bms20_proto)
 tcp_port_table:add(BBMS_PORT, bms20_proto)
@@ -383,7 +463,3 @@ for rack_id = 1, RBMS_PORT_COUNT do
     tcp_port_table:add(RBMS_PORT_BASE + rack_id - 1, bms20_proto)
 end
 bms20_proto:register_heuristic("tcp", heuristic_checker)
-
-if type(bms20_payload_init) == "function" then
-    bms20_payload_init(bms20_proto)
-end

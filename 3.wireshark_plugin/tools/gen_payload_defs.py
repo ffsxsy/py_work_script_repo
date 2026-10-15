@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Generate Lua payload definition files from BMS2.0 LAN Matrix Comm Matrix sheet."""
 
-from __future__ import annotations
-
 import argparse
 import importlib.util
 import re
@@ -11,35 +9,42 @@ import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Final
 
-TOOLS_ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = TOOLS_ROOT.parent
-PLUGIN_DIR = PROJECT_ROOT / "plugin"
-REFERENCES_DIR = PROJECT_ROOT / "docs" / "references"
-MATRIX_VERSION = "V1.0.50"
-MATRIX_XLSX_NAME = f"BMS2.0 LAN Matrix {MATRIX_VERSION}.xlsx"
-MATRIX_CANDIDATES = (
-    REFERENCES_DIR / MATRIX_XLSX_NAME,  # 本工具本地备份（优先）
-    PROJECT_ROOT.parent / "4.rbms_tcp_sim" / "docs" / MATRIX_XLSX_NAME,
+TOOLS_ROOT: Final[Path] = Path(__file__).resolve().parent
+if str(TOOLS_ROOT) not in sys.path:
+    sys.path.insert(0, str(TOOLS_ROOT))
+
+from matrix_registry import (  # noqa: E402, I001
+    DEFAULT_MATRIX_VERSION,
+    MatrixVersion,
+    plugin_matrix_dir,
+    resolve_matrix_xlsx as resolve_matrix_xlsx_for_version,
 )
-XLSX = next((path for path in MATRIX_CANDIDATES if path.is_file()), None)
-NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-ARRAY_NAME_RE = re.compile(r"^(.+)\[(\d+)\]$")
-BRACKET_SUFFIX_RE = re.compile(r"^(.+)\[[^\]]+\]$")
-BYTE_HINT_RANGE_RE = re.compile(r"^(\d+)-(\d+)$")
 
-FAULT_REFERENCE_MESSAGES = frozenset({"BBMS_Fault", "RBMS_Fault", "BBMS_A_Fault"})
-FAULT_PAYLOAD_GEN_HINT = (
+PROJECT_ROOT: Final[Path] = TOOLS_ROOT.parent
+OUTPUT_DIR: Final[Path] = PROJECT_ROOT / "output"
+MATRIX_VERSION: Final[MatrixVersion] = DEFAULT_MATRIX_VERSION
+MATRIX_XLSX_NAME: Final[str] = f"BMS2.0 LAN Matrix {MATRIX_VERSION}.xlsx"
+NS: Final = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+ARRAY_NAME_RE: Final = re.compile(r"^(.+)\[(\d+)\]$")
+BRACKET_SUFFIX_RE: Final = re.compile(r"^(.+)\[[^\]]+\]$")
+BYTE_HINT_RANGE_RE: Final = re.compile(r"^(\d+)-(\d+)$")
+
+FAULT_REFERENCE_MESSAGES: Final[frozenset[str]] = frozenset(
+    {"BBMS_Fault", "RBMS_Fault", "BBMS_A_Fault"}
+)
+FAULT_PAYLOAD_GEN_HINT: Final[str] = (
     "故障位图请用 gen_fault_defs.py 生成 bms20_fault_defs.lua，运行时解析见 bms20_fault.lua"
 )
 # Message ID 表名 → bms20_fault_profiles 的 profile_key
-FAULT_MESSAGE_ID_TO_PROFILE: dict[str, str] = {
+FAULT_MESSAGE_ID_TO_PROFILE: Final[dict[str, str]] = {
     "BBMS_Fault": "BBMS_Fault_M",
     "RBMS_Fault": "RBMS_Fault",
     "BBMS_A_Fault": "BBMS_A_Fault",
 }
-FAULT_PROFILE_KEYS = frozenset(FAULT_MESSAGE_ID_TO_PROFILE.values())
-PARSE_SEGMENT_KEYS = ("hmi_bbms", "bbms_rbms")
+FAULT_PROFILE_KEYS: Final[frozenset[str]] = frozenset(FAULT_MESSAGE_ID_TO_PROFILE.values())
+PARSE_SEGMENT_KEYS: Final[tuple[str, ...]] = ("hmi_bbms", "bbms_rbms")
 
 # xlsx 不可用时的回退（与 V1.0.50 Message ID 非故障项一致）
 _FALLBACK_PAYLOAD_MESSAGES: tuple[str, ...] = (
@@ -167,7 +172,7 @@ def _load_default_payload_messages() -> list[str]:
 DEFAULT_PAYLOAD_MESSAGES: list[str] = []
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class SignalDef:
     name: str
     description: str
@@ -180,7 +185,7 @@ class SignalDef:
     signed: bool = False
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class MessagePayloadDef:
     message_name: str
     total_bytes: int
@@ -233,6 +238,35 @@ def array_count_from_byte_hint(byte_hint: str, bit_length: int) -> int:
     if byte_span % element_bytes != 0:
         return 0
     return byte_span // element_bytes
+
+
+def start_bit_from_byte_hint(byte_hint: str) -> int | None:
+    """Byte index in Matrix hints is 1-based; bit 0 is the first bit of byte 1."""
+    text = byte_hint.strip()
+    range_match = BYTE_HINT_RANGE_RE.match(text)
+    if range_match is not None:
+        return (int(range_match.group(1)) - 1) * 8
+    one_match = re.fullmatch(r"(\d+)", text)
+    if one_match is not None:
+        return (int(one_match.group(1)) - 1) * 8
+    return None
+
+
+def reconcile_start_bit(excel_start_bit: int, bit_length: int, byte_hint: str) -> int:
+    """Prefer byte_hint when Excel Start Bit disagrees on a byte-aligned multi-byte span.
+
+    Common Matrix edit error: inserting signals into a former Reserved block but leaving
+    the Reserved row's Start Bit unchanged (e.g. RBMS_SumInfo.Reserved5 in V1.0.57).
+    Do not override bitfield packing (non byte-aligned start or bit_length).
+    """
+    hint_start = start_bit_from_byte_hint(byte_hint)
+    if hint_start is None or hint_start == excel_start_bit:
+        return excel_start_bit
+    if BYTE_HINT_RANGE_RE.match(byte_hint.strip()) is None:
+        return excel_start_bit
+    if excel_start_bit % 8 != 0 or bit_length % 8 != 0 or bit_length <= 0:
+        return excel_start_bit
+    return hint_start
 
 
 def strip_bracket_suffix(signal_name: str) -> str:
@@ -351,11 +385,13 @@ def extract_message_defs(rows: dict[int, dict[int, object]]) -> dict[str, Messag
         else:
             field_name = strip_bracket_suffix(signal_name)
             array_count = array_count_from_byte_hint(byte_hint, bit_length)
+        excel_start_bit = parse_int(cols.get(5, ""), 0)
+        start_bit = reconcile_start_bit(excel_start_bit, bit_length, byte_hint)
         current_signals.append(
             SignalDef(
                 name=field_name,
                 description=description,
-                start_bit=parse_int(cols.get(5, ""), 0),
+                start_bit=start_bit,
                 bit_length=bit_length,
                 resolution=parse_number(cols.get(7, ""), 1.0),
                 offset=offset,
@@ -413,28 +449,26 @@ def render_message_lua(message: MessagePayloadDef) -> str:
     return "\n".join(lines)
 
 
-def resolve_matrix_xlsx(explicit: Path | None = None) -> Path:
+def resolve_matrix_xlsx(
+    explicit: Path | None = None,
+    matrix_version: MatrixVersion | None = None,
+) -> Path:
     if explicit is not None:
         if not explicit.is_file():
             raise FileNotFoundError(f"LAN Matrix not found: {explicit}")
         return explicit
-    if XLSX is None or not XLSX.is_file():
-        raise FileNotFoundError(
-            f"LAN Matrix {MATRIX_XLSX_NAME} not found; expected one of: "
-            + ", ".join(str(path) for path in MATRIX_CANDIDATES)
-        )
-    return XLSX
+    return resolve_matrix_xlsx_for_version(matrix_version or DEFAULT_MATRIX_VERSION)
 
 
 DEFAULT_PAYLOAD_MESSAGES = _load_default_payload_messages()
 
 
-def output_path_for_message(message_name: str) -> Path:
+def output_path_for_message(message_name: str, out_dir: Path) -> Path:
     if message_name in FAULT_REFERENCE_MESSAGES:
         msg = f"{message_name!r}: {FAULT_PAYLOAD_GEN_HINT}"
         raise ValueError(msg)
     safe = message_name.replace(" ", "_")
-    return PLUGIN_DIR / f"bms20_payload_{safe}.lua"
+    return out_dir / f"bms20_payload_{safe}.lua"
 
 
 def manifest_message_names() -> list[str]:
@@ -445,28 +479,29 @@ def manifest_message_names() -> list[str]:
     return names
 
 
-def render_payload_manifest_lua() -> str:
+def render_payload_manifest_lua(message_names: list[str] | None = None) -> str:
+    names = message_names if message_names is not None else manifest_message_names()
     lines = [
         "-- Auto-generated payload def loader manifest",
         "-- Regenerate: python3 gen_payload_defs.py --default-set",
         "",
         "return {",
     ]
-    for message_name in manifest_message_names():
+    for message_name in names:
         safe = message_name.replace(" ", "_")
         lines.append(f'    "bms20_payload_{safe}.lua",')
     lines.extend(["}", ""])
     return "\n".join(lines)
 
 
-def write_payload_manifest() -> Path:
-    manifest_path = PLUGIN_DIR / "bms20_payload_manifest.lua"
-    manifest_path.write_text(render_payload_manifest_lua(), encoding="utf-8")
+def write_payload_manifest(out_dir: Path, message_names: list[str] | None = None) -> Path:
+    manifest_path = out_dir / "bms20_payload_manifest.lua"
+    manifest_path.write_text(render_payload_manifest_lua(message_names), encoding="utf-8")
     return manifest_path
 
 
-def write_parse_config(xlsx_path: Path) -> Path:
-    config_path = PLUGIN_DIR / "bms20_parse_config.lua"
+def write_parse_config(xlsx_path: Path, out_dir: Path) -> Path:
+    config_path = out_dir / "bms20_parse_config.lua"
     config_path.write_text(render_parse_config_lua(xlsx_path), encoding="utf-8")
     return config_path
 
@@ -486,14 +521,21 @@ def main() -> None:
         help="Generate default enabled payload messages",
     )
     parser.add_argument(
+        "--matrix-version",
+        default=DEFAULT_MATRIX_VERSION,
+        help=f"LAN Matrix label (default: {DEFAULT_MATRIX_VERSION})",
+    )
+    parser.add_argument(
         "--xlsx",
         type=Path,
         default=None,
-        help=f"LAN Matrix xlsx path (default: {MATRIX_XLSX_NAME} only)",
+        help=f"LAN Matrix xlsx path (default: {MATRIX_XLSX_NAME})",
     )
     args = parser.parse_args()
 
-    matrix_xlsx = resolve_matrix_xlsx(args.xlsx)
+    matrix_xlsx = resolve_matrix_xlsx(args.xlsx, args.matrix_version)
+    out_dir = plugin_matrix_dir(args.matrix_version)
+    out_dir.mkdir(parents=True, exist_ok=True)
     rows = load_comm_matrix_rows(matrix_xlsx)
     all_defs = extract_message_defs(rows)
 
@@ -509,6 +551,7 @@ def main() -> None:
     else:
         selected = list(DEFAULT_PAYLOAD_MESSAGES)
 
+    manifest_names: list[str] = []
     for message_name in selected:
         if message_name in FAULT_REFERENCE_MESSAGES:
             print(f"Skip {message_name!r}: {FAULT_PAYLOAD_GEN_HINT}")
@@ -517,16 +560,17 @@ def main() -> None:
             known = ", ".join(sorted(all_defs.keys())[:8])
             raise SystemExit(f"Unknown message {message_name!r}. Examples: {known} ...")
         payload = all_defs[message_name]
-        out_path = output_path_for_message(message_name)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path = output_path_for_message(message_name, out_dir)
         out_path.write_text(render_message_lua(payload), encoding="utf-8")
+        manifest_names.append(message_name)
         print(f"Generated {len(payload.signals)} signals -> {out_path} (from {matrix_xlsx.name})")
 
-    manifest_path = write_payload_manifest()
-    print(f"Updated payload manifest -> {manifest_path}")
+    if args.default_set or args.all or args.messages:
+        manifest_path = write_payload_manifest(out_dir, manifest_names)
+        print(f"Updated payload manifest -> {manifest_path}")
 
     if args.default_set:
-        config_path = write_parse_config(matrix_xlsx)
+        config_path = write_parse_config(matrix_xlsx, out_dir)
         row_count = len(load_message_id_rows(matrix_xlsx))
         print(f"Updated parse config -> {config_path} ({row_count} Message ID rows)")
 

@@ -1,4 +1,4 @@
-"""Sanity checks for 3.wireshark_plugin/plugin/bms20_generic_cmd.lua."""
+"""Sanity checks for 3.wireshark_plugin/output/bms20_generic_cmd.lua."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 GENERIC_CMD_LUA = (
-    Path(__file__).resolve().parents[1] / "3.wireshark_plugin" / "plugin" / "bms20_generic_cmd.lua"
+    Path(__file__).resolve().parents[1] / "3.wireshark_plugin" / "output" / "bms20_generic_cmd.lua"
 )
 
 EXPECTED_CMDS: dict[int, str] = {
@@ -44,7 +44,7 @@ def test_generic_cmd_lua_contains_all_sixteen_commands() -> None:
 
 def test_bms20_v2_integrates_generic_cmd() -> None:
     v2 = (
-        Path(__file__).resolve().parents[1] / "3.wireshark_plugin" / "plugin" / "bms20_v2.lua"
+        Path(__file__).resolve().parents[1] / "3.wireshark_plugin" / "output" / "bms20_v2.lua"
     ).read_text(encoding="utf-8")
     assert "bms20_lookup_generic_msg_name" in v2
     assert "bms20_dissect_generic_cmd" in v2
